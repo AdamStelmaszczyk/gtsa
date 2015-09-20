@@ -1,5 +1,4 @@
 class Algorithm(object):
-
     def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
@@ -18,7 +17,6 @@ class Algorithm(object):
 
 
 class Minimax(Algorithm):
-
     def __init__(self, our_symbol, enemy_symbol, max_depth):
         super(Minimax, self).__init__(our_symbol, enemy_symbol)
         self.max_depth = max_depth
@@ -62,7 +60,6 @@ class Minimax(Algorithm):
 
 
 class State(object):
-
     def get_goodness(self, current_player, next_player):
         raise NotImplementedError("Implement get_goodness in State subclass")
 
@@ -86,12 +83,13 @@ class State(object):
 
 
 class Move(object):
-
     def __repr__(self):
         raise NotImplementedError("Implement __repr__ in Move subclass")
 
+    def __eq__(self, other):
+        raise NotImplementedError("Implement __eq__ in Move subclass")
+
 
 class MoveReader(object):
-
     def read(self):
         raise NotImplementedError("Implement read in MoveReader subclass")

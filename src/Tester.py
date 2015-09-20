@@ -1,5 +1,4 @@
 class Tester(object):
-
     def __init__(self, state, algorithm_1, algorithm_2):
         self.state = state
         self.algorithm_1 = algorithm_1

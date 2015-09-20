@@ -9,7 +9,6 @@ EMPTY = '_'
 
 
 class TicTacToeState(State):
-
     def __init__(self, side):
         super(TicTacToeState, self).__init__()
         self.side = side
@@ -93,7 +92,6 @@ class TicTacToeState(State):
 
 
 class TicTacToeMove(Move):
-
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -112,7 +110,6 @@ class TicTacToeMove(Move):
 
 
 class TicTacToeMoveReader(MoveReader):
-
     def read(self):
         x, y = map(int, raw_input("Enter space separated X and Y of your move: ").split())
         return TicTacToeMove(x, y)

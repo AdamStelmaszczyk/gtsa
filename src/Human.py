@@ -2,7 +2,6 @@ from Algorithm import Algorithm
 
 
 class Human(Algorithm):
-
     def __init__(self, our_symbol, enemy_symbol, move_reader):
         super(Human, self).__init__(our_symbol, enemy_symbol)
         self.move_reader = move_reader
