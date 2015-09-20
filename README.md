@@ -1,2 +1,1 @@
-# gtsa
-Game Tree Search Algorithms
+# Game Tree Search Algorithms (GTSA)
