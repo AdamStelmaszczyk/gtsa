@@ -17,34 +17,34 @@ The player who cannot make any move loses the game.
 
 Input 
 ---
-The input is an 7x7 matrix consisting only of `0`, `1`, `2` and `-`. Then another line follows with `1` or `2`, which is your player id.
+The input is an 7x7 matrix consisting only of `_`, `1`, `2` and `#`. Then another line follows with `1` or `2`, which is your player id.
 
 In the given matrix, top-left is (0, 0) and bottom-right is (6, 6). The x-coordinate increases from top to bottom, and y-coordinate increases from left to right.
 
-The cell marked `0` means it contains an empty square. The cell marked `1` means it contains player 1's piece. The cell marked `2` means it contains player 2's piece. The cell marked `-` means it doesn't contain the square.
+The cell marked `_` means it contains an empty square. The cell marked `1` means it contains player 1's piece. The cell marked `2` means it contains player 2's piece. The cell marked `#` means it doesn't contain the square.
 
 Starting state
 ---
 ```
-0 0 0 2 0 0 0
-0 0 0 0 0 0 0
-0 0 0 0 0 0 0
-0 0 0 0 0 0 0
-0 0 0 0 0 0 0
-0 0 0 0 0 0 0
-0 0 0 1 0 0 0
+___2___
+_______
+_______
+_______
+_______
+_______
+___1___
 ```
 
 Sample input
 ---
 ```
-0 0 0 2 0 0 0
-0 0 0 0 0 0 0
-0 0 0 - 0 0 0
-0 0 0 0 0 0 0
-0 0 0 0 0 0 0
-0 0 0 1 0 0 0
-0 0 0 0 0 0 0
+___2___
+_______
+___#___
+_______
+_______
+___1___
+_______
 2
 ```
 
