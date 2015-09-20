@@ -7,7 +7,7 @@ class Human(Algorithm):
         self.move_reader = move_reader
 
     def get_move(self, state):
-        legal_moves = state.get_legal_moves()
+        legal_moves = state.get_legal_moves(self.our_symbol)
         if not legal_moves:
             raise ValueError("Given state is terminal")
         move = self.move_reader.read()

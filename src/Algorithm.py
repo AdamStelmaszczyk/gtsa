@@ -22,7 +22,7 @@ class Minimax(Algorithm):
         self.max_depth = max_depth
 
     def get_move(self, state):
-        legal_moves = state.get_legal_moves()
+        legal_moves = state.get_legal_moves(self.our_symbol)
         if not legal_moves:
             raise ValueError("Given state is terminal")
         best_move = None
@@ -37,7 +37,7 @@ class Minimax(Algorithm):
         return best_move
 
     def _minimax(self, state, depth, our_symbol):
-        legal_moves = state.get_legal_moves()
+        legal_moves = state.get_legal_moves(our_symbol)
         if depth <= 0 or state.is_terminal(self.our_symbol, self.enemy_symbol):
             return state.get_goodness(self.our_symbol, self.enemy_symbol)
         if our_symbol == self.our_symbol:
@@ -63,7 +63,7 @@ class State(object):
     def get_goodness(self, current_player, next_player):
         raise NotImplementedError("Implement get_goodness in State subclass")
 
-    def get_legal_moves(self):
+    def get_legal_moves(self, player):
         raise NotImplementedError("Implement get_legal_moves in State subclass")
 
     def make_move(self, move, player):
