@@ -1,5 +1,7 @@
 # [Tic Tac Toe](https://en.wikipedia.org/wiki/Tic-tac-toe)
 
+Also known as: Noughts and Crosses, Xs and Os.
+
 Tic Tac Toe is a pencil-and-paper game for two players, X and O, who take turns marking the spaces in a 3x3 grid. The player who succeeds in placing three respective marks in a horizontal, vertical, or diagonal row wins the game.
 
 <p align="center">
