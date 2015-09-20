@@ -1,5 +1,4 @@
-from Algorithm import State, Minimax, Move, MoveReader
-from Human import Human
+from Algorithm import State, Minimax, Move, MoveReader, Human
 from Tester import Tester
 
 
