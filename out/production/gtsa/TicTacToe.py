@@ -1,0 +1,128 @@
+from Algorithm import State, Minimax, Move, MoveReader
+from Tester import Tester
+
+
+SIDE = 3
+PLAYER_1 = 'X'
+PLAYER_2 = 'O'
+EMPTY = '_'
+
+
+class TicTacToeState(State):
+
+    def __init__(self, side):
+        super(TicTacToeState, self).__init__()
+        self.side = side
+        self.board = [[EMPTY for _ in xrange(side)] for _ in xrange(side)]
+        self.lines = []
+        for y in xrange(side):
+            row = tuple((x, y) for x in xrange(side))
+            self.lines.append(row)
+        for x in xrange(side):
+            col = tuple((x, y) for y in xrange(side))
+            self.lines.append(col)
+        self.lines.append(tuple((x, x) for x in xrange(side)))
+        self.lines.append(tuple((side - x - 1, x) for x in range(side)))
+
+    def get_goodness(self, current_player, next_player):
+        goodness = 0
+        counts = self.count_players_on_lines(current_player, next_player)
+        for count in counts:
+            if count[0] == 3:
+                goodness += self.side ** 2
+            elif count[1] == 3:
+                goodness -= self.side ** 2
+            elif count[0] == 2 and count[1] == 0:
+                goodness += self.side
+            elif count[1] == 2 and count[0] == 0:
+                goodness -= self.side
+            elif count[0] == 1 and count[1] == 0:
+                goodness += 1
+            elif count[1] == 1 and count[0] == 0:
+                goodness -= 1
+        return goodness
+
+    def count_players_on_lines(self, current_player, next_player):
+        counts = []
+        for line in self.lines:
+            player_places = 0
+            enemy_places = 0
+            for (x, y) in line:
+                if self.board[y][x] == current_player:
+                    player_places += 1
+                elif self.board[y][x] == next_player:
+                    enemy_places += 1
+            counts.append((player_places, enemy_places))
+        return counts
+
+    def get_legal_moves(self):
+        legal_moves = []
+        for y in xrange(self.side):
+            for x in xrange(self.side):
+                if self.board[y][x] == EMPTY:
+                    legal_moves.append(TicTacToeMove(x, y))
+        return legal_moves
+
+    def make_move(self, move, player):
+        self.board[move.get_y()][move.get_x()] = player
+
+    def undo_move(self, move):
+        self.board[move.get_y()][move.get_x()] = EMPTY
+
+    def set_state(self, string):
+        correct_length = self.side ** 2
+        if len(string) != correct_length:
+            raise ValueError("Initialization string length must be {}".format(correct_length))
+        for i, char in enumerate(string):
+            x = i % self.side
+            y = i / self.side
+            self.board[y][x] = char
+
+    def is_terminal(self, current_player, next_player):
+        legal_moves = self.get_legal_moves()
+        if not legal_moves:
+            return True
+        counts = self.count_players_on_lines(current_player, next_player)
+        for count in counts:
+            if count[0] == 3 or count[1] == 3:
+                return True
+        return False
+
+    def __repr__(self):
+        return '\n'.join(['|'.join(row) for row in self.board]) + '\n'
+
+
+class TicTacToeMove(Move):
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def get_x(self):
+        return self.x
+
+    def get_y(self):
+        return self.y
+
+    def __repr__(self):
+        return "{} {}".format(self.x, self.y)
+
+    def __eq__(self, other):
+        return self.x == other.x and self.y == other.y
+
+
+class TicTacToeMoveReader(MoveReader):
+
+    def read(self):
+        x, y = map(int, raw_input("Enter space separated X and Y of your move: ").split())
+        return TicTacToeMove(x, y)
+
+
+state = TicTacToeState(SIDE)
+state.set_state("_________")
+
+algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1)
+algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1)
+
+tester = Tester(state, algorithm_1, algorithm_2)
+tester.start()
