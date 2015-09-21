@@ -6,7 +6,7 @@ Usage
 ---
 
 1. Specify game rules by subclassing `State` and `Move`. 
-2. Create AI players with already implemented algorithms. You can also play by yourself (`Human` class).
+2. Create AI players with chosen algorithms. You can also play by yourself (`Human` class).
 3. Read the board state and output the move (typical for programming contests). 
 Alternatively, use `Tester` to play the whole match (typical for local testing).
 
