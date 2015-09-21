@@ -42,17 +42,17 @@ class TicTacToeState(State):
         return goodness
 
     def get_legal_moves(self, player):
-        legal_moves = []
+        legal_moves = set()
         for y in xrange(self.side):
             for x in xrange(self.side):
                 if self.board[y][x] == EMPTY:
-                    legal_moves.append(TicTacToeMove(x, y))
+                    legal_moves.add(TicTacToeMove(x, y))
         return legal_moves
 
     def make_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = player
 
-    def undo_move(self, move):
+    def undo_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = EMPTY
 
     def set_state(self, string):
@@ -108,6 +108,12 @@ class TicTacToeMove(Move):
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 
+    def __ne__(self, other):
+        return not self.__eq__(self, other)
+
+    def __hash__(self):
+        return self.y * SIDE + self.x
+
 
 class TicTacToeMoveReader(MoveReader):
     def read(self):
@@ -116,9 +122,11 @@ class TicTacToeMoveReader(MoveReader):
 
 
 state = TicTacToeState(SIDE)
-state.set_state("_________")
+state.set_state("___"
+                "___"
+                "___")
 
-algorithm_1 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader())
+algorithm_1 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
 algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1)
 
 tester = Tester(state, algorithm_1, algorithm_2)

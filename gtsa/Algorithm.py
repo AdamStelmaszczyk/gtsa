@@ -45,30 +45,30 @@ class Minimax(Algorithm):
         for move in legal_moves:
             state.make_move(move, self.our_symbol)
             goodness = self._minimax(state, self.max_depth, self.enemy_symbol)
-            state.undo_move(move)
+            state.undo_move(move, self.our_symbol)
             if best_goodness < goodness:
                 best_goodness = goodness
                 best_move = move
         return best_move
 
-    def _minimax(self, state, depth, our_symbol):
-        legal_moves = state.get_legal_moves(our_symbol)
+    def _minimax(self, state, depth, analyzed_player):
+        legal_moves = state.get_legal_moves(analyzed_player)
         if depth <= 0 or state.is_terminal(self.our_symbol, self.enemy_symbol):
             return state.get_goodness(self.our_symbol, self.enemy_symbol)
-        if our_symbol == self.our_symbol:
+        if analyzed_player == self.our_symbol:
             best_goodness = float('-inf')
             for move in legal_moves:
-                state.make_move(move, our_symbol)
+                state.make_move(move, analyzed_player)
                 goodness = self._minimax(state, depth - 1, self.enemy_symbol)
-                state.undo_move(move)
+                state.undo_move(move, analyzed_player)
                 if best_goodness < goodness:
                     best_goodness = goodness
         else:
             best_goodness = float('inf')
             for move in legal_moves:
-                state.make_move(move, our_symbol)
+                state.make_move(move, analyzed_player)
                 goodness = self._minimax(state, depth - 1, self.our_symbol)
-                state.undo_move(move)
+                state.undo_move(move, analyzed_player)
                 if best_goodness > goodness:
                     best_goodness = goodness
         return best_goodness
@@ -84,7 +84,7 @@ class State(object):
     def make_move(self, move, player):
         raise NotImplementedError("Implement make_move in State subclass")
 
-    def undo_move(self, move):
+    def undo_move(self, move, player):
         raise NotImplementedError("Implement undo_move in State subclass")
 
     def set_state(self, string):
@@ -106,5 +106,8 @@ class Move(object):
 
 
 class MoveReader(object):
+    def __init__(self, state):
+        self.state = state
+
     def read(self):
         raise NotImplementedError("Implement read in MoveReader subclass")
