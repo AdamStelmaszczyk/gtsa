@@ -5,4 +5,5 @@
 
 Planned games:
 
+- [Hex](https://www.hackerrank.com/challenges/hex)
 - [Checkers](https://www.hackerrank.com/challenges/checkers)
