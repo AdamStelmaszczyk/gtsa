@@ -1,4 +1,4 @@
-# [Tic Tac Toe](https://en.wikipedia.org/wiki/Tic-tac-toe)
+# [Tic Tac Toe](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/TicTacToe.py)
 
 Also known as: Noughts and Crosses, Xs and Os.
 
