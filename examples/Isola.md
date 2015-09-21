@@ -1,4 +1,4 @@
-# [Isola](https://en.wikipedia.org/wiki/Isola_(board_game))
+# [Isola](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/Isola.py)
 
 Also known as: Isolation, Stranded.
 
