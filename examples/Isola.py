@@ -1,5 +1,4 @@
-from Algorithm import State, Move, Minimax, Human, MoveReader
-from Tester import Tester
+from gtsa import State, Move, Minimax, Human, MoveReader, Tester
 
 
 SIDE = 5
