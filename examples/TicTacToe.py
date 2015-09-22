@@ -8,10 +8,19 @@ EMPTY = '_'
 
 
 class TicTacToeState(State):
-    def __init__(self, side):
+    def __init__(self, side, string):
         super(TicTacToeState, self).__init__()
         self.side = side
+
         self.board = [[EMPTY for _ in xrange(side)] for _ in xrange(side)]
+        correct_length = self.side ** 2
+        if len(string) != correct_length:
+            raise ValueError("Initialization string length must be {}".format(correct_length))
+        for i, char in enumerate(string):
+            x = i % self.side
+            y = i / self.side
+            self.board[y][x] = char
+
         self.lines = []
         for y in xrange(side):
             row = tuple((x, y) for x in xrange(side))
@@ -53,15 +62,6 @@ class TicTacToeState(State):
 
     def undo_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = EMPTY
-
-    def set_state(self, string):
-        correct_length = self.side ** 2
-        if len(string) != correct_length:
-            raise ValueError("Initialization string length must be {}".format(correct_length))
-        for i, char in enumerate(string):
-            x = i % self.side
-            y = i / self.side
-            self.board[y][x] = char
 
     def is_terminal(self, current_player, next_player):
         legal_moves = self.get_legal_moves(current_player)
@@ -120,10 +120,9 @@ class TicTacToeMoveReader(MoveReader):
         return TicTacToeMove(x, y)
 
 
-state = TicTacToeState(SIDE)
-state.set_state("___"
-                "___"
-                "___")
+state = TicTacToeState(SIDE, "___"
+                             "___"
+                             "___")
 
 algorithm_1 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
 algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1)

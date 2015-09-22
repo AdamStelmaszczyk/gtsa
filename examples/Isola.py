@@ -1,4 +1,4 @@
-from gtsa import State, Move, Minimax, Human, MoveReader, Tester
+from gtsa import State, Move, Minimax, MoveReader, Tester
 
 
 SIDE = 5
@@ -9,10 +9,21 @@ REMOVED = '#'
 
 
 class IsolaState(State):
-    def __init__(self, side):
+    def __init__(self, side, string):
         super(IsolaState, self).__init__()
         self.side = side
+
         self.board = [[' ' for _ in xrange(side)] for _ in xrange(side)]
+        correct_length = self.side ** 2
+        if len(string) != correct_length:
+            raise ValueError("Initialization string length must be {}".format(correct_length))
+        for i, char in enumerate(string):
+            x = i % self.side
+            y = i / self.side
+            self.board[y][x] = char
+
+        self.player_1_cords = self.find_player_cords(PLAYER_1)
+        self.player_2_cords = self.find_player_cords(PLAYER_2)
 
     def get_goodness(self, current_player, next_player):
         current_player_freedom = self.get_number_of_legal_moves(current_player)
@@ -59,20 +70,13 @@ class IsolaState(State):
         self.board[y][x] = EMPTY
         self.board[move.get_step_y()][move.get_step_x()] = player
         self.board[move.get_remove_y()][move.get_remove_x()] = REMOVED
+        self.set_player_cords(player, (move.get_step_x(), move.get_step_y()))
 
     def undo_move(self, move, player):
         self.board[move.get_remove_y()][move.get_remove_x()] = EMPTY
         self.board[move.get_from_y()][move.get_from_x()] = player
         self.board[move.get_step_y()][move.get_step_x()] = EMPTY
-
-    def set_state(self, string):
-        correct_length = self.side ** 2
-        if len(string) != correct_length:
-            raise ValueError("Initialization string length must be {}".format(correct_length))
-        for i, char in enumerate(string):
-            x = i % self.side
-            y = i / self.side
-            self.board[y][x] = char
+        self.set_player_cords(player, (move.get_from_x(), move.get_from_y()))
 
     def is_terminal(self, current_player, next_player):
         x, y = self.get_player_cords(current_player)
@@ -81,13 +85,21 @@ class IsolaState(State):
         next_player_legal_steps = self.get_legal_step_moves(x, y)
         return not current_player_legal_steps or not next_player_legal_steps
 
-    # TODO: optimization
-    def get_player_cords(self, player):
+    def find_player_cords(self, player):
         for y in xrange(self.side):
             for x in xrange(self.side):
                 if self.board[y][x] == player:
                     return x, y
         raise ValueError("No {} on the board:\n{}".format(player, self))
+
+    def get_player_cords(self, player):
+        return self.player_1_cords if player == PLAYER_1 else self.player_2_cords
+
+    def set_player_cords(self, player, cords):
+        if player == PLAYER_1:
+            self.player_1_cords = cords
+        else:
+            self.player_2_cords = cords
 
     def __repr__(self):
         return '\n'.join(['|'.join(row) for row in self.board]) + '\n'
@@ -141,12 +153,11 @@ class IsolaMoveReader(MoveReader):
         return IsolaMove(x, y, *user)
 
 
-state = IsolaState(SIDE)
-state.set_state("__2__"
-                "_____"
-                "_____"
-                "_____"
-                "__1__")
+state = IsolaState(SIDE, "__2__"
+                         "_____"
+                         "_____"
+                         "_____"
+                         "__1__")
 
 algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1)
 algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1)

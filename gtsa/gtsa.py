@@ -87,9 +87,6 @@ class State(object):
     def undo_move(self, move, player):
         raise NotImplementedError("Implement undo_move in State subclass")
 
-    def set_state(self, string):
-        raise NotImplementedError("Implement set_state in State subclass")
-
     def is_terminal(self, current_player, next_player):
         raise NotImplementedError("Implement is_terminal in State subclass")
 
