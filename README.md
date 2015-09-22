@@ -1,6 +1,6 @@
 # Game Tree Search Algorithms (GTSA)
 
-GTSA is a Python library providing algorithms useful in AI bot programming.
+Python library providing algorithms useful in AI bot programming.
 
 Usage
 ---
