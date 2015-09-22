@@ -17,8 +17,9 @@ Implemented algorithms:
 
 - [Minimax](https://en.wikipedia.org/wiki/Minimax)
 
-Planned algorithms:
+Planned:
 ---
 
 - [Alpha-beta](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning)
 - [Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
+- Neural networks
