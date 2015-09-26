@@ -1,4 +1,4 @@
-from gtsa import State, Minimax, Move, MoveReader, Tester, Human
+from gtsa.gtsa import State, Move, MoveReader, Human, Minimax, Tester
 
 
 SIDE = 3
@@ -129,12 +129,13 @@ class TicTacToeMoveReader(MoveReader):
         return TicTacToeMove(x, y)
 
 
-state = TicTacToeState(SIDE, "___"
-                             "___"
-                             "___")
+if __name__ == "__main__":
+    state = TicTacToeState(SIDE, "___"
+                                 "___"
+                                 "___")
 
-algorithm_1 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
-algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 10)
+    algorithm_1 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
+    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 10)
 
-tester = Tester(state, algorithm_1, algorithm_2)
-tester.start()
+    tester = Tester(state, algorithm_1, algorithm_2)
+    tester.start()

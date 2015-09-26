@@ -1,5 +1,6 @@
 import time
 
+
 class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol

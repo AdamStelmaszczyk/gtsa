@@ -1,4 +1,4 @@
-from gtsa import State, Move, Minimax, MoveReader, Tester
+from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester
 
 
 SIDE = 5
@@ -162,14 +162,15 @@ class IsolaMoveReader(MoveReader):
         return IsolaMove(x, y, *user)
 
 
-state = IsolaState(SIDE, "__2__"
-                         "_____"
-                         "_____"
-                         "_____"
-                         "__1__")
+if __name__ == "__main__":
+    state = IsolaState(SIDE, "__2__"
+                             "_____"
+                             "_____"
+                             "_____"
+                             "__1__")
 
-algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1)
-algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1)
+    algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1)
+    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1)
 
-tester = Tester(state, algorithm_1, algorithm_2)
-tester.start()
+    tester = Tester(state, algorithm_1, algorithm_2)
+    tester.start()
