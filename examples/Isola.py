@@ -18,6 +18,8 @@ class IsolaState(State):
         if len(string) != correct_length:
             raise ValueError("Initialization string length must be {}".format(correct_length))
         for i, char in enumerate(string):
+            if char not in [PLAYER_1, PLAYER_2, EMPTY, REMOVED]:
+                raise ValueError("Undefined symbol used: {}".format(char))
             x = i % self.side
             y = i // self.side
             self.board[y][x] = char
