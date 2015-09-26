@@ -1,4 +1,4 @@
-# Game Tree Search Algorithms (GTSA)
+# Game Tree Search Algorithms (GTSA) [![Build Status](https://travis-ci.org/AdamStelmaszczyk/gtsa.svg?branch=master)](https://travis-ci.org/AdamStelmaszczyk/gtsa)
 
 Python library providing algorithms useful in AI bot programming.
 
