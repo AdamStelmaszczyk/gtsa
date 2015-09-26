@@ -8,7 +8,7 @@ Usage
 1. Specify game rules by subclassing `State` and `Move`. 
 2. Create AI players with chosen algorithms. You can also play by yourself (`Human` class).
 3. Read the board state and output the move (typical for programming contests). 
-Alternatively, use `Tester` to play the whole match (typical for local testing).
+Alternatively, use `Tester` to play the whole game (typical for local testing).
 
 Check game [examples](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/README.md). 
 
