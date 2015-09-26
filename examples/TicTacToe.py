@@ -89,6 +89,15 @@ class TicTacToeState(State):
     def __repr__(self):
         return '\n'.join(['|'.join(row) for row in self.board]) + '\n'
 
+    def __eq__(self, other):
+        return self.board == other.board
+
+    def __ne__(self, other):
+        return not self.__eq__(self, other)
+
+    def __hash__(self):
+        return hash(tuple(tuple(row) for row in self.board))
+
 
 class TicTacToeMove(Move):
     def __init__(self, x, y):
@@ -124,8 +133,8 @@ state = TicTacToeState(SIDE, "___"
                              "___"
                              "___")
 
-algorithm_1 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
-algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1)
+algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 10)
+algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 10)
 
 tester = Tester(state, algorithm_1, algorithm_2)
 tester.start()

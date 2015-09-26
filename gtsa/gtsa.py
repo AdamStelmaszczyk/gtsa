@@ -2,6 +2,7 @@ class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
+        self.state_cache = {}
 
     def get_current_player(self):
         return self.our_symbol
@@ -11,6 +12,14 @@ class Algorithm(object):
 
     def get_move(self, state):
         raise NotImplementedError("Implement get_move in Algorithm subclass")
+
+    def get_cached_goodness(self, state):
+        key = hash(state)
+        return self.state_cache.get(key, None)
+
+    def set_cached_goodness(self, state, goodness):
+        key = hash(state)
+        self.state_cache[key] = goodness
 
     def __repr__(self):
         return "{} {}".format(self.our_symbol, self.enemy_symbol)
@@ -52,6 +61,9 @@ class Minimax(Algorithm):
         return best_move
 
     def _minimax(self, state, depth, analyzed_player):
+        cached_goodness = self.get_cached_goodness(state)
+        if cached_goodness:
+            return cached_goodness
         legal_moves = state.get_legal_moves(analyzed_player)
         if depth <= 0 or state.is_terminal(self.our_symbol, self.enemy_symbol):
             return state.get_goodness(self.our_symbol, self.enemy_symbol)
@@ -71,6 +83,7 @@ class Minimax(Algorithm):
                 state.undo_move(move, analyzed_player)
                 if best_goodness > goodness:
                     best_goodness = goodness
+        self.set_cached_goodness(state, best_goodness)
         return best_goodness
 
 
@@ -93,6 +106,15 @@ class State(object):
     def __repr__(self):
         raise NotImplementedError("Implement __repr__ in State subclass")
 
+    def __eq__(self, other):
+        raise NotImplementedError("Implement __eq__ in State subclass")
+
+    def __ne__(self, other):
+        raise NotImplementedError("Implement __ne__ in State subclass")
+
+    def __hash__(self):
+        raise NotImplementedError("Implement __hash__ in State subclass")
+
 
 class Move(object):
     def __repr__(self):
@@ -100,6 +122,12 @@ class Move(object):
 
     def __eq__(self, other):
         raise NotImplementedError("Implement __eq__ in Move subclass")
+
+    def __ne__(self, other):
+        raise NotImplementedError("Implement __ne__ in Move subclass")
+
+    def __hash__(self):
+        raise NotImplementedError("Implement __hash__ in State subclass")
 
 
 class MoveReader(object):

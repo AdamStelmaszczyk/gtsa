@@ -104,6 +104,15 @@ class IsolaState(State):
     def __repr__(self):
         return '\n'.join(['|'.join(row) for row in self.board]) + '\n'
 
+    def __eq__(self, other):
+        return self.board == other.board
+
+    def __ne__(self, other):
+        return not self.__eq__(self, other)
+
+    def __hash__(self):
+        return hash(tuple(tuple(row) for row in self.board))
+
 
 class IsolaMove(Move):
     def __init__(self, from_x, from_y, step_x, step_y, remove_x, remove_y):
