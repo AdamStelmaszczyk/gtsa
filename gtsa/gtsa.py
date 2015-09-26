@@ -1,3 +1,5 @@
+import time
+
 class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
@@ -138,6 +140,16 @@ class MoveReader(object):
         raise NotImplementedError("Implement read in MoveReader subclass")
 
 
+class Timer:
+
+    def __init__(self):
+        self.start = time.clock()
+
+    def stop(self):
+        seconds_elapsed = time.clock() - self.start
+        print "{0:.2f}s".format(seconds_elapsed)
+
+
 class Tester(object):
     def __init__(self, state, algorithm_1, algorithm_2):
         self.state = state
@@ -149,13 +161,17 @@ class Tester(object):
     def start(self):
         print self.state
         while True:
+            timer = Timer()
             move = self.algorithm_1.get_move(self.state)
+            timer.stop()
             self.state.make_move(move, self.player_1)
             print self.state
             if self.state.is_terminal(self.player_1, self.player_2):
                 break
 
+            timer = Timer()
             move = self.algorithm_2.get_move(self.state)
+            timer.stop()
             self.state.make_move(move, self.player_2)
             print self.state
             if self.state.is_terminal(self.player_2, self.player_1):
