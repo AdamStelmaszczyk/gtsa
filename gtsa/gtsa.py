@@ -148,7 +148,7 @@ class Timer:
 
     def stop(self):
         seconds_elapsed = time.clock() - self.start
-        print "{0:.2f}s".format(seconds_elapsed)
+        print("{0:.2f}s".format(seconds_elapsed))
 
 
 class Tester(object):
@@ -160,13 +160,13 @@ class Tester(object):
         self.player_2 = algorithm_2.get_current_player()
 
     def start(self):
-        print self.state
+        print(self.state)
         while True:
             timer = Timer()
             move = self.algorithm_1.get_move(self.state)
             timer.stop()
             self.state.make_move(move, self.player_1)
-            print self.state
+            print(self.state)
             if self.state.is_terminal(self.player_1, self.player_2):
                 break
 
@@ -174,6 +174,6 @@ class Tester(object):
             move = self.algorithm_2.get_move(self.state)
             timer.stop()
             self.state.make_move(move, self.player_2)
-            print self.state
+            print(self.state)
             if self.state.is_terminal(self.player_2, self.player_1):
                 break

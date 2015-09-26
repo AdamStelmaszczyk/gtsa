@@ -13,7 +13,7 @@ class IsolaState(State):
         super(IsolaState, self).__init__()
         self.side = side
 
-        self.board = [[' ' for _ in xrange(side)] for _ in xrange(side)]
+        self.board = [[' ' for _ in range(side)] for _ in range(side)]
         correct_length = self.side ** 2
         if len(string) != correct_length:
             raise ValueError("Initialization string length must be {}".format(correct_length))
@@ -47,8 +47,8 @@ class IsolaState(State):
 
     def get_legal_step_moves(self, start_x, start_y):
         step_moves = set()
-        for dy in xrange(-1, 2):
-            for dx in xrange(-1, 2):
+        for dy in range(-1, 2):
+            for dx in range(-1, 2):
                 x = start_x + dx
                 y = start_y + dy
                 if x < 0 or x >= self.side or y < 0 or y >= self.side:
@@ -59,8 +59,8 @@ class IsolaState(State):
 
     def get_legal_remove_moves(self, player):
         remove_moves = set()
-        for y in xrange(self.side):
-            for x in xrange(self.side):
+        for y in range(self.side):
+            for x in range(self.side):
                 if self.board[y][x] in [EMPTY, player]:
                     remove_moves.add((x, y))
         return remove_moves
@@ -86,8 +86,8 @@ class IsolaState(State):
         return not current_player_legal_steps or not next_player_legal_steps
 
     def find_player_cords(self, player):
-        for y in xrange(self.side):
-            for x in xrange(self.side):
+        for y in range(self.side):
+            for x in range(self.side):
                 if self.board[y][x] == player:
                     return x, y
         raise ValueError("No {} on the board:\n{}".format(player, self))
@@ -157,7 +157,7 @@ class IsolaMove(Move):
 
 class IsolaMoveReader(MoveReader):
     def read(self):
-        user = map(int, raw_input("Enter space separated step_x step_y remove_x remove_y: ").split())
+        user = map(int, input("Enter space separated step_x step_y remove_x remove_y: ").split())
         x, y = state.get_player_cords(PLAYER_1)
         return IsolaMove(x, y, *user)
 

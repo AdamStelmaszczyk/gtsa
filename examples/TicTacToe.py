@@ -12,7 +12,7 @@ class TicTacToeState(State):
         super(TicTacToeState, self).__init__()
         self.side = side
 
-        self.board = [[EMPTY for _ in xrange(side)] for _ in xrange(side)]
+        self.board = [[EMPTY for _ in range(side)] for _ in range(side)]
         correct_length = self.side ** 2
         if len(string) != correct_length:
             raise ValueError("Initialization string length must be {}".format(correct_length))
@@ -22,13 +22,13 @@ class TicTacToeState(State):
             self.board[y][x] = char
 
         self.lines = []
-        for y in xrange(side):
-            row = tuple((x, y) for x in xrange(side))
+        for y in range(side):
+            row = tuple((x, y) for x in range(side))
             self.lines.append(row)
-        for x in xrange(side):
-            col = tuple((x, y) for y in xrange(side))
+        for x in range(side):
+            col = tuple((x, y) for y in range(side))
             self.lines.append(col)
-        self.lines.append(tuple((x, x) for x in xrange(side)))
+        self.lines.append(tuple((x, x) for x in range(side)))
         self.lines.append(tuple((side - x - 1, x) for x in range(side)))
 
     def get_goodness(self, current_player, next_player):
@@ -51,8 +51,8 @@ class TicTacToeState(State):
 
     def get_legal_moves(self, player):
         legal_moves = set()
-        for y in xrange(self.side):
-            for x in xrange(self.side):
+        for y in range(self.side):
+            for x in range(self.side):
                 if self.board[y][x] == EMPTY:
                     legal_moves.add(TicTacToeMove(x, y))
         return legal_moves
@@ -125,7 +125,7 @@ class TicTacToeMove(Move):
 
 class TicTacToeMoveReader(MoveReader):
     def read(self):
-        x, y = map(int, raw_input("Enter space separated X and Y of your move: ").split())
+        x, y = map(int, input("Enter space separated X and Y of your move: ").split())
         return TicTacToeMove(x, y)
 
 
