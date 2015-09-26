@@ -18,7 +18,7 @@ class TicTacToeState(State):
             raise ValueError("Initialization string length must be {}".format(correct_length))
         for i, char in enumerate(string):
             x = i % self.side
-            y = i / self.side
+            y = i // self.side
             self.board[y][x] = char
 
         self.lines = []
