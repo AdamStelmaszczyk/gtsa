@@ -26,7 +26,7 @@ def test_isola_not_lose():
     move = algorithm.get_move(state)
     assert move.get_step_x() != 2 and move.get_step_y() != 2
 
-def test_tic_tac_toe_terminal():
+def test_isola_terminal():
     state = IsolaState(3, "#2#"
                           "###"
                           "#1#")
