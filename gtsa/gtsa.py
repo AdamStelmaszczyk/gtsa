@@ -4,7 +4,7 @@ class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
-        self.state_cache = {}
+        self.goodness_cache = {}
 
     def get_current_player(self):
         return self.our_symbol
@@ -17,11 +17,11 @@ class Algorithm(object):
 
     def get_cached_goodness(self, state):
         key = hash(state)
-        return self.state_cache.get(key, None)
+        return self.goodness_cache.get(key, None)
 
     def set_cached_goodness(self, state, goodness):
         key = hash(state)
-        self.state_cache[key] = goodness
+        self.goodness_cache[key] = goodness
 
     def __repr__(self):
         return "{} {}".format(self.our_symbol, self.enemy_symbol)
