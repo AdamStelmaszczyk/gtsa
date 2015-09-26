@@ -1,7 +1,7 @@
 # Game examples
 
-- [Tic Tac Toe](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/TicTacToe.md)
-- [Isola](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/Isola.md)
+- [Tic Tac Toe](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/tic_tac_toe.md)
+- [Isola](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/isola.md)
 
 Planned games:
 
