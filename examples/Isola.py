@@ -142,7 +142,7 @@ class IsolaMove(Move):
         return self.remove_y
 
     def __repr__(self):
-        return "{} {} {} {}".format(self.step_x, self.step_y, self.remove_x, self.remove_y)
+        return "{} {} {} {} {} {}".format(self.from_x, self.from_y, self.step_x, self.step_y, self.remove_x, self.remove_y)
 
     def __eq__(self, other):
         return self.step_x == other.step_x and self.step_y == other.step_y \
