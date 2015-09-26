@@ -1,5 +1,5 @@
 import pytest
-from examples.TicTacToe import TicTacToeState, TicTacToeMove
+from examples.tic_tac_toe import TicTacToeState, TicTacToeMove
 from gtsa.gtsa import Minimax
 
 

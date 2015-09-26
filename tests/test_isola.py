@@ -1,5 +1,5 @@
 import pytest
-from examples.Isola import IsolaState, IsolaMove
+from examples.isola import IsolaState, IsolaMove
 from gtsa.gtsa import Minimax
 
 
