@@ -46,7 +46,8 @@ class Human(Algorithm):
 
 
 class Minimax(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, max_depth, show_progress=False):
+    def __init__(self, our_symbol, enemy_symbol, max_depth,
+                 show_progress=False):
         super(Minimax, self).__init__(our_symbol, enemy_symbol, show_progress)
         self.max_depth = max_depth
 
@@ -67,7 +68,9 @@ class Minimax(Algorithm):
             best_goodness = float('-inf')
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
-                goodness, _ = self._minimax(state, depth - 1, self.enemy_symbol)
+                goodness, _ = self._minimax(state,
+                                            depth - 1,
+                                            self.enemy_symbol)
                 state.undo_move(move, analyzed_player)
                 if best_goodness < goodness:
                     best_goodness = goodness
@@ -76,7 +79,9 @@ class Minimax(Algorithm):
             best_goodness = float('inf')
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
-                goodness, _ = self._minimax(state, depth - 1, self.our_symbol)
+                goodness, _ = self._minimax(state,
+                                            depth - 1,
+                                            self.our_symbol)
                 state.undo_move(move, analyzed_player)
                 if best_goodness > goodness:
                     best_goodness = goodness
@@ -90,10 +95,12 @@ class State(object):
         raise NotImplementedError("Implement get_goodness in State subclass")
 
     def get_legal_moves(self, player):
-        raise NotImplementedError("Implement get_legal_moves in State subclass")
+        raise NotImplementedError(
+            "Implement get_legal_moves in State subclass")
 
     def get_opposite_player(self, player):
-        raise NotImplementedError("Implement get_opposite_player in State subclass")
+        raise NotImplementedError(
+            "Implement get_opposite_player in State subclass")
 
     def make_move(self, move, player):
         raise NotImplementedError("Implement make_move in State subclass")

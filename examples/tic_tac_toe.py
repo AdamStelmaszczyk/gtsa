@@ -15,7 +15,8 @@ class TicTacToeState(State):
         self.board = [[EMPTY for _ in range(side)] for _ in range(side)]
         correct_length = self.side ** 2
         if len(string) != correct_length:
-            raise ValueError("Initialization string length must be {}".format(correct_length))
+            raise ValueError("Initialization string length must be {}".
+                             format(correct_length))
         for i, char in enumerate(string):
             if char not in [PLAYER_1, PLAYER_2, EMPTY]:
                 raise ValueError("Undefined symbol used: {}".format(char))
@@ -131,7 +132,8 @@ class TicTacToeMove(Move):
 
 class TicTacToeMoveReader(MoveReader):
     def read(self):
-        x, y = map(int, input("Enter space separated X and Y of your move: ").split())
+        message = "Enter space separated X and Y of your move: "
+        x, y = map(int, input(message).split())
         return TicTacToeMove(x, y)
 
 

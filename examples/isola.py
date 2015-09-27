@@ -16,7 +16,8 @@ class IsolaState(State):
         self.board = [[' ' for _ in range(side)] for _ in range(side)]
         correct_length = self.side ** 2
         if len(string) != correct_length:
-            raise ValueError("Initialization string length must be {}".format(correct_length))
+            raise ValueError("Initialization string length must be {}"
+                             .format(correct_length))
         for i, char in enumerate(string):
             if char not in [PLAYER_1, PLAYER_2, EMPTY, REMOVED]:
                 raise ValueError("Undefined symbol used: {}".format(char))
@@ -57,7 +58,10 @@ class IsolaState(State):
         for step_move in step_moves:
             for remove_move in remove_moves:
                 if step_move != remove_move:
-                    legal_moves.add(IsolaMove(x, y, step_move[0], step_move[1], remove_move[0], remove_move[1]))
+                    move = IsolaMove(x, y,
+                                     step_move[0], step_move[1],
+                                     remove_move[0], remove_move[1])
+                    legal_moves.add(move)
         return legal_moves
 
     def get_legal_step_moves(self, start_x, start_y):
@@ -109,7 +113,9 @@ class IsolaState(State):
         raise ValueError("No {} on the board:\n{}".format(player, self))
 
     def get_player_cords(self, player):
-        return self.player_1_cords if player == PLAYER_1 else self.player_2_cords
+        if player == PLAYER_1:
+            return self.player_1_cords
+        return self.player_2_cords
 
     def set_player_cords(self, player, cords):
         if player == PLAYER_1:
@@ -158,22 +164,29 @@ class IsolaMove(Move):
         return self.remove_y
 
     def __repr__(self):
-        return "{} {} {} {} {} {}".format(self.from_x, self.from_y, self.step_x, self.step_y, self.remove_x, self.remove_y)
+        return "{} {} {} {} {} {}".format(self.from_x, self.from_y,
+                                          self.step_x, self.step_y,
+                                          self.remove_x, self.remove_y)
 
     def __eq__(self, other):
-        return self.step_x == other.step_x and self.step_y == other.step_y \
-               and self.remove_x == other.remove_x and self.remove_y == other.remove_y
+        return self.step_x == other.step_x and \
+            self.step_y == other.step_y and \
+            self.remove_x == other.remove_x \
+            and self.remove_y == other.remove_y
 
     def __ne__(self, other):
         return not self.__eq__(self, other)
 
     def __hash__(self):
-        return self.step_y * SIDE ** 3 + self.step_x * SIDE ** 2 + self.remove_y * SIDE + self.remove_x
+        return self.step_y * SIDE ** 3 + \
+            self.step_x * SIDE ** 2 + \
+            self.remove_y * SIDE + self.remove_x
 
 
 class IsolaMoveReader(MoveReader):
     def read(self):
-        user = map(int, input("Enter space separated step_x step_y remove_x remove_y: ").split())
+        message = "Enter space separated step_x step_y remove_x remove_y: "
+        user = map(int, input(message).split())
         x, y = state.get_player_cords(PLAYER_1)
         return IsolaMove(x, y, *user)
 

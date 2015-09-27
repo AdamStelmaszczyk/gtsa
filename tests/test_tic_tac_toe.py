@@ -10,6 +10,7 @@ def test_tic_tac_toe_finish():
     algorithm = Minimax('X', 'O', 10)
     assert algorithm.get_move(state) == TicTacToeMove(2, 0)
 
+
 def test_tic_tac_toe_block():
     state = TicTacToeState(3, "O__"
                               "O__"
@@ -17,12 +18,14 @@ def test_tic_tac_toe_block():
     algorithm = Minimax('X', 'O', 10)
     assert algorithm.get_move(state) == TicTacToeMove(0, 2)
 
+
 def test_tic_tac_toe_block_2():
     state = TicTacToeState(3, "X__"
                               "OO_"
                               "___")
     algorithm = Minimax('X', 'O', 10)
     assert algorithm.get_move(state) == TicTacToeMove(2, 1)
+
 
 def test_tic_tac_toe_terminal():
     state = TicTacToeState(3, "XOX"
