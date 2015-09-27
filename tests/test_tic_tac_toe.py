@@ -5,7 +5,7 @@ from gtsa.gtsa import Minimax
 
 def test_tic_tac_toe_finish():
     state = TicTacToeState(3, "XX_"
-                              "___"
+                              "_O_"
                               "___")
     algorithm = Minimax('X', 'O', 10)
     assert algorithm.get_move(state) == TicTacToeMove(2, 0)
