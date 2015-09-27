@@ -142,7 +142,6 @@ class MoveReader(object):
 
 
 class Timer:
-
     def __init__(self):
         self.start = time.clock()
 
