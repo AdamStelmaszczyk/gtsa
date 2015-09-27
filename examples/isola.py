@@ -27,8 +27,9 @@ class IsolaState(State):
         self.player_1_cords = self.find_player_cords(PLAYER_1)
         self.player_2_cords = self.find_player_cords(PLAYER_2)
 
-    def get_goodness(self, current_player, next_player):
-        current_player_options = self.get_number_of_legal_moves(current_player)
+    def get_goodness(self, player):
+        next_player = self.get_opposite_player(player)
+        current_player_options = self.get_number_of_legal_moves(player)
         current_player_score = self.get_score(current_player_options)
         next_player_options = self.get_number_of_legal_moves(next_player)
         next_player_score = self.get_score(next_player_options)
@@ -79,6 +80,9 @@ class IsolaState(State):
                     remove_moves.add((x, y))
         return remove_moves
 
+    def get_opposite_player(self, player):
+        return PLAYER_2 if player == PLAYER_1 else PLAYER_1
+
     def make_move(self, move, player):
         x, y = self.get_player_cords(player)
         self.board[y][x] = EMPTY
@@ -92,7 +96,7 @@ class IsolaState(State):
         self.board[move.get_step_y()][move.get_step_x()] = EMPTY
         self.set_player_cords(player, (move.get_from_x(), move.get_from_y()))
 
-    def is_terminal(self, current_player, next_player):
+    def is_terminal(self, current_player):
         x, y = self.get_player_cords(current_player)
         current_player_legal_steps = self.get_legal_step_moves(x, y)
         return not current_player_legal_steps

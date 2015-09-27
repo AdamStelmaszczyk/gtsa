@@ -33,9 +33,9 @@ class TicTacToeState(State):
         self.lines.append(tuple((x, x) for x in range(side)))
         self.lines.append(tuple((side - x - 1, x) for x in range(side)))
 
-    def get_goodness(self, current_player, next_player):
+    def get_goodness(self, current_player):
         goodness = 0
-        counts = self.count_players_on_lines(current_player, next_player)
+        counts = self.count_players_on_lines(current_player)
         for count in counts:
             if count[0] == 3:
                 goodness += self.side ** 2
@@ -59,24 +59,28 @@ class TicTacToeState(State):
                     legal_moves.add(TicTacToeMove(x, y))
         return legal_moves
 
+    def get_opposite_player(self, player):
+        return PLAYER_2 if player == PLAYER_1 else PLAYER_1
+
     def make_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = player
 
     def undo_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = EMPTY
 
-    def is_terminal(self, current_player, next_player):
+    def is_terminal(self, current_player):
         legal_moves = self.get_legal_moves(current_player)
         if not legal_moves:
             return True
-        counts = self.count_players_on_lines(current_player, next_player)
+        counts = self.count_players_on_lines(current_player)
         for count in counts:
             if count[0] == 3 or count[1] == 3:
                 return True
         return False
 
-    def count_players_on_lines(self, current_player, next_player):
+    def count_players_on_lines(self, current_player):
         counts = []
+        next_player = self.get_opposite_player(current_player)
         for line in self.lines:
             player_places = 0
             enemy_places = 0

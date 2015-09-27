@@ -51,7 +51,7 @@ class Minimax(Algorithm):
         self.max_depth = max_depth
 
     def get_move(self, state):
-        if state.is_terminal(self.our_symbol, self.enemy_symbol):
+        if state.is_terminal(self.our_symbol):
             raise ValueError("Given state is terminal: {}".format(state))
         _, best_move = self._minimax(state, self.max_depth, self.our_symbol)
         return best_move
@@ -61,8 +61,8 @@ class Minimax(Algorithm):
         if cached_pair:
             return cached_pair
         legal_moves = state.get_legal_moves(analyzed_player)
-        if depth <= 0 or state.is_terminal(self.our_symbol, self.enemy_symbol):
-            return state.get_goodness(self.our_symbol, self.enemy_symbol), None
+        if depth <= 0 or state.is_terminal(analyzed_player):
+            return state.get_goodness(self.our_symbol), None
         if analyzed_player == self.our_symbol:
             best_goodness = float('-inf')
             for move in legal_moves:
@@ -86,11 +86,14 @@ class Minimax(Algorithm):
 
 
 class State(object):
-    def get_goodness(self, current_player, next_player):
+    def get_goodness(self, current_player):
         raise NotImplementedError("Implement get_goodness in State subclass")
 
     def get_legal_moves(self, player):
         raise NotImplementedError("Implement get_legal_moves in State subclass")
+
+    def get_opposite_player(self, player):
+        raise NotImplementedError("Implement get_opposite_player in State subclass")
 
     def make_move(self, move, player):
         raise NotImplementedError("Implement make_move in State subclass")
@@ -98,7 +101,7 @@ class State(object):
     def undo_move(self, move, player):
         raise NotImplementedError("Implement undo_move in State subclass")
 
-    def is_terminal(self, current_player, next_player):
+    def is_terminal(self, current_player):
         raise NotImplementedError("Implement is_terminal in State subclass")
 
     def __repr__(self):
@@ -156,7 +159,7 @@ class Tester(object):
     def start(self):
         print(self.state)
         while True:
-            if self.state.is_terminal(self.player_1, self.player_2):
+            if self.state.is_terminal(self.player_1):
                 break
             timer = Timer()
             move = self.algorithm_1.get_move(self.state)
@@ -164,7 +167,7 @@ class Tester(object):
             self.state.make_move(move, self.player_1)
             print(self.state)
 
-            if self.state.is_terminal(self.player_2, self.player_1):
+            if self.state.is_terminal(self.player_2):
                 break
             timer = Timer()
             move = self.algorithm_2.get_move(self.state)
