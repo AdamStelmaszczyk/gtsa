@@ -1,7 +1,7 @@
 from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester
 
 
-SIDE = 5
+SIDE = 4
 PLAYER_1 = '1'
 PLAYER_2 = '2'
 EMPTY = '_'
@@ -28,9 +28,21 @@ class IsolaState(State):
         self.player_2_cords = self.find_player_cords(PLAYER_2)
 
     def get_goodness(self, current_player, next_player):
-        current_player_freedom = self.get_number_of_legal_moves(current_player)
-        next_player_freedom = self.get_number_of_legal_moves(next_player)
-        return current_player_freedom - next_player_freedom
+        current_player_options = self.get_number_of_legal_moves(current_player)
+        current_player_score = self.get_score(current_player_options)
+        next_player_options = self.get_number_of_legal_moves(next_player)
+        next_player_score = self.get_score(next_player_options)
+        return current_player_score - next_player_score
+
+    def get_score(self, options):
+        if options == 0:
+            return -100
+        elif options == 1:
+            return -10
+        elif options == 2:
+            return 0
+        else:
+            return options + 2
 
     def get_number_of_legal_moves(self, player):
         x, y = self.get_player_cords(player)
@@ -83,9 +95,7 @@ class IsolaState(State):
     def is_terminal(self, current_player, next_player):
         x, y = self.get_player_cords(current_player)
         current_player_legal_steps = self.get_legal_step_moves(x, y)
-        x, y = self.get_player_cords(next_player)
-        next_player_legal_steps = self.get_legal_step_moves(x, y)
-        return not current_player_legal_steps or not next_player_legal_steps
+        return not current_player_legal_steps
 
     def find_player_cords(self, player):
         for y in range(self.side):
@@ -165,14 +175,13 @@ class IsolaMoveReader(MoveReader):
 
 
 if __name__ == "__main__":
-    state = IsolaState(SIDE, "__2__"
-                             "_____"
-                             "_____"
-                             "_____"
-                             "__1__")
+    state = IsolaState(SIDE, "__2_"
+                             "____"
+                             "____"
+                             "_1__")
 
     algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1, show_progress=True)
-    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1, show_progress=True)
+    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 2, show_progress=True)
 
     tester = Tester(state, algorithm_1, algorithm_2)
     tester.start()
