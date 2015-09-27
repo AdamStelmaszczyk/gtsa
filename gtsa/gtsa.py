@@ -6,7 +6,7 @@ class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol, show_progress=False):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
-        self.goodness_cache = {}
+        self.pair_cache = {}
         self.show_progress = show_progress
 
     def get_current_player(self):
@@ -18,13 +18,13 @@ class Algorithm(object):
     def get_move(self, state):
         raise NotImplementedError("Implement get_move in Algorithm subclass")
 
-    def get_cached_goodness(self, state):
+    def get_cached_pair(self, state):
         key = hash(state)
-        return self.goodness_cache.get(key, None)
+        return self.pair_cache.get(key, None)
 
-    def set_cached_goodness(self, state, goodness):
+    def set_cached_pair(self, state, goodness, move):
         key = hash(state)
-        self.goodness_cache[key] = goodness
+        self.pair_cache[key] = (goodness, move)
 
     def __repr__(self):
         return "{} {}".format(self.our_symbol, self.enemy_symbol)
@@ -51,47 +51,38 @@ class Minimax(Algorithm):
         self.max_depth = max_depth
 
     def get_move(self, state):
-        legal_moves = state.get_legal_moves(self.our_symbol)
-        if not legal_moves:
+        if state.is_terminal(self.our_symbol, self.enemy_symbol):
             raise ValueError("Given state is terminal: {}".format(state))
-        best_move = None
-        best_goodness = float('-inf')
-        for i, move in enumerate(legal_moves):
-            if self.show_progress:
-                print("{}/{}".format(i, len(legal_moves)), end=' ', flush=True)
-            state.make_move(move, self.our_symbol)
-            goodness = self._minimax(state, self.max_depth, self.enemy_symbol)
-            state.undo_move(move, self.our_symbol)
-            if best_goodness < goodness:
-                best_goodness = goodness
-                best_move = move
+        _, best_move = self._minimax(state, self.max_depth, self.our_symbol)
         return best_move
 
     def _minimax(self, state, depth, analyzed_player):
-        cached_goodness = self.get_cached_goodness(state)
-        if cached_goodness:
-            return cached_goodness
+        cached_pair = self.get_cached_pair(state)
+        if cached_pair:
+            return cached_pair
         legal_moves = state.get_legal_moves(analyzed_player)
         if depth <= 0 or state.is_terminal(self.our_symbol, self.enemy_symbol):
-            return state.get_goodness(self.our_symbol, self.enemy_symbol)
+            return state.get_goodness(self.our_symbol, self.enemy_symbol), None
         if analyzed_player == self.our_symbol:
             best_goodness = float('-inf')
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
-                goodness = self._minimax(state, depth - 1, self.enemy_symbol)
+                goodness, _ = self._minimax(state, depth - 1, self.enemy_symbol)
                 state.undo_move(move, analyzed_player)
                 if best_goodness < goodness:
                     best_goodness = goodness
+                    best_move = move
         else:
             best_goodness = float('inf')
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
-                goodness = self._minimax(state, depth - 1, self.our_symbol)
+                goodness, _ = self._minimax(state, depth - 1, self.our_symbol)
                 state.undo_move(move, analyzed_player)
                 if best_goodness > goodness:
                     best_goodness = goodness
-        self.set_cached_goodness(state, best_goodness)
-        return best_goodness
+                    best_move = move
+        self.set_cached_pair(state, best_goodness, best_move)
+        return best_goodness, best_move
 
 
 class State(object):
