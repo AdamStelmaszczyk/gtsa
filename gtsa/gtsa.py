@@ -53,7 +53,7 @@ class Minimax(Algorithm):
     def get_move(self, state):
         legal_moves = state.get_legal_moves(self.our_symbol)
         if not legal_moves:
-            raise ValueError("Given state is terminal")
+            raise ValueError("Given state is terminal: {}".format(state))
         best_move = None
         best_goodness = float('-inf')
         for i, move in enumerate(legal_moves):
@@ -169,18 +169,18 @@ class Tester(object):
     def start(self):
         print(self.state)
         while True:
+            if self.state.is_terminal(self.player_1, self.player_2):
+                break
             timer = Timer()
             move = self.algorithm_1.get_move(self.state)
             timer.stop()
             self.state.make_move(move, self.player_1)
             print(self.state)
-            if self.state.is_terminal(self.player_1, self.player_2):
-                break
 
+            if self.state.is_terminal(self.player_2, self.player_1):
+                break
             timer = Timer()
             move = self.algorithm_2.get_move(self.state)
             timer.stop()
             self.state.make_move(move, self.player_2)
             print(self.state)
-            if self.state.is_terminal(self.player_2, self.player_1):
-                break
