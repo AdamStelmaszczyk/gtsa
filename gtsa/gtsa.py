@@ -2,10 +2,11 @@ import time
 
 
 class Algorithm(object):
-    def __init__(self, our_symbol, enemy_symbol):
+    def __init__(self, our_symbol, enemy_symbol, show_progress=False):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
         self.goodness_cache = {}
+        self.show_progress = show_progress
 
     def get_current_player(self):
         return self.our_symbol
@@ -44,8 +45,8 @@ class Human(Algorithm):
 
 
 class Minimax(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, max_depth):
-        super(Minimax, self).__init__(our_symbol, enemy_symbol)
+    def __init__(self, our_symbol, enemy_symbol, max_depth, show_progress=False):
+        super(Minimax, self).__init__(our_symbol, enemy_symbol, show_progress)
         self.max_depth = max_depth
 
     def get_move(self, state):
@@ -54,7 +55,9 @@ class Minimax(Algorithm):
             raise ValueError("Given state is terminal")
         best_move = None
         best_goodness = float('-inf')
-        for move in legal_moves:
+        for i, move in enumerate(legal_moves):
+            if self.show_progress:
+                print("{}/{}".format(i, len(legal_moves)), end=' ', flush=True)
             state.make_move(move, self.our_symbol)
             goodness = self._minimax(state, self.max_depth, self.enemy_symbol)
             state.undo_move(move, self.our_symbol)
