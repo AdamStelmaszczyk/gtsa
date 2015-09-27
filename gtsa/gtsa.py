@@ -60,14 +60,14 @@ class Minimax(Algorithm):
             if self.show_progress:
                 print("{}/{}".format(i, len(legal_moves)), end=' ', flush=True)
             state.make_move(move, self.our_symbol)
-            goodness = self._minimax(state, self.max_depth, float('-inf'), float('inf'), self.enemy_symbol)
+            goodness = self._minimax(state, self.max_depth, self.enemy_symbol)
             state.undo_move(move, self.our_symbol)
             if best_goodness < goodness:
                 best_goodness = goodness
                 best_move = move
         return best_move
 
-    def _minimax(self, state, depth, alpha, beta, analyzed_player):
+    def _minimax(self, state, depth, analyzed_player):
         cached_goodness = self.get_cached_goodness(state)
         if cached_goodness:
             return cached_goodness
@@ -78,22 +78,18 @@ class Minimax(Algorithm):
             best_goodness = float('-inf')
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
-                goodness = self._minimax(state, depth - 1, alpha, beta, self.enemy_symbol)
+                goodness = self._minimax(state, depth - 1, self.enemy_symbol)
                 state.undo_move(move, analyzed_player)
-                best_goodness = max(best_goodness, goodness)
-                alpha = max(alpha, best_goodness)
-                if beta <= alpha:
-                    break
+                if best_goodness < goodness:
+                    best_goodness = goodness
         else:
             best_goodness = float('inf')
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
-                goodness = self._minimax(state, depth - 1, alpha, beta, self.our_symbol)
+                goodness = self._minimax(state, depth - 1, self.our_symbol)
                 state.undo_move(move, analyzed_player)
-                best_goodness = min(best_goodness, goodness)
-                beta = min(beta, best_goodness)
-                if beta <= alpha:
-                    break
+                if best_goodness > goodness:
+                    best_goodness = goodness
         self.set_cached_goodness(state, best_goodness)
         return best_goodness
 
