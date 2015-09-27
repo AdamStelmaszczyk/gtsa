@@ -171,8 +171,8 @@ if __name__ == "__main__":
                              "_____"
                              "__1__")
 
-    algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1, True)
-    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1, True)
+    algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1, show_progress=True)
+    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 1, show_progress=True)
 
     tester = Tester(state, algorithm_1, algorithm_2)
     tester.start()
