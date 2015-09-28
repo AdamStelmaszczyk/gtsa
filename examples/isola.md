@@ -62,4 +62,4 @@ Sample output
 
 Challenges
 ---
-- [HackerEarth - Battle of Bots 2015](https://www.hackerearth.com/battle-of-bots/multiplayer/isola/)
+- [HackerEarth - Battle of Bots 2015](https://www.hackerearth.com/problem/multiplayer/isola/)
