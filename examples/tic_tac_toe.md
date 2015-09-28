@@ -44,4 +44,4 @@ Sample output
 Challenges
 ---
 - [HackerRank](https://www.hackerrank.com/challenges/tic-tac-toe)
-- [HackerEarth](https://www.hackerearth.com/problem/multiplayer/tic-tac-toe)
+- [HackerEarth - India Hacks 2013 Teaser](https://www.hackerearth.com/problem/multiplayer/tic-tac-toe) 
