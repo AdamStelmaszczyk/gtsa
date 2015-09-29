@@ -15,10 +15,11 @@ Check game [examples](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examp
 Implemented algorithms:
 ---
 
-- [Minimax](https://en.wikipedia.org/wiki/Minimax) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning) and [transposition table](https://en.wikipedia.org/wiki/Transposition_table)
+- [Minimax](https://en.wikipedia.org/wiki/Minimax) with [transposition table](https://en.wikipedia.org/wiki/Transposition_table)
 
 Planned:
 ---
 
+- [Alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning)
 - [Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
 - [Neural networks](https://en.wikipedia.org/wiki/Artificial_neural_network)
