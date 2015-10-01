@@ -46,10 +46,14 @@ class Minimax(Algorithm):
     def get_move(self, state):
         if state.is_terminal(self.our_symbol):
             raise ValueError("Given state is terminal: {}".format(state))
-        _, best_move = self._minimax(state, self.max_depth, self.our_symbol)
+        _, best_move = self._minimax(state,
+                                     self.max_depth,
+                                     float('-inf'),
+                                     float('inf'),
+                                     self.our_symbol)
         return best_move
 
-    def _minimax(self, state, depth, analyzed_player):
+    def _minimax(self, state, depth, alpha, beta, analyzed_player):
         legal_moves = state.get_legal_moves(analyzed_player)
         if depth <= 0 or state.is_terminal(analyzed_player):
             return state.get_goodness(self.our_symbol), None
@@ -59,22 +63,32 @@ class Minimax(Algorithm):
                 state.make_move(move, analyzed_player)
                 goodness, _ = self._minimax(state,
                                             depth - 1,
+                                            alpha,
+                                            beta,
                                             self.enemy_symbol)
                 state.undo_move(move, analyzed_player)
                 if best_goodness < goodness:
                     best_goodness = goodness
                     best_move = move
+                alpha = max(alpha, best_goodness)
+                if beta <= alpha:
+                    break
         else:
             best_goodness = float('inf')
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
                 goodness, _ = self._minimax(state,
                                             depth - 1,
+                                            alpha,
+                                            beta,
                                             self.our_symbol)
                 state.undo_move(move, analyzed_player)
                 if best_goodness > goodness:
                     best_goodness = goodness
                     best_move = move
+                beta = min(beta, best_goodness)
+                if beta <= alpha:
+                    break
         return best_goodness, best_move
 
 
