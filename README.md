@@ -15,7 +15,7 @@ Check game [examples](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examp
 Implemented algorithms:
 ---
 
-- [Minimax](https://en.wikipedia.org/wiki/Minimax) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning) and [transposition table](https://en.wikipedia.org/wiki/Transposition_table)
+- [Minimax](https://en.wikipedia.org/wiki/Minimax) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning)
 
 Planned:
 ---
