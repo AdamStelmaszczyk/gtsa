@@ -57,6 +57,7 @@ class Minimax(Algorithm):
         legal_moves = state.get_legal_moves(analyzed_player)
         if depth <= 0 or state.is_terminal(analyzed_player):
             return state.get_goodness(self.our_symbol), None
+        best_move = None
         if analyzed_player == self.our_symbol:
             best_goodness = float('-inf')
             for move in legal_moves:
