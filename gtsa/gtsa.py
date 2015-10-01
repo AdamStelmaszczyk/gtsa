@@ -18,14 +18,6 @@ class Algorithm(object):
     def get_move(self, state):
         raise NotImplementedError("Implement get_move in Algorithm subclass")
 
-    def get_cached_pair(self, state):
-        key = hash(state)
-        return self.pair_cache.get(key, None)
-
-    def set_cached_pair(self, state, goodness, move):
-        key = hash(state)
-        self.pair_cache[key] = (goodness, move)
-
     def __repr__(self):
         return "{} {}".format(self.our_symbol, self.enemy_symbol)
 
@@ -58,9 +50,6 @@ class Minimax(Algorithm):
         return best_move
 
     def _minimax(self, state, depth, analyzed_player):
-        cached_pair = self.get_cached_pair(state)
-        if cached_pair:
-            return cached_pair
         legal_moves = state.get_legal_moves(analyzed_player)
         if depth <= 0 or state.is_terminal(analyzed_player):
             return state.get_goodness(self.our_symbol), None
@@ -86,7 +75,6 @@ class Minimax(Algorithm):
                 if best_goodness > goodness:
                     best_goodness = goodness
                     best_move = move
-        self.set_cached_pair(state, best_goodness, best_move)
         return best_goodness, best_move
 
 
