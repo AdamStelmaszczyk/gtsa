@@ -1,7 +1,7 @@
 from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester
 
 
-SIDE = 4
+SIDE = 5
 PLAYER_1 = '1'
 PLAYER_2 = '2'
 EMPTY = '_'
@@ -192,10 +192,11 @@ class IsolaMoveReader(MoveReader):
 
 
 if __name__ == "__main__":
-    state = IsolaState(SIDE, "__2_"
-                             "____"
-                             "____"
-                             "_1__")
+    state = IsolaState(SIDE, "__2__"
+                             "_____"
+                             "_____"
+                             "_____"
+                             "__1__")
 
     algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1, show_progress=True)
     algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 2, show_progress=True)
