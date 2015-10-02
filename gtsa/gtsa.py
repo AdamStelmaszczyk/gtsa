@@ -3,10 +3,9 @@ import time
 
 
 class Algorithm(object):
-    def __init__(self, our_symbol, enemy_symbol, show_progress=False):
+    def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
-        self.show_progress = show_progress
 
     def get_current_player(self):
         return self.our_symbol
@@ -37,9 +36,8 @@ class Human(Algorithm):
 
 
 class Minimax(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, max_depth,
-                 show_progress=False):
-        super(Minimax, self).__init__(our_symbol, enemy_symbol, show_progress)
+    def __init__(self, our_symbol, enemy_symbol, max_depth):
+        super(Minimax, self).__init__(our_symbol, enemy_symbol)
         self.max_depth = max_depth
 
     def get_move(self, state):
