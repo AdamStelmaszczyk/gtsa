@@ -6,7 +6,6 @@ class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol, show_progress=False):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
-        self.pair_cache = {}
         self.show_progress = show_progress
 
     def get_current_player(self):
