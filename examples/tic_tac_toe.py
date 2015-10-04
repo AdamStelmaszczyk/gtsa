@@ -1,5 +1,4 @@
-from gtsa.gtsa import State, Move, MoveReader, Human, Minimax, Tester, \
-    MonteCarloTreeSearch
+from gtsa.gtsa import State, Move, MoveReader, Human, Minimax, Tester
 
 
 SIDE = 3
