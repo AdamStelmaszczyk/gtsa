@@ -18,6 +18,7 @@ Game examples
 
 Planned:
 
+- [Texas Hold'em](http://theaigames.com/competitions/texas-hold-em)
 - [Hex](https://www.hackerrank.com/challenges/hex)
 - [Checkers](https://www.hackerrank.com/challenges/checkers)
 
