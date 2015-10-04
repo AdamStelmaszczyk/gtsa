@@ -20,7 +20,7 @@ class IsolaState(State):
                              .format(correct_length))
         for i, char in enumerate(string):
             if char not in [PLAYER_1, PLAYER_2, EMPTY, REMOVED]:
-                raise ValueError("Undefined symbol used: {}".format(char))
+                raise ValueError("Undefined symbol used: '{}'".format(char))
             x = i % self.side
             y = i // self.side
             self.board[y][x] = char
@@ -100,10 +100,15 @@ class IsolaState(State):
         self.board[move.get_step_y()][move.get_step_x()] = EMPTY
         self.set_player_cords(player, (move.get_from_x(), move.get_from_y()))
 
-    def is_terminal(self, current_player):
-        x, y = self.get_player_cords(current_player)
+    def is_terminal(self, player):
+        x, y = self.get_player_cords(player)
         current_player_legal_steps = self.get_legal_step_moves(x, y)
         return not current_player_legal_steps
+
+    def is_winner(self, player):
+        x, y = self.get_player_cords(self.get_opposite_player(player))
+        enemy_legal_steps = self.get_legal_step_moves(x, y)
+        return not enemy_legal_steps
 
     def find_player_cords(self, player):
         for y in range(self.side):
@@ -124,13 +129,13 @@ class IsolaState(State):
             self.player_2_cords = cords
 
     def __repr__(self):
-        return '\n'.join(['|'.join(row) for row in self.board]) + '\n'
+        return '\n'.join([''.join(row) for row in self.board]) + '\n'
 
     def __eq__(self, other):
         return self.board == other.board
 
     def __ne__(self, other):
-        return not self.__eq__(self, other)
+        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(tuple(tuple(row) for row in self.board))
@@ -175,7 +180,7 @@ class IsolaMove(Move):
             and self.remove_y == other.remove_y
 
     def __ne__(self, other):
-        return not self.__eq__(self, other)
+        return not self.__eq__(other)
 
     def __hash__(self):
         return self.step_y * SIDE ** 3 + \

@@ -1,4 +1,5 @@
-from gtsa.gtsa import State, Move, MoveReader, Human, Minimax, Tester
+from gtsa.gtsa import State, Move, MoveReader, Human, Minimax, Tester, \
+    MonteCarloTreeSearch
 
 
 SIDE = 3
@@ -19,7 +20,7 @@ class TicTacToeState(State):
                              format(correct_length))
         for i, char in enumerate(string):
             if char not in [PLAYER_1, PLAYER_2, EMPTY]:
-                raise ValueError("Undefined symbol used: {}".format(char))
+                raise ValueError("Undefined symbol used: '{}'".format(char))
             x = i % self.side
             y = i // self.side
             self.board[y][x] = char
@@ -69,13 +70,20 @@ class TicTacToeState(State):
     def undo_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = EMPTY
 
-    def is_terminal(self, current_player):
-        legal_moves = self.get_legal_moves(current_player)
+    def is_terminal(self, player):
+        legal_moves = self.get_legal_moves(player)
         if not legal_moves:
             return True
-        counts = self.count_players_on_lines(current_player)
+        counts = self.count_players_on_lines(player)
         for count in counts:
             if count[0] == 3 or count[1] == 3:
+                return True
+        return False
+
+    def is_winner(self, player):
+        counts = self.count_players_on_lines(player)
+        for count in counts:
+            if count[0] == 3:
                 return True
         return False
 
@@ -94,13 +102,13 @@ class TicTacToeState(State):
         return counts
 
     def __repr__(self):
-        return '\n'.join(['|'.join(row) for row in self.board]) + '\n'
+        return '\n'.join([''.join(row) for row in self.board]) + '\n'
 
     def __eq__(self, other):
         return self.board == other.board
 
     def __ne__(self, other):
-        return not self.__eq__(self, other)
+        return not self.__eq__(other)
 
     def __hash__(self):
         return hash(tuple(tuple(row) for row in self.board))
@@ -124,7 +132,7 @@ class TicTacToeMove(Move):
         return self.x == other.x and self.y == other.y
 
     def __ne__(self, other):
-        return not self.__eq__(self, other)
+        return not self.__eq__(other)
 
     def __hash__(self):
         return self.y * SIDE + self.x
@@ -143,7 +151,7 @@ if __name__ == "__main__":
                                  "___")
 
     algorithm_1 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
-    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 10)
+    algorithm_2 = Minimax(PLAYER_2, PLAYER_1)
 
     tester = Tester(state, algorithm_1, algorithm_2)
     tester.start()
