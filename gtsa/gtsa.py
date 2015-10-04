@@ -7,11 +7,15 @@ class Algorithm(object):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
 
-    def get_current_player(self):
+    def get_our_symbol(self):
         return self.our_symbol
 
-    def get_next_player(self):
+    def get_enemy_symbol(self):
         return self.enemy_symbol
+
+    def get_opposite_player(self, player):
+        return self.our_symbol if player == self.enemy_symbol \
+            else self.enemy_symbol
 
     def get_move(self, state):
         raise NotImplementedError("Implement get_move in Algorithm subclass")
@@ -36,7 +40,7 @@ class Human(Algorithm):
 
 
 class Minimax(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, max_depth):
+    def __init__(self, our_symbol, enemy_symbol, max_depth=10):
         super(Minimax, self).__init__(our_symbol, enemy_symbol)
         self.max_depth = max_depth
 
@@ -98,18 +102,17 @@ class State(object):
         raise NotImplementedError(
             "Implement get_legal_moves in State subclass")
 
-    def get_opposite_player(self, player):
-        raise NotImplementedError(
-            "Implement get_opposite_player in State subclass")
-
     def make_move(self, move, player):
         raise NotImplementedError("Implement make_move in State subclass")
 
     def undo_move(self, move, player):
         raise NotImplementedError("Implement undo_move in State subclass")
 
-    def is_terminal(self, current_player):
+    def is_terminal(self, player):
         raise NotImplementedError("Implement is_terminal in State subclass")
+
+    def is_winner(self, player):
+        raise NotImplementedError("Implement is_winner in State subclass")
 
     def __repr__(self):
         raise NotImplementedError("Implement __repr__ in State subclass")
@@ -159,9 +162,9 @@ class Tester(object):
     def __init__(self, state, algorithm_1, algorithm_2):
         self.state = state
         self.algorithm_1 = algorithm_1
-        self.player_1 = algorithm_1.get_current_player()
+        self.player_1 = algorithm_1.get_our_symbol()
         self.algorithm_2 = algorithm_2
-        self.player_2 = algorithm_2.get_current_player()
+        self.player_2 = algorithm_2.get_our_symbol()
 
     def start(self):
         print(self.state)
