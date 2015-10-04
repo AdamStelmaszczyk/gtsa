@@ -10,7 +10,16 @@ Usage
 3. Read the board state and output the move (typical for programming contests). 
 Alternatively, use `Tester` to play the whole game (typical for local testing).
 
-Check game [examples](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/README.md). 
+Game examples
+---
+
+- Tic Tac Toe - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/tic_tac_toe.md), [code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/tic_tac_toe.py)
+- Isola - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/isola.md), [code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/isola.py)
+
+Planned:
+
+- [Hex](https://www.hackerrank.com/challenges/hex)
+- [Checkers](https://www.hackerrank.com/challenges/checkers)
 
 Implemented algorithms:
 ---
@@ -20,6 +29,5 @@ Implemented algorithms:
 https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
 
 Planned:
----
 
 - [Neural networks](https://en.wikipedia.org/wiki/Artificial_neural_network).
