@@ -1,4 +1,4 @@
-# [Isola](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/Isola.py)
+# [Isola](https://github.com/AdamStelmaszczyk/gtsa/blob/master/examples/isola.py)
 
 Also known as: Isolation, Stranded.
 
