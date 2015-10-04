@@ -20,5 +20,5 @@ Implemented algorithms:
 Planned:
 ---
 
-- [Monte Carlo Tree Search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
+- [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
 - [Neural networks](https://en.wikipedia.org/wiki/Artificial_neural_network)
