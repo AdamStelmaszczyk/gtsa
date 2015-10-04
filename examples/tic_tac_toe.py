@@ -1,4 +1,5 @@
-from gtsa.gtsa import State, Move, MoveReader, Human, Minimax, Tester
+from gtsa.gtsa import State, Move, MoveReader, Human, Tester, \
+    Minimax
 
 
 SIDE = 3
@@ -7,32 +8,40 @@ PLAYER_2 = 'O'
 EMPTY = '_'
 
 
+LINES = []
+for y in range(SIDE):
+    row = tuple((x, y) for x in range(SIDE))
+    LINES.append(row)
+for x in range(SIDE):
+    col = tuple((x, y) for y in range(SIDE))
+    LINES.append(col)
+LINES.append(tuple((x, x) for x in range(SIDE)))
+LINES.append(tuple((SIDE - x - 1, x) for x in range(SIDE)))
+
+
 class TicTacToeState(State):
-    def __init__(self, side, string):
+    def __init__(self, side, init_string=None):
         super(TicTacToeState, self).__init__()
         self.side = side
 
         self.board = [[EMPTY for _ in range(side)] for _ in range(side)]
-        correct_length = self.side ** 2
-        if len(string) != correct_length:
-            raise ValueError("Initialization string length must be {}".
-                             format(correct_length))
-        for i, char in enumerate(string):
-            if char not in [PLAYER_1, PLAYER_2, EMPTY]:
-                raise ValueError("Undefined symbol used: '{}'".format(char))
-            x = i % self.side
-            y = i // self.side
-            self.board[y][x] = char
+        if init_string:
+            correct_length = self.side ** 2
+            if len(init_string) != correct_length:
+                raise ValueError("Initialization string length must be {}".
+                                 format(correct_length))
+            for i, char in enumerate(init_string):
+                if char not in [PLAYER_1, PLAYER_2, EMPTY]:
+                    raise ValueError("Undefined symbol used: '{}'".
+                                     format(char))
+                x = i % self.side
+                y = i // self.side
+                self.board[y][x] = char
 
-        self.lines = []
-        for y in range(side):
-            row = tuple((x, y) for x in range(side))
-            self.lines.append(row)
-        for x in range(side):
-            col = tuple((x, y) for y in range(side))
-            self.lines.append(col)
-        self.lines.append(tuple((x, x) for x in range(side)))
-        self.lines.append(tuple((side - x - 1, x) for x in range(side)))
+    def clone(self):
+        clone = TicTacToeState(self.side)
+        clone.board = [row[:] for row in self.board]
+        return clone
 
     def get_goodness(self, current_player):
         goodness = 0
@@ -89,7 +98,7 @@ class TicTacToeState(State):
     def count_players_on_lines(self, current_player):
         counts = []
         next_player = self.get_opposite_player(current_player)
-        for line in self.lines:
+        for line in LINES:
             player_places = 0
             enemy_places = 0
             for (x, y) in line:

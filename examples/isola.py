@@ -1,4 +1,5 @@
-from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester
+from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester, \
+    MonteCarloTreeSearch
 
 
 SIDE = 5
@@ -9,24 +10,33 @@ REMOVED = '#'
 
 
 class IsolaState(State):
-    def __init__(self, side, string):
+    def __init__(self, side, init_string=None):
         super(IsolaState, self).__init__()
         self.side = side
 
         self.board = [[' ' for _ in range(side)] for _ in range(side)]
-        correct_length = self.side ** 2
-        if len(string) != correct_length:
-            raise ValueError("Initialization string length must be {}"
-                             .format(correct_length))
-        for i, char in enumerate(string):
-            if char not in [PLAYER_1, PLAYER_2, EMPTY, REMOVED]:
-                raise ValueError("Undefined symbol used: '{}'".format(char))
-            x = i % self.side
-            y = i // self.side
-            self.board[y][x] = char
+        if init_string:
+            correct_length = self.side ** 2
+            if len(init_string) != correct_length:
+                raise ValueError("Initialization string length must be {}"
+                                 .format(correct_length))
+            for i, char in enumerate(init_string):
+                if char not in [PLAYER_1, PLAYER_2, EMPTY, REMOVED]:
+                    raise ValueError("Undefined symbol used: '{}'".
+                                     format(char))
+                x = i % self.side
+                y = i // self.side
+                self.board[y][x] = char
 
-        self.player_1_cords = self.find_player_cords(PLAYER_1)
-        self.player_2_cords = self.find_player_cords(PLAYER_2)
+            self.player_1_cords = self.find_player_cords(PLAYER_1)
+            self.player_2_cords = self.find_player_cords(PLAYER_2)
+
+    def clone(self):
+        clone = IsolaState(self.side)
+        clone.board = [row[:] for row in self.board]
+        clone.player_1_cords = self.player_1_cords
+        clone.player_2_cords = self.player_2_cords
+        return clone
 
     def get_goodness(self, player):
         next_player = self.get_opposite_player(player)
@@ -204,7 +214,7 @@ if __name__ == "__main__":
                              "__1__")
 
     algorithm_1 = Minimax(PLAYER_1, PLAYER_2, 1)
-    algorithm_2 = Minimax(PLAYER_2, PLAYER_1, 2)
+    algorithm_2 = MonteCarloTreeSearch(PLAYER_2, PLAYER_1, 100, verbose=True)
 
     tester = Tester(state, algorithm_1, algorithm_2)
     tester.start()
