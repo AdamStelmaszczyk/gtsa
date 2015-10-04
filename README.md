@@ -16,9 +16,10 @@ Implemented algorithms:
 ---
 
 - [Minimax](https://en.wikipedia.org/wiki/Minimax) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning)
+- [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
+https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation)
 
 Planned:
 ---
 
-- [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search)
 - [Neural networks](https://en.wikipedia.org/wiki/Artificial_neural_network)
