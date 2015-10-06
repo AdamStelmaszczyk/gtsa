@@ -9,10 +9,9 @@ SQRT_2 = math.sqrt(2)
 
 
 class Algorithm(object):
-    def __init__(self, our_symbol, enemy_symbol, verbose=False):
+    def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
-        self.verbose = verbose
 
     def get_our_symbol(self):
         return self.our_symbol
@@ -105,19 +104,25 @@ class MonteCarloTreeSearch(Algorithm):
     def __init__(self, our_symbol,
                  enemy_symbol,
                  max_simulations=500,
+                 max_seconds=10,
                  verbose=False):
-        super(MonteCarloTreeSearch, self).__init__(our_symbol,
-                                                   enemy_symbol,
-                                                   verbose)
+        super(MonteCarloTreeSearch, self).__init__(our_symbol, enemy_symbol)
         self.max_simulations = max_simulations
+        self.max_seconds = max_seconds
+        self.verbose = verbose
 
     def get_move(self, state):
         if state.is_terminal(self.our_symbol):
             raise ValueError("Given state is terminal: {}".format(state))
+        timer = Timer()
         state.remove_children()
-        for i in range(self.max_simulations):
+        simulation = 0
+        while simulation < self.max_simulations \
+                and timer.seconds_elapsed() < self.max_seconds:
             self._monte_carlo_tree_search(state, self.our_symbol)
+            simulation += 1
         if self.verbose:
+            print("{} simulations".format(simulation))
             for child in state.children:
                 print("Move: {0} trials: {1} ratio: {1:.1f}%".format(
                     child.move,
@@ -246,7 +251,7 @@ class State(object):
         return self.score / (self.visits + EPSILON) + \
             SQRT_2 * \
             math.sqrt(
-                math.log(self.parent.visits + 1) / (self.visits+EPSILON)) \
+                math.log(self.parent.visits + 1) / (self.visits + EPSILON)) \
             + random.random() * EPSILON
 
     def get_goodness(self, current_player):
@@ -307,9 +312,11 @@ class Timer:
     def __init__(self):
         self.start = time.clock()
 
-    def stop(self):
-        seconds_elapsed = time.clock() - self.start
-        print("{0:.1f}s".format(seconds_elapsed))
+    def seconds_elapsed(self):
+        return time.clock() - self.start
+
+    def print_seconds_elapsed(self):
+        print("{0:.1f}s".format(self.seconds_elapsed()))
 
 
 class Tester(object):
@@ -328,7 +335,7 @@ class Tester(object):
             print(type(self.algorithm_1).__name__)
             timer = Timer()
             move = self.algorithm_1.get_move(self.state)
-            timer.stop()
+            timer.print_seconds_elapsed()
             self.state.make_move(move, self.player_1)
             print(self.state)
 
@@ -337,6 +344,6 @@ class Tester(object):
             print(type(self.algorithm_2).__name__)
             timer = Timer()
             move = self.algorithm_2.get_move(self.state)
-            timer.stop()
+            timer.print_seconds_elapsed()
             self.state.make_move(move, self.player_2)
             print(self.state)
