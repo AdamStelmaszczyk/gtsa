@@ -118,7 +118,7 @@ class IsolaState(State):
     def is_winner(self, player):
         x, y = self.get_player_cords(self.get_opposite_player(player))
         enemy_legal_steps = self.get_legal_step_moves(x, y)
-        return not enemy_legal_steps
+        return self.player_who_moved == player and not enemy_legal_steps
 
     def find_player_cords(self, player):
         for y in range(self.side):

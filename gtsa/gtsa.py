@@ -183,17 +183,18 @@ class MonteCarloTreeSearch(Algorithm):
 
 
 class State(object):
-    def __init__(self, move=None, parent=None):
+    def __init__(self):
         self.visits = 0
         self.score = 0
-        self.move = move
-        self.parent = parent
+        self.player_who_moved = None
+        self.move = None
+        self.parent = None
         self.children = []
 
     def expand(self, player):
         children = []
         for move in self.get_legal_moves(player):
-            child = self._copy(move)
+            child = self._copy(player, move)
             child.make_move(move, player)
             if child.is_winner(player):
                 # If player has a winning move he makes it.
@@ -202,11 +203,12 @@ class State(object):
             children.append(child)
         self.children = children
 
-    def _copy(self, move):
+    def _copy(self, player_who_moved, move):
         copy = self.clone()
         copy.children = []
         copy.visits = 0
         copy.score = 0
+        copy.player_who_moved = player_who_moved
         copy.move = move
         copy.parent = self
         return copy
