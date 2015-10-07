@@ -46,13 +46,16 @@ class Human(Algorithm):
 
 
 class Minimax(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, max_depth=10):
+    def __init__(self, our_symbol, enemy_symbol, max_seconds=10, max_depth=10):
         super(Minimax, self).__init__(our_symbol, enemy_symbol)
+        self.max_seconds = max_seconds
         self.max_depth = max_depth
+        self.timer = None
 
     def get_move(self, state):
         if state.is_terminal(self.our_symbol):
             raise ValueError("Given state is terminal: {}".format(state))
+        self.timer = Timer()
         _, best_move = self._minimax(state,
                                      self.max_depth,
                                      float('-inf'),
@@ -62,7 +65,8 @@ class Minimax(Algorithm):
 
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
         legal_moves = state.get_legal_moves(analyzed_player)
-        if depth <= 0 or state.is_terminal(analyzed_player):
+        if depth <= 0 or state.is_terminal(analyzed_player) or \
+                        self.timer.seconds_elapsed() > self.max_seconds:
             return state.get_goodness(self.our_symbol), None
         best_move = None
         if analyzed_player == self.our_symbol:
@@ -103,12 +107,12 @@ class Minimax(Algorithm):
 class MonteCarloTreeSearch(Algorithm):
     def __init__(self, our_symbol,
                  enemy_symbol,
-                 max_simulations=500,
                  max_seconds=10,
+                 max_simulations=500,
                  verbose=False):
         super(MonteCarloTreeSearch, self).__init__(our_symbol, enemy_symbol)
-        self.max_simulations = max_simulations
         self.max_seconds = max_seconds
+        self.max_simulations = max_simulations
         self.verbose = verbose
 
     def get_move(self, state):
