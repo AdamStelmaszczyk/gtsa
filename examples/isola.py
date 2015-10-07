@@ -64,14 +64,14 @@ class IsolaState(State):
         x, y = self.get_player_cords(player)
         step_moves = self.get_legal_step_moves(x, y)
         remove_moves = self.get_legal_remove_moves(player)
-        legal_moves = set()
+        legal_moves = []
         for step_move in step_moves:
             for remove_move in remove_moves:
                 if step_move != remove_move:
                     move = IsolaMove(x, y,
                                      step_move[0], step_move[1],
                                      remove_move[0], remove_move[1])
-                    legal_moves.add(move)
+                    legal_moves.append(move)
         return legal_moves
 
     def get_legal_step_moves(self, start_x, start_y):

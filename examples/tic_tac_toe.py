@@ -62,11 +62,11 @@ class TicTacToeState(State):
         return goodness
 
     def get_legal_moves(self, player):
-        legal_moves = set()
+        legal_moves = []
         for y in range(self.side):
             for x in range(self.side):
                 if self.board[y][x] == EMPTY:
-                    legal_moves.add(TicTacToeMove(x, y))
+                    legal_moves.append(TicTacToeMove(x, y))
         return legal_moves
 
     def get_opposite_player(self, player):
