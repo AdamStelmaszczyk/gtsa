@@ -232,11 +232,14 @@ class State(object):
 
     def select_child_by_ratio(self):
         best_child = None
-        best_uct = float('-inf')
+        max_ratio = float('-inf')
+        max_visits = float('-inf')
         for child in self.children:
             child_ratio = child.get_win_ratio()
-            if best_uct < child_ratio:
-                best_uct = child_ratio
+            if max_ratio < child_ratio or \
+                    (max_ratio == child_ratio and max_visits < child.visits):
+                max_ratio = child_ratio
+                max_visits = child.visits
                 best_child = child
         return best_child
 
@@ -245,11 +248,11 @@ class State(object):
 
     def select_child_by_uct(self):
         best_child = None
-        best_uct = float('-inf')
+        max_uct = float('-inf')
         for child in self.children:
             child_uct = child.get_uct_value()
-            if best_uct < child_uct:
-                best_uct = child_uct
+            if max_uct < child_uct:
+                max_uct = child_uct
                 best_child = child
         return best_child
 
