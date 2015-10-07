@@ -29,6 +29,15 @@ def test_isola_not_lose():
         assert move.get_step_x() != 2 and move.get_step_y() != 2
 
 
+def test_isola_not_lose_2():
+    state = IsolaState(3, "###"
+                          "___"
+                          "12_")
+    for algorithm in [Minimax('1', '2'), MonteCarloTreeSearch('1', '2')]:
+        move = algorithm.get_move(state)
+        assert move != IsolaMove(0, 2, 0, 1, 1, 1)
+
+
 def test_isola_terminal():
     state = IsolaState(3, "#2#"
                           "###"
