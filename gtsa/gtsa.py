@@ -66,7 +66,7 @@ class Minimax(Algorithm):
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
         legal_moves = state.get_legal_moves(analyzed_player)
         if depth <= 0 or state.is_terminal(analyzed_player) or \
-                        self.timer.seconds_elapsed() > self.max_seconds:
+                self.timer.seconds_elapsed() > self.max_seconds:
             return state.get_goodness(self.our_symbol), None
         best_move = None
         if analyzed_player == self.our_symbol:
