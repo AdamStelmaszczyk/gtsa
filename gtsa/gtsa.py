@@ -46,7 +46,7 @@ class Human(Algorithm):
 
 
 class Minimax(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, max_seconds=30, max_depth=10):
+    def __init__(self, our_symbol, enemy_symbol, max_seconds=10, max_depth=10):
         super(Minimax, self).__init__(our_symbol, enemy_symbol)
         self.max_seconds = max_seconds
         self.max_depth = max_depth
