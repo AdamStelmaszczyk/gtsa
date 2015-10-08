@@ -33,7 +33,7 @@ def test_isola_not_lose_2():
     state = IsolaState(3, "###"
                           "___"
                           "12_")
-    for algorithm in [MonteCarloTreeSearch('1', '2')]:
+    for algorithm in [Minimax('1', '2'), MonteCarloTreeSearch('1', '2')]:
         move = algorithm.get_move(state)
         assert move != IsolaMove(0, 2, 0, 1, 1, 1)
 
