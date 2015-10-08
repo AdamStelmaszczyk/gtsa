@@ -2,7 +2,7 @@ from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester, \
     MonteCarloTreeSearch
 
 
-SIDE = 5
+SIDE = 7
 PLAYER_1 = '1'
 PLAYER_2 = '2'
 EMPTY = '_'
@@ -207,11 +207,13 @@ class IsolaMoveReader(MoveReader):
 
 
 if __name__ == "__main__":
-    state = IsolaState(SIDE, "__2__"
-                             "_____"
-                             "_____"
-                             "_____"
-                             "__1__")
+    state = IsolaState(SIDE, "___2___"
+                             "_______"
+                             "_______"
+                             "_______"
+                             "_______"
+                             "_______"
+                             "___1___")
 
     algorithm_1 = Minimax(PLAYER_1, PLAYER_2, max_depth=1)
     algorithm_2 = MonteCarloTreeSearch(PLAYER_2,
