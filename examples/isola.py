@@ -75,7 +75,7 @@ class IsolaState(State):
         return legal_moves
 
     def get_legal_step_moves(self, start_x, start_y):
-        step_moves = []
+        step_moves = set()
         for dy in range(-1, 2):
             for dx in range(-1, 2):
                 x = start_x + dx
@@ -83,15 +83,15 @@ class IsolaState(State):
                 if x < 0 or x >= self.side or y < 0 or y >= self.side:
                     continue
                 if self.board[y][x] == EMPTY:
-                    step_moves.append((x, y))
+                    step_moves.add((x, y))
         return step_moves
 
     def get_legal_remove_moves(self, player):
-        remove_moves = []
+        remove_moves = set()
         for y in range(self.side):
             for x in range(self.side):
                 if self.board[y][x] in [EMPTY, player]:
-                    remove_moves.append((x, y))
+                    remove_moves.add((x, y))
         return remove_moves
 
     def get_opposite_player(self, player):
