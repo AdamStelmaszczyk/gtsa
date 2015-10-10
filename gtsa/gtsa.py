@@ -179,7 +179,7 @@ class MonteCarloTreeSearch(Algorithm):
             state.undo_move(move, analyzed_player)
 
         # Otherwise random move.
-        move = random.choice(tuple(legal_moves))
+        move = random.choice(legal_moves)
         state.make_move(move, analyzed_player)
         result = self._simulate(state, opponent)
         state.undo_move(move, analyzed_player)
