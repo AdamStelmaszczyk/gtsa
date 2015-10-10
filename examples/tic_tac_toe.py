@@ -74,9 +74,11 @@ class TicTacToeState(State):
 
     def make_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = player
+        self.player_who_moved = player
 
     def undo_move(self, move, player):
         self.board[move.get_y()][move.get_x()] = EMPTY
+        self.player_who_moved = self.get_opposite_player(player)
 
     def is_terminal(self, player):
         legal_moves = self.get_legal_moves(player)
