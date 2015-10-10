@@ -39,16 +39,20 @@ class IsolaState(State):
         return clone
 
     def get_goodness(self, player):
-        next_player = self.get_opposite_player(player)
+        if self.is_winner(player):
+            return 100
+        enemy = self.get_opposite_player(player)
+        if self.is_winner(enemy):
+            return -100
         current_player_options = self.get_number_of_legal_moves(player)
         current_player_score = self.get_score(current_player_options)
-        next_player_options = self.get_number_of_legal_moves(next_player)
+        next_player_options = self.get_number_of_legal_moves(enemy)
         next_player_score = self.get_score(next_player_options)
         return current_player_score - next_player_score
 
     def get_score(self, options):
         if options == 0:
-            return -100
+            return -50
         elif options == 1:
             return -10
         elif options == 2:
@@ -103,12 +107,14 @@ class IsolaState(State):
         self.board[move.get_step_y()][move.get_step_x()] = player
         self.board[move.get_remove_y()][move.get_remove_x()] = REMOVED
         self.set_player_cords(player, (move.get_step_x(), move.get_step_y()))
+        self.player_who_moved = player
 
     def undo_move(self, move, player):
         self.board[move.get_remove_y()][move.get_remove_x()] = EMPTY
         self.board[move.get_from_y()][move.get_from_x()] = player
         self.board[move.get_step_y()][move.get_step_x()] = EMPTY
         self.set_player_cords(player, (move.get_from_x(), move.get_from_y()))
+        self.player_who_moved = self.get_opposite_player(player)
 
     def is_terminal(self, player):
         x, y = self.get_player_cords(player)
