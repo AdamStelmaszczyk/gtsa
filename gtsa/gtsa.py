@@ -39,10 +39,12 @@ class Human(Algorithm):
         legal_moves = state.get_legal_moves(self.our_symbol)
         if not legal_moves:
             raise ValueError("Given state is terminal")
-        move = self.move_reader.read()
-        if move not in legal_moves:
-            raise ValueError("Illegal move")
-        return move
+        while True:
+            move = self.move_reader.read()
+            if move in legal_moves:
+                return move
+            else:
+                print("Move {} is not legal".format(move))
 
 
 class Minimax(Algorithm):
