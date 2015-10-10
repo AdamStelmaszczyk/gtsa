@@ -8,6 +8,10 @@ PLAYER_2 = 'O'
 EMPTY = '_'
 
 
+def get_opposite_player(player):
+    return PLAYER_2 if player == PLAYER_1 else PLAYER_1
+
+
 LINES = []
 for y in range(SIDE):
     row = tuple((x, y) for x in range(SIDE))
@@ -69,16 +73,13 @@ class TicTacToeState(State):
                     legal_moves.append(TicTacToeMove(x, y))
         return legal_moves
 
-    def get_opposite_player(self, player):
-        return PLAYER_2 if player == PLAYER_1 else PLAYER_1
-
     def make_move(self, move, player):
         self.board[move.y][move.x] = player
         self.player_who_moved = player
 
     def undo_move(self, move, player):
         self.board[move.y][move.x] = EMPTY
-        self.player_who_moved = self.get_opposite_player(player)
+        self.player_who_moved = get_opposite_player(player)
 
     def is_terminal(self, player):
         legal_moves = self.get_legal_moves(player)
@@ -99,7 +100,7 @@ class TicTacToeState(State):
 
     def count_players_on_lines(self, current_player):
         counts = []
-        next_player = self.get_opposite_player(current_player)
+        next_player = get_opposite_player(current_player)
         for line in LINES:
             player_places = 0
             enemy_places = 0

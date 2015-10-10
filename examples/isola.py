@@ -9,6 +9,10 @@ EMPTY = '_'
 REMOVED = '#'
 
 
+def get_opposite_player(player):
+    return PLAYER_2 if player == PLAYER_1 else PLAYER_1
+
+
 class IsolaState(State):
     def __init__(self, side, init_string=None):
         super(IsolaState, self).__init__()
@@ -41,7 +45,7 @@ class IsolaState(State):
     def get_goodness(self, player):
         if self.is_winner(player):
             return 100
-        enemy = self.get_opposite_player(player)
+        enemy = get_opposite_player(player)
         if self.is_winner(enemy):
             return -100
         current_player_options = self.get_number_of_legal_moves(player)
@@ -98,9 +102,6 @@ class IsolaState(State):
                     remove_moves.append((x, y))
         return remove_moves
 
-    def get_opposite_player(self, player):
-        return PLAYER_2 if player == PLAYER_1 else PLAYER_1
-
     def make_move(self, move, player):
         x, y = self.get_player_cords(player)
         self.board[y][x] = EMPTY
@@ -114,7 +115,7 @@ class IsolaState(State):
         self.board[move.from_y][move.from_x] = player
         self.board[move.step_y][move.step_x] = EMPTY
         self.set_player_cords(player, (move.from_x, move.from_y))
-        self.player_who_moved = self.get_opposite_player(player)
+        self.player_who_moved = get_opposite_player(player)
 
     def is_terminal(self, player):
         x, y = self.get_player_cords(player)
@@ -122,7 +123,7 @@ class IsolaState(State):
         return not current_player_legal_steps
 
     def is_winner(self, player):
-        x, y = self.get_player_cords(self.get_opposite_player(player))
+        x, y = self.get_player_cords(get_opposite_player(player))
         enemy_legal_steps = self.get_legal_step_moves(x, y)
         return self.player_who_moved == player and not enemy_legal_steps
 
