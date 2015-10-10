@@ -126,9 +126,10 @@ class MonteCarloTreeSearch(Algorithm):
             self._monte_carlo_tree_search(state, self.our_symbol)
             simulation += 1
         if self.verbose:
-            print("{} simulations".format(simulation))
+            print("simulations: {} moves: {}".format(simulation,
+                                                     len(state.children)))
             for child in state.children:
-                print("Move: {} trials: {} ratio: {:.1f}%".format(
+                print("move: {} trials: {} ratio: {:.1f}%".format(
                     child.move,
                     child.visits,
                     100 * child.get_win_ratio()))
