@@ -17,7 +17,7 @@ def test_isola_finish():
                           "__1")
     for algorithm in [Minimax('1', '2'), MonteCarloTreeSearch('1', '2')]:
         move = algorithm.get_move(state)
-        assert move.get_remove_x() == 0 and move.get_remove_y() == 1
+        assert move.remove_x == 0 and move.remove_y == 1
 
 
 def test_isola_not_lose():
@@ -26,7 +26,7 @@ def test_isola_not_lose():
                           "_#_")
     for algorithm in [Minimax('1', '2'), MonteCarloTreeSearch('1', '2')]:
         move = algorithm.get_move(state)
-        assert move.get_step_x() != 2 and move.get_step_y() != 2
+        assert move.step_x != 2 and move.step_y != 2
 
 
 def test_isola_terminal():

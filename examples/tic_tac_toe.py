@@ -73,11 +73,11 @@ class TicTacToeState(State):
         return PLAYER_2 if player == PLAYER_1 else PLAYER_1
 
     def make_move(self, move, player):
-        self.board[move.get_y()][move.get_x()] = player
+        self.board[move.y][move.x] = player
         self.player_who_moved = player
 
     def undo_move(self, move, player):
-        self.board[move.get_y()][move.get_x()] = EMPTY
+        self.board[move.y][move.x] = EMPTY
         self.player_who_moved = self.get_opposite_player(player)
 
     def is_terminal(self, player):
@@ -128,12 +128,6 @@ class TicTacToeMove(Move):
     def __init__(self, x, y):
         self.x = x
         self.y = y
-
-    def get_x(self):
-        return self.x
-
-    def get_y(self):
-        return self.y
 
     def __repr__(self):
         return "{} {}".format(self.x, self.y)

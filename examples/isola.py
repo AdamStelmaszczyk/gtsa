@@ -104,16 +104,16 @@ class IsolaState(State):
     def make_move(self, move, player):
         x, y = self.get_player_cords(player)
         self.board[y][x] = EMPTY
-        self.board[move.get_step_y()][move.get_step_x()] = player
-        self.board[move.get_remove_y()][move.get_remove_x()] = REMOVED
-        self.set_player_cords(player, (move.get_step_x(), move.get_step_y()))
+        self.board[move.step_y][move.step_x] = player
+        self.board[move.remove_y][move.remove_x] = REMOVED
+        self.set_player_cords(player, (move.step_x, move.step_y))
         self.player_who_moved = player
 
     def undo_move(self, move, player):
-        self.board[move.get_remove_y()][move.get_remove_x()] = EMPTY
-        self.board[move.get_from_y()][move.get_from_x()] = player
-        self.board[move.get_step_y()][move.get_step_x()] = EMPTY
-        self.set_player_cords(player, (move.get_from_x(), move.get_from_y()))
+        self.board[move.remove_y][move.remove_x] = EMPTY
+        self.board[move.from_y][move.from_x] = player
+        self.board[move.step_y][move.step_x] = EMPTY
+        self.set_player_cords(player, (move.from_x, move.from_y))
         self.player_who_moved = self.get_opposite_player(player)
 
     def is_terminal(self, player):
@@ -165,24 +165,6 @@ class IsolaMove(Move):
         self.step_y = step_y
         self.remove_x = remove_x
         self.remove_y = remove_y
-
-    def get_from_x(self):
-        return self.from_x
-
-    def get_from_y(self):
-        return self.from_y
-
-    def get_step_x(self):
-        return self.step_x
-
-    def get_step_y(self):
-        return self.step_y
-
-    def get_remove_x(self):
-        return self.remove_x
-
-    def get_remove_y(self):
-        return self.remove_y
 
     def __repr__(self):
         return "{} {} {} {} {} {}".format(self.from_x, self.from_y,
