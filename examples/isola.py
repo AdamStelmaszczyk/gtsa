@@ -88,9 +88,8 @@ class IsolaState(State):
             for dx in range(-1, 2):
                 x = start_x + dx
                 y = start_y + dy
-                if x < 0 or x >= self.side or y < 0 or y >= self.side:
-                    continue
-                if self.board[y][x] == EMPTY:
+                if 0 <= x < self.side and 0 <= y < self.side and \
+                        self.board[y][x] == EMPTY:
                     step_moves.append((x, y))
         return step_moves
 
