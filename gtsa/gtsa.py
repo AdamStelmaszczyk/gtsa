@@ -298,9 +298,6 @@ class State(object):
     def __ne__(self, other):
         raise NotImplementedError("Implement __ne__ in State subclass")
 
-    def __hash__(self):
-        raise NotImplementedError("Implement __hash__ in State subclass")
-
 
 class Move(object):
     def __repr__(self):
