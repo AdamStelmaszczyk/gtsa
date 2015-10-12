@@ -48,9 +48,9 @@ class IsolaState(State):
         enemy = get_opposite_player(player)
         if self.is_winner(enemy):
             return -100
-        current_player_options = self.get_number_of_legal_moves(player)
+        current_player_options = self.get_number_of_legal_steps(player)
         current_player_score = self.get_score(current_player_options)
-        next_player_options = self.get_number_of_legal_moves(enemy)
+        next_player_options = self.get_number_of_legal_steps(enemy)
         next_player_score = self.get_score(next_player_options)
         return current_player_score - next_player_score
 
@@ -64,7 +64,7 @@ class IsolaState(State):
         else:
             return options + 2
 
-    def get_number_of_legal_moves(self, player):
+    def get_number_of_legal_steps(self, player):
         x, y = self.get_player_cords(player)
         return len(self.get_legal_step_moves(x, y))
 
