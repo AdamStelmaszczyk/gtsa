@@ -8,6 +8,11 @@ EPSILON = 0.01
 SQRT_2 = math.sqrt(2)
 
 
+def get_random_from_generator(generator):
+    results = [_ for _ in generator]
+    return random.choice(results)
+
+
 class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
@@ -36,7 +41,7 @@ class Human(Algorithm):
         self.move_reader = move_reader
 
     def get_move(self, state):
-        legal_moves = state.get_legal_moves(self.our_symbol)
+        legal_moves = [_ for _ in state.get_legal_moves(self.our_symbol)]
         if not legal_moves:
             raise ValueError("Given state is terminal")
         while True:
@@ -171,10 +176,8 @@ class MonteCarloTreeSearch(Algorithm):
                 return 1 if opponent == self.our_symbol else 0
             return 0.5
 
-        legal_moves = state.get_legal_moves(analyzed_player)
-
         # If player has a winning move he makes it.
-        for move in legal_moves:
+        for move in state.get_legal_moves(analyzed_player):
             state.make_move(move, analyzed_player)
             if state.is_winner(analyzed_player):
                 state.undo_move(move, analyzed_player)
@@ -182,7 +185,8 @@ class MonteCarloTreeSearch(Algorithm):
             state.undo_move(move, analyzed_player)
 
         # Otherwise random move.
-        move = random.choice(legal_moves)
+        generator = state.get_legal_moves(analyzed_player)
+        move = get_random_from_generator(generator)
         state.make_move(move, analyzed_player)
         result = self._simulate(state, opponent)
         state.undo_move(move, analyzed_player)
