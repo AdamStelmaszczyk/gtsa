@@ -100,12 +100,10 @@ class IsolaState(State):
                     yield (x, y)
 
     def get_legal_remove_moves(self, player):
-        remove_moves = []
         for y in range(self.side):
             for x in range(self.side):
                 if self.board[y][x] in [EMPTY, player]:
-                    remove_moves.append((x, y))
-        return remove_moves
+                    yield (x, y)
 
     def make_move(self, move, player):
         x, y = self.get_player_cords(player)
