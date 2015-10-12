@@ -177,11 +177,6 @@ class IsolaMove(Move):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __hash__(self):
-        return self.step_y * SIDE ** 3 + \
-            self.step_x * SIDE ** 2 + \
-            self.remove_y * SIDE + self.remove_x
-
 
 class IsolaMoveReader(MoveReader):
     def read(self):
