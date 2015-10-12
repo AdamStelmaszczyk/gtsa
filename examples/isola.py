@@ -18,7 +18,7 @@ class IsolaState(State):
         super(IsolaState, self).__init__()
         self.side = side
 
-        self.board = [[' ' for _ in range(side)] for _ in range(side)]
+        self.board = [[EMPTY for _ in range(side)] for _ in range(side)]
         if init_string:
             correct_length = self.side ** 2
             if len(init_string) != correct_length:
