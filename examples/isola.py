@@ -1,3 +1,4 @@
+import itertools
 from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester, \
     MonteCarloTreeSearch
 
@@ -68,12 +69,12 @@ class IsolaState(State):
         x, y = self.get_player_cords(player)
         step_moves = self.get_legal_step_moves(x, y)
         remove_moves = self.get_legal_remove_moves(player)
-        for step_move in step_moves:
-            for remove_move in remove_moves:
-                if step_move != remove_move:
-                    yield IsolaMove(x, y,
-                                    step_move[0], step_move[1],
-                                    remove_move[0], remove_move[1])
+        product = itertools.product(step_moves, remove_moves)
+        for (step_move, remove_move) in product:
+            if step_move != remove_move:
+                yield IsolaMove(x, y,
+                                step_move[0], step_move[1],
+                                remove_move[0], remove_move[1])
 
     def get_number_of_legal_steps(self, player):
         result = 0
