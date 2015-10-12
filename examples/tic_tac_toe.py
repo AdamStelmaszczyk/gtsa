@@ -66,12 +66,17 @@ class TicTacToeState(State):
         return goodness
 
     def get_legal_moves(self, player):
-        legal_moves = []
         for y in range(self.side):
             for x in range(self.side):
                 if self.board[y][x] == EMPTY:
-                    legal_moves.append(TicTacToeMove(x, y))
-        return legal_moves
+                    yield TicTacToeMove(x, y)
+
+    def has_empty_space(self):
+        for y in range(self.side):
+            for x in range(self.side):
+                if self.board[y][x] == EMPTY:
+                    return True
+        return False
 
     def make_move(self, move, player):
         self.board[move.y][move.x] = player
@@ -82,8 +87,7 @@ class TicTacToeState(State):
         self.player_who_moved = get_opposite_player(player)
 
     def is_terminal(self, player):
-        legal_moves = self.get_legal_moves(player)
-        if not legal_moves:
+        if not self.has_empty_space():
             return True
         counts = self.count_players_on_lines(player)
         for count in counts:
