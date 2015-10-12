@@ -308,9 +308,6 @@ class Move(object):
     def __ne__(self, other):
         raise NotImplementedError("Implement __ne__ in Move subclass")
 
-    def __hash__(self):
-        raise NotImplementedError("Implement __hash__ in State subclass")
-
 
 class MoveReader(object):
     def __init__(self, state):

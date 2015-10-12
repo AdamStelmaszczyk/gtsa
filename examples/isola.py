@@ -154,9 +154,6 @@ class IsolaState(State):
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def __hash__(self):
-        return hash(tuple(tuple(row) for row in self.board))
-
 
 class IsolaMove(Move):
     def __init__(self, from_x, from_y, step_x, step_y, remove_x, remove_y):
