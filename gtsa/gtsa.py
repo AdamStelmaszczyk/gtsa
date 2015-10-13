@@ -292,12 +292,6 @@ class State(object):
     def __repr__(self):
         raise NotImplementedError("Implement __repr__ in State subclass")
 
-    def __eq__(self, other):
-        raise NotImplementedError("Implement __eq__ in State subclass")
-
-    def __ne__(self, other):
-        raise NotImplementedError("Implement __ne__ in State subclass")
-
 
 class Move(object):
     def __repr__(self):

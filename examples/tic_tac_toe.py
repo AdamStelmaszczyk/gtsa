@@ -118,12 +118,6 @@ class TicTacToeState(State):
     def __repr__(self):
         return '\n'.join([''.join(row) for row in self.board]) + '\n'
 
-    def __eq__(self, other):
-        return self.board == other.board
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
 
 class TicTacToeMoveReader(MoveReader):
     def read(self):
