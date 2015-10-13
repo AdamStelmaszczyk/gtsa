@@ -1,6 +1,5 @@
 import itertools
-from gtsa.gtsa import State, Move, Minimax, MoveReader, Tester, \
-    MonteCarloTreeSearch
+from gtsa.gtsa import State, Minimax, MoveReader, Tester, MonteCarloTreeSearch
 
 
 SIDE = 7
@@ -72,9 +71,9 @@ class IsolaState(State):
         product = itertools.product(step_moves, remove_moves)
         for (step_move, remove_move) in product:
             if step_move != remove_move:
-                yield IsolaMove(x, y,
-                                step_move[0], step_move[1],
-                                remove_move[0], remove_move[1])
+                yield (x, y,
+                       step_move[0], step_move[1],
+                       remove_move[0], remove_move[1])
 
     def get_number_of_legal_steps(self, player):
         result = 0
@@ -106,16 +105,16 @@ class IsolaState(State):
     def make_move(self, move, player):
         x, y = self.get_player_cords(player)
         self.board[y][x] = EMPTY
-        self.board[move.step_y][move.step_x] = player
-        self.board[move.remove_y][move.remove_x] = REMOVED
-        self.set_player_cords(player, (move.step_x, move.step_y))
+        self.board[move[3]][move[2]] = player
+        self.board[move[5]][move[4]] = REMOVED
+        self.set_player_cords(player, (move[2], move[3]))
         self.player_who_moved = player
 
     def undo_move(self, move, player):
-        self.board[move.remove_y][move.remove_x] = EMPTY
-        self.board[move.from_y][move.from_x] = player
-        self.board[move.step_y][move.step_x] = EMPTY
-        self.set_player_cords(player, (move.from_x, move.from_y))
+        self.board[move[5]][move[4]] = EMPTY
+        self.board[move[1]][move[0]] = player
+        self.board[move[3]][move[2]] = EMPTY
+        self.set_player_cords(player, (move[0], move[1]))
         self.player_who_moved = get_opposite_player(player)
 
     def is_terminal(self, player):
@@ -153,36 +152,11 @@ class IsolaState(State):
         return not self.__eq__(other)
 
 
-class IsolaMove(Move):
-    def __init__(self, from_x, from_y, step_x, step_y, remove_x, remove_y):
-        self.from_x = from_x
-        self.from_y = from_y
-        self.step_x = step_x
-        self.step_y = step_y
-        self.remove_x = remove_x
-        self.remove_y = remove_y
-
-    def __repr__(self):
-        return "{} {} {} {} {} {}".format(self.from_x, self.from_y,
-                                          self.step_x, self.step_y,
-                                          self.remove_x, self.remove_y)
-
-    def __eq__(self, other):
-        return self.step_x == other.step_x and \
-            self.step_y == other.step_y and \
-            self.remove_x == other.remove_x \
-            and self.remove_y == other.remove_y
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-
 class IsolaMoveReader(MoveReader):
     def read(self):
         message = "Enter space separated step_x step_y remove_x remove_y: "
-        user = map(int, input(message).split())
         x, y = state.get_player_cords(PLAYER_1)
-        return IsolaMove(x, y, *user)
+        return (x, y) + tuple(map(int, input(message).split()))
 
 
 if __name__ == "__main__":

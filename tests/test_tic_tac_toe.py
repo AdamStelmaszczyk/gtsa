@@ -1,5 +1,5 @@
 import pytest
-from examples.tic_tac_toe import TicTacToeState, TicTacToeMove
+from examples.tic_tac_toe import TicTacToeState
 from gtsa.gtsa import Minimax, MonteCarloTreeSearch
 
 
@@ -8,7 +8,7 @@ def test_tic_tac_toe_finish():
                               "_O_"
                               "___")
     for algorithm in [Minimax('X', 'O'), MonteCarloTreeSearch('X', 'O')]:
-        assert algorithm.get_move(state) == TicTacToeMove(2, 0)
+        assert algorithm.get_move(state) == (2, 0)
 
 
 def test_tic_tac_toe_block():
@@ -16,7 +16,7 @@ def test_tic_tac_toe_block():
                               "O__"
                               "___")
     for algorithm in [Minimax('X', 'O'), MonteCarloTreeSearch('X', 'O')]:
-        assert algorithm.get_move(state) == TicTacToeMove(0, 2)
+        assert algorithm.get_move(state) == (0, 2)
 
 
 def test_tic_tac_toe_block_2():
@@ -24,7 +24,7 @@ def test_tic_tac_toe_block_2():
                               "OO_"
                               "___")
     for algorithm in [Minimax('X', 'O'), MonteCarloTreeSearch('X', 'O')]:
-        assert algorithm.get_move(state) == TicTacToeMove(2, 1)
+        assert algorithm.get_move(state) == (2, 1)
 
 
 def test_tic_tac_toe_gambit():
@@ -33,7 +33,7 @@ def test_tic_tac_toe_gambit():
                               "__O")
     for algorithm in [Minimax('X', 'O'), MonteCarloTreeSearch('X', 'O')]:
         move = algorithm.get_move(state)
-        assert move != TicTacToeMove(2, 0) and move != TicTacToeMove(0, 2)
+        assert move not in [(2, 0), (0, 2)]
 
 
 def test_tic_tac_toe_corner():
@@ -42,10 +42,7 @@ def test_tic_tac_toe_corner():
                               "___")
     for algorithm in [Minimax('X', 'O'), MonteCarloTreeSearch('X', 'O')]:
         move = algorithm.get_move(state)
-        assert move in [TicTacToeMove(0, 0),
-                        TicTacToeMove(2, 0),
-                        TicTacToeMove(0, 2),
-                        TicTacToeMove(2, 2)]
+        assert move in [(0, 0), (2, 0), (0, 2), (2, 2)]
 
 
 def test_tic_tac_toe_terminal():

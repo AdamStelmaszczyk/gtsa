@@ -1,5 +1,4 @@
-from gtsa.gtsa import State, Move, MoveReader, Human, Tester, \
-    Minimax
+from gtsa.gtsa import State, MoveReader, Human, Tester, Minimax
 
 
 SIDE = 3
@@ -69,7 +68,7 @@ class TicTacToeState(State):
         for y in range(self.side):
             for x in range(self.side):
                 if self.board[y][x] == EMPTY:
-                    yield TicTacToeMove(x, y)
+                    yield (x, y)
 
     def has_empty_space(self):
         for y in range(self.side):
@@ -79,11 +78,11 @@ class TicTacToeState(State):
         return False
 
     def make_move(self, move, player):
-        self.board[move.y][move.x] = player
+        self.board[move[1]][move[0]] = player
         self.player_who_moved = player
 
     def undo_move(self, move, player):
-        self.board[move.y][move.x] = EMPTY
+        self.board[move[1]][move[0]] = EMPTY
         self.player_who_moved = get_opposite_player(player)
 
     def is_terminal(self, player):
@@ -126,26 +125,10 @@ class TicTacToeState(State):
         return not self.__eq__(other)
 
 
-class TicTacToeMove(Move):
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __repr__(self):
-        return "{} {}".format(self.x, self.y)
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-    def __ne__(self, other):
-        return not self.__eq__(other)
-
-
 class TicTacToeMoveReader(MoveReader):
     def read(self):
         message = "Enter space separated X and Y of your move: "
-        x, y = map(int, input(message).split())
-        return TicTacToeMove(x, y)
+        return tuple(map(int, input(message).split()))
 
 
 if __name__ == "__main__":

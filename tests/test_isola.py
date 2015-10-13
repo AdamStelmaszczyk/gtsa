@@ -1,5 +1,5 @@
 import pytest
-from examples.isola import IsolaState, IsolaMove
+from examples.isola import IsolaState
 from gtsa.gtsa import Minimax, MonteCarloTreeSearch
 
 
@@ -8,7 +8,7 @@ def test_isola_move():
                           "#2#"
                           "#1_")
     for algorithm in [Minimax('1', '2'), MonteCarloTreeSearch('1', '2')]:
-        assert algorithm.get_move(state) == IsolaMove(1, 2, 2, 2, 1, 2)
+        assert algorithm.get_move(state) == (1, 2, 2, 2, 1, 2)
 
 
 def test_isola_finish():
@@ -17,7 +17,7 @@ def test_isola_finish():
                           "__1")
     for algorithm in [Minimax('1', '2'), MonteCarloTreeSearch('1', '2')]:
         move = algorithm.get_move(state)
-        assert move.remove_x == 0 and move.remove_y == 1
+        assert move[4] == 0 and move[5] == 1
 
 
 def test_isola_not_lose():
@@ -26,7 +26,7 @@ def test_isola_not_lose():
                           "_#_")
     for algorithm in [Minimax('1', '2'), MonteCarloTreeSearch('1', '2')]:
         move = algorithm.get_move(state)
-        assert move.step_x != 2 and move.step_y != 2
+        assert move[2] != 2 or move[3] != 2
 
 
 def test_isola_terminal():
