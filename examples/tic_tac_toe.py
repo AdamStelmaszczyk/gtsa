@@ -88,21 +88,18 @@ class TicTacToeState(State):
     def is_terminal(self, player):
         if not self.has_empty_space():
             return True
-        counts = self.count_players_on_lines(player)
-        for count in counts:
+        for count in self.count_players_on_lines(player):
             if count[0] == 3 or count[1] == 3:
                 return True
         return False
 
     def is_winner(self, player):
-        counts = self.count_players_on_lines(player)
-        for count in counts:
+        for count in self.count_players_on_lines(player):
             if count[0] == 3:
                 return True
         return False
 
     def count_players_on_lines(self, current_player):
-        counts = []
         next_player = get_opposite_player(current_player)
         for line in LINES:
             player_places = 0
@@ -112,8 +109,7 @@ class TicTacToeState(State):
                     player_places += 1
                 elif self.board[y][x] == next_player:
                     enemy_places += 1
-            counts.append((player_places, enemy_places))
-        return counts
+            yield (player_places, enemy_places)
 
     def __repr__(self):
         return '\n'.join([''.join(row) for row in self.board]) + '\n'
