@@ -1,11 +1,11 @@
-# Game Tree Search Algorithms (GTSA) [![Build Status](https://travis-ci.org/AdamStelmaszczyk/gtsa.svg?branch=master)](https://travis-ci.org/AdamStelmaszczyk/gtsa)
+# Game Tree Search Algorithms [![Build Status](https://travis-ci.org/AdamStelmaszczyk/gtsa.svg?branch=master)](https://travis-ci.org/AdamStelmaszczyk/gtsa)
 
 Python library providing algorithms useful in AI bot programming.
 
 Usage
 ---
 
-1. Specify game rules by subclassing `State` and `Move`. 
+1. Specify game rules by subclassing `State`. 
 2. Create AI players with chosen algorithms. You can also play by yourself (`Human` class).
 3. Read the board state and output the move (typical for programming contests). 
 Alternatively, use `Tester` to play the whole game (typical for local testing).
