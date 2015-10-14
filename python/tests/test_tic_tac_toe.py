@@ -27,15 +27,6 @@ def test_tic_tac_toe_block_2():
         assert algorithm.get_move(state) == (2, 1)
 
 
-def test_tic_tac_toe_gambit():
-    state = TicTacToeState(3, "O__"
-                              "_X_"
-                              "__O")
-    for algorithm in [Minimax('X', 'O'), MonteCarloTreeSearch('X', 'O')]:
-        move = algorithm.get_move(state)
-        assert move not in [(2, 0), (0, 2)]
-
-
 def test_tic_tac_toe_corner():
     state = TicTacToeState(3, "___"
                               "_O_"
