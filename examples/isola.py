@@ -1,5 +1,6 @@
 import itertools
-from gtsa.gtsa import State, Minimax, MoveReader, Tester, MonteCarloTreeSearch
+
+from gtsa import State, Minimax, MoveReader, Tester, MonteCarloTreeSearch
 
 
 SIDE = 7

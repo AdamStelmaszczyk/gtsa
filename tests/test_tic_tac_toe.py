@@ -1,6 +1,6 @@
 import pytest
 from examples.tic_tac_toe import TicTacToeState
-from gtsa.gtsa import Minimax, MonteCarloTreeSearch
+from gtsa import Minimax, MonteCarloTreeSearch
 
 
 def test_tic_tac_toe_finish():

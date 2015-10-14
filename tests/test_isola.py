@@ -1,6 +1,6 @@
 import pytest
 from examples.isola import IsolaState
-from gtsa.gtsa import Minimax, MonteCarloTreeSearch
+from gtsa import Minimax, MonteCarloTreeSearch
 
 
 def test_isola_move():

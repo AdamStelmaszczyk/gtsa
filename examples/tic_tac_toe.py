@@ -1,4 +1,4 @@
-from gtsa.gtsa import State, MoveReader, Human, Tester, Minimax
+from gtsa import State, MoveReader, Human, Tester, Minimax
 
 
 SIDE = 3
