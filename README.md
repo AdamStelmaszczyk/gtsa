@@ -1,6 +1,6 @@
 # Game Tree Search Algorithms [![Build Status](https://travis-ci.org/AdamStelmaszczyk/gtsa.svg?branch=master)](https://travis-ci.org/AdamStelmaszczyk/gtsa)
 
-Python library providing algorithms useful in AI bot programming.
+Python and C++ libraries providing algorithms useful in AI bot programming.
 
 Usage
 ---
