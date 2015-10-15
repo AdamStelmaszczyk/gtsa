@@ -8,7 +8,9 @@ python:
   - 3.4
   - 3.5
 
-install: pip install flake8
+install: 
+  - pip install flake8
+  - sudo apt-get install g++-4.8
 
 before_script:
   - flake8 .
