@@ -51,8 +51,7 @@ struct TicTacToeState : public State {
     const int side;
     const char* board;
 
-    TicTacToeState(int side, const string& init_string = ""): side
-    (side) {
+    TicTacToeState(int side, const string& init_string = ""): side(side) {
         board = new char[side * side];
         if (init_string != "") {
             const int length = init_string.length();
