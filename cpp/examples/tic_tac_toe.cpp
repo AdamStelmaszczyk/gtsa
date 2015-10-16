@@ -17,13 +17,13 @@ char get_opposite_player(char player) {
 
 struct Coord
 {
-    int x;
-    int y;
+    unsigned x;
+    unsigned y;
 
-    Coord(int x, int y): x(x), y(y) {}
+    Coord(unsigned x, unsigned y): x(x), y(y) {}
 };
 
-const auto lines = [] {
+const auto LINES = [] {
     vector<vector<Coord>> lines;
     for (int y = 0; y < SIDE; ++y) {
         lines.emplace_back(); // add a new line to back()
@@ -48,17 +48,15 @@ const auto lines = [] {
 
 struct TicTacToeState : public State {
 
-    const int side;
-    const char* board;
+    const unsigned side;
+    vector<char> board;
 
-    TicTacToeState(int side, const string& init_string = ""): side(side) {
-        board = new char[side * side];
+    TicTacToeState(unsigned side, const string& init_string = ""): side(side) {
+        const unsigned correct_length = side * side;
         if (init_string != "") {
-            const int length = init_string.length();
-            const int correct_length = side * side;
+            const unsigned long length = init_string.length();
             if (length != correct_length) {
-                throw invalid_argument("Initialization string length must be "
-                    + to_string(correct_length));
+                throw invalid_argument("Initialization string length must be " + std::to_string(correct_length));
             }
             for (int i = 0; i < length; i++) {
                 const char c = init_string[i];
@@ -69,16 +67,78 @@ struct TicTacToeState : public State {
                     throw invalid_argument(message);
                 }
             }
-            board = init_string.c_str();
+            board = vector<char>(init_string.begin(), init_string.end());
         }
+    }
+
+    TicTacToeState(const TicTacToeState& rhs): side(rhs.side) {
+        board = rhs.board;
+    }
+
+    string to_string() {
+        string result = "";
+        for (int y = 0; y < side; y++) {
+            for (int x = 0; x < side; x++) {
+                result += board[y * side + x];
+            }
+            result += "\n";
+        }
+        return result;
+    }
+
+    int get_goodness(char current_player) {
+        int goodness = 0;
+        auto counts = count_players_on_lines(current_player);
+        for (const auto& count : counts) {
+            if (count[0] == 3) {
+                goodness += side * side;
+            }
+            else if (count[1] == side) {
+                goodness -= side * side;
+            }
+            else if (count[0] == SIDE - 1 and count[1] == 0) {
+                goodness += side;
+            }
+            else if (count[1] == SIDE - 1 and count[0] == 0) {
+                goodness -= side;
+            }
+            else if (count[0] == SIDE - 2 and count[1] == 0) {
+                ++goodness;
+            }
+            else if (count[1] == SIDE - 2 and count[0] == 0) {
+                --goodness;
+            }
+        }
+        return goodness;
+    }
+
+    vector<vector<int>> count_players_on_lines(char current_player) {
+        vector<vector<int>> counts;
+        char next_player = get_opposite_player(current_player);
+        for (const auto& line : LINES) {
+            int player_places = 0;
+            int enemy_places = 0;
+            for (const Coord &coord : line) {
+                const int i = coord.y * side + coord.x;
+                if (board[i] == current_player) {
+                    ++player_places;
+                }
+                else if (board[i] == next_player) {
+                    ++enemy_places;
+                }
+            }
+            auto count = {player_places, enemy_places};
+            counts.emplace_back(count);
+        }
+        return counts;
     }
 
 };
 
 int main() {
     TicTacToeState state = TicTacToeState(3, "___"
-                                             "___"
+                                             "_X_"
                                              "___");
-    cout << state.board << endl;
+    cout << state.get_goodness('X') << endl;
     return 0;
 }
