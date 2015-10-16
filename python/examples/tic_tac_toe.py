@@ -50,17 +50,17 @@ class TicTacToeState(State):
         goodness = 0
         counts = self.count_players_on_lines(current_player)
         for count in counts:
-            if count[0] == 3:
+            if count[0] == SIDE:
                 goodness += self.side ** 2
-            elif count[1] == 3:
+            elif count[1] == SIDE:
                 goodness -= self.side ** 2
-            elif count[0] == 2 and count[1] == 0:
+            elif count[0] == SIDE - 1 and count[1] == 0:
                 goodness += self.side
-            elif count[1] == 2 and count[0] == 0:
+            elif count[1] == SIDE - 1 and count[0] == 0:
                 goodness -= self.side
-            elif count[0] == 1 and count[1] == 0:
+            elif count[0] == SIDE - 2 and count[1] == 0:
                 goodness += 1
-            elif count[1] == 1 and count[0] == 0:
+            elif count[1] == SIDE - 2 and count[0] == 0:
                 goodness -= 1
         return goodness
 
