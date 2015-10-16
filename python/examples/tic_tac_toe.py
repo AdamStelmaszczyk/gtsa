@@ -89,13 +89,13 @@ class TicTacToeState(State):
         if not self.has_empty_space():
             return True
         for count in self.count_players_on_lines(player):
-            if count[0] == 3 or count[1] == 3:
+            if count[0] == SIDE or count[1] == SIDE:
                 return True
         return False
 
     def is_winner(self, player):
         for count in self.count_players_on_lines(player):
-            if count[0] == 3:
+            if count[0] == SIDE:
                 return True
         return False
 
