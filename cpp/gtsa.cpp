@@ -11,7 +11,7 @@ struct State {
     unsigned score = 0;
     char player_who_moved;
     Move move;
-    State* parent;
+    State *parent;
     vector<State> children;
 };
 

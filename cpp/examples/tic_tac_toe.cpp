@@ -16,12 +16,11 @@ char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
 
-struct TicTacToeMove : public Move
-{
+struct TicTacToeMove : public Move {
     unsigned x;
     unsigned y;
 
-    TicTacToeMove(unsigned x, unsigned y): x(x), y(y) {}
+    TicTacToeMove(unsigned x, unsigned y) : x(x), y(y) { }
 };
 
 ostream &operator<<(ostream &os, TicTacToeMove const &coord) {
