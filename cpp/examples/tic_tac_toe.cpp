@@ -50,7 +50,7 @@ const auto LINES = [] {
     return lines;
 }();
 
-struct TicTacToeState : public State {
+struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     const unsigned side;
     vector<char> board;
@@ -75,11 +75,12 @@ struct TicTacToeState : public State {
         }
     }
 
+    // TODO: force subclass to implement a copy constructor
     TicTacToeState(const TicTacToeState &rhs) : side(rhs.side) {
         board = rhs.board;
     }
 
-    int get_goodness(char current_player) {
+    int get_goodness(char current_player) override {
         int goodness = 0;
         auto counts = count_players_on_lines(current_player);
         for (const auto &count : counts) {
@@ -105,7 +106,7 @@ struct TicTacToeState : public State {
         return goodness;
     }
 
-    vector<TicTacToeMove> get_legal_moves(char player) {
+    vector<TicTacToeMove> get_legal_moves(char player) override {
         vector<TicTacToeMove> result;
         for (unsigned y = 0; y < side; ++y) {
             for (unsigned x = 0; x < side; ++x) {
@@ -117,28 +118,17 @@ struct TicTacToeState : public State {
         return result;
     }
 
-    bool has_empty_space() {
-        for (unsigned y = 0; y < side; ++y) {
-            for (unsigned x = 0; x < side; ++x) {
-                if (board[y * side + x] == EMPTY) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    void make_move(TicTacToeMove &move, char player) {
+    void make_move(TicTacToeMove &move, char player) override {
         board[move.y * side + move.x] = player;
         player_who_moved = player;
     }
 
-    void undo_move(TicTacToeMove &move, char player) {
+    void undo_move(TicTacToeMove &move, char player) override {
         board[move.y * side + move.x] = EMPTY;
         player_who_moved = get_opposite_player(player);
     }
 
-    bool is_terminal(char player) {
+    bool is_terminal(char player) override {
         if (!has_empty_space()) {
             return true;
         }
@@ -150,10 +140,21 @@ struct TicTacToeState : public State {
         return false;
     }
 
-    bool is_winner(char player) {
+    bool is_winner(char player) override {
         for (const auto &count : count_players_on_lines(player)) {
             if (count[0] == side) {
                 return true;
+            }
+        }
+        return false;
+    }
+
+    bool has_empty_space() {
+        for (unsigned y = 0; y < side; ++y) {
+            for (unsigned x = 0; x < side; ++x) {
+                if (board[y * side + x] == EMPTY) {
+                    return true;
+                }
             }
         }
         return false;
@@ -196,5 +197,6 @@ int main() {
     TicTacToeState state = TicTacToeState(3, "X__"
                                              "OOO"
                                              "__X");
+    cout << state;
     return 0;
 }
