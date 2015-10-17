@@ -2,6 +2,7 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+
 #include "../gtsa.cpp"
 
 using namespace std;
@@ -15,16 +16,20 @@ char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
 
-struct Coord
+struct TicTacToeMove : public Move
 {
     unsigned x;
     unsigned y;
 
-    Coord(unsigned x, unsigned y): x(x), y(y) {}
+    TicTacToeMove(unsigned x, unsigned y): x(x), y(y) {}
 };
 
+ostream &operator<<(ostream &os, TicTacToeMove const &coord) {
+    return os << coord.x << " " << coord.y;
+}
+
 const auto LINES = [] {
-    vector<vector<Coord>> lines;
+    vector<vector<TicTacToeMove>> lines;
     for (int y = 0; y < SIDE; ++y) {
         lines.emplace_back(); // add a new line to back()
         for (int x = 0; x < SIDE; ++x)
@@ -51,8 +56,8 @@ struct TicTacToeState : public State {
     const unsigned side;
     vector<char> board;
 
-    TicTacToeState(unsigned side, const string& init_string = ""): side(side) {
-        const unsigned correct_length = side * side;
+    TicTacToeState(unsigned side, const string &init_string = "") : side(side) {
+        const int correct_length = side * side;
         if (init_string != "") {
             const unsigned long length = init_string.length();
             if (length != correct_length) {
@@ -71,25 +76,14 @@ struct TicTacToeState : public State {
         }
     }
 
-    TicTacToeState(const TicTacToeState& rhs): side(rhs.side) {
+    TicTacToeState(const TicTacToeState &rhs) : side(rhs.side) {
         board = rhs.board;
-    }
-
-    string to_string() {
-        string result = "";
-        for (int y = 0; y < side; y++) {
-            for (int x = 0; x < side; x++) {
-                result += board[y * side + x];
-            }
-            result += "\n";
-        }
-        return result;
     }
 
     int get_goodness(char current_player) {
         int goodness = 0;
         auto counts = count_players_on_lines(current_player);
-        for (const auto& count : counts) {
+        for (const auto &count : counts) {
             if (count[0] == 3) {
                 goodness += side * side;
             }
@@ -112,13 +106,67 @@ struct TicTacToeState : public State {
         return goodness;
     }
 
+    vector<TicTacToeMove> get_legal_moves(char player) {
+        vector<TicTacToeMove> result;
+        for (unsigned y = 0; y < side; ++y) {
+            for (unsigned x = 0; x < side; ++x) {
+                if (board[y * side + x] == EMPTY) {
+                    result.emplace_back(TicTacToeMove(x, y));
+                }
+            }
+        }
+        return result;
+    }
+
+    bool has_empty_space() {
+        for (unsigned y = 0; y < side; ++y) {
+            for (unsigned x = 0; x < side; ++x) {
+                if (board[y * side + x] == EMPTY) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    void make_move(TicTacToeMove &move, char player) {
+        board[move.y * side + move.x] = player;
+        player_who_moved = player;
+    }
+
+    void undo_move(TicTacToeMove &move, char player) {
+        board[move.y * side + move.x] = EMPTY;
+        player_who_moved = get_opposite_player(player);
+    }
+
+    bool is_terminal(char player) {
+        if (!has_empty_space()) {
+            return true;
+        }
+        for (const auto &count : count_players_on_lines(player)) {
+            if (count[0] == side || count[1] == side) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    bool is_winner(char player) {
+        for (const auto &count : count_players_on_lines(player)) {
+            if (count[0] == side) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     vector<vector<int>> count_players_on_lines(char current_player) {
         vector<vector<int>> counts;
         char next_player = get_opposite_player(current_player);
-        for (const auto& line : LINES) {
+        for (const auto &line : LINES) {
             int player_places = 0;
             int enemy_places = 0;
-            for (const Coord &coord : line) {
+            for (const TicTacToeMove &coord : line) {
                 const int i = coord.y * side + coord.x;
                 if (board[i] == current_player) {
                     ++player_places;
@@ -135,10 +183,19 @@ struct TicTacToeState : public State {
 
 };
 
+ostream &operator<<(ostream &os, TicTacToeState const &state) {
+    for (int y = 0; y < state.side; ++y) {
+        for (int x = 0; x < state.side; ++x) {
+            os << state.board[y * state.side + x];
+        }
+        os << "\n";
+    }
+    return os;
+}
+
 int main() {
-    TicTacToeState state = TicTacToeState(3, "___"
-                                             "_X_"
-                                             "___");
-    cout << state.get_goodness('X') << endl;
+    TicTacToeState state = TicTacToeState(3, "X__"
+                                             "OOO"
+                                             "__X");
     return 0;
 }
