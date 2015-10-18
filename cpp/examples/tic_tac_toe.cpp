@@ -2,6 +2,8 @@
 #include <string>
 #include <stdexcept>
 #include <iostream>
+#include <memory>
+#include <limits>
 
 #include "../gtsa.cpp"
 
@@ -75,12 +77,13 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         }
     }
 
-    // TODO: force subclass to implement a copy constructor
-    TicTacToeState(const TicTacToeState &rhs) : side(rhs.side) {
-        board = rhs.board;
+    unique_ptr<TicTacToeState> clone() const {
+        TicTacToeState *clone = new TicTacToeState(side);
+        clone->board = board;
+        return unique_ptr<TicTacToeState>(clone);
     }
 
-    int get_goodness(char current_player) override {
+    int get_goodness(char current_player) const override {
         int goodness = 0;
         auto counts = count_players_on_lines(current_player);
         for (const auto &count : counts) {
@@ -106,7 +109,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return goodness;
     }
 
-    vector<TicTacToeMove> get_legal_moves(char player) override {
+    vector<TicTacToeMove> get_legal_moves(char player) const override {
         vector<TicTacToeMove> result;
         for (unsigned y = 0; y < side; ++y) {
             for (unsigned x = 0; x < side; ++x) {
@@ -128,7 +131,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         player_who_moved = get_opposite_player(player);
     }
 
-    bool is_terminal(char player) override {
+    bool is_terminal(char player) const override {
         if (!has_empty_space()) {
             return true;
         }
@@ -140,7 +143,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    bool is_winner(char player) override {
+    bool is_winner(char player) const override {
         for (const auto &count : count_players_on_lines(player)) {
             if (count[0] == side) {
                 return true;
@@ -149,7 +152,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    bool has_empty_space() {
+    bool has_empty_space() const {
         for (unsigned y = 0; y < side; ++y) {
             for (unsigned x = 0; x < side; ++x) {
                 if (board[y * side + x] == EMPTY) {
@@ -160,7 +163,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    vector<vector<int>> count_players_on_lines(char current_player) {
+    vector<vector<int>> count_players_on_lines(char current_player) const {
         vector<vector<int>> counts;
         char next_player = get_opposite_player(current_player);
         for (const auto &line : LINES) {
@@ -194,9 +197,8 @@ ostream &operator<<(ostream &os, TicTacToeState const &state) {
 }
 
 int main() {
-    TicTacToeState state = TicTacToeState(3, "X__"
-                                             "OOO"
-                                             "__X");
-    cout << state;
+    TicTacToeState state = TicTacToeState(3, "___"
+                                             "_X_"
+                                             "___");
     return 0;
 }
