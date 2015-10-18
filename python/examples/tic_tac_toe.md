@@ -16,12 +16,13 @@ The input is 3x3 matrix consisting only of `X`, `O` or `_`. Then another line fo
 
 In the given matrix, top-left is (0, 0) and bottom-right is (2, 2). The x-coordinate increases from top to bottom, and y-coordinate increases from left to right. 
 
-Starting state
+First input
 ---
 ```
 ___
 ___
 ___
+X
 ```
 
 Sample input
