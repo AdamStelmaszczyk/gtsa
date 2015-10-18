@@ -205,8 +205,7 @@ class State(object):
     def expand(self, player):
         children = []
         for move in self.get_legal_moves(player):
-            child = self._create_child(player, move)
-            child.make_move(move, player)
+            child = self._create_child(move, player)
             if child.is_winner(player):
                 # If player has a winning move he makes it.
                 self.children.append(child)
@@ -214,7 +213,7 @@ class State(object):
             children.append(child)
         self.children = children
 
-    def _create_child(self, player_who_moved, move):
+    def _create_child(self, move, player_who_moved):
         child = self.clone()
         child.visits = 0
         child.score = 0
@@ -222,6 +221,7 @@ class State(object):
         child.move = move
         child.parent = self
         child.children = []
+        child.make_move(move, player_who_moved)
         return child
 
     def remove_children(self):
