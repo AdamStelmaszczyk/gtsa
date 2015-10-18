@@ -18,12 +18,6 @@ class Algorithm(object):
         self.our_symbol = our_symbol
         self.enemy_symbol = enemy_symbol
 
-    def get_our_symbol(self):
-        return self.our_symbol
-
-    def get_enemy_symbol(self):
-        return self.enemy_symbol
-
     def get_opposite_player(self, player):
         return self.our_symbol if player == self.enemy_symbol \
             else self.enemy_symbol
@@ -316,9 +310,9 @@ class Tester(object):
     def __init__(self, state, algorithm_1, algorithm_2):
         self.state = state
         self.algorithm_1 = algorithm_1
-        self.player_1 = algorithm_1.get_our_symbol()
+        self.player_1 = algorithm_1.our_symbol
         self.algorithm_2 = algorithm_2
-        self.player_2 = algorithm_2.get_our_symbol()
+        self.player_2 = algorithm_2.our_symbol
 
     def start(self):
         print(self.state)
