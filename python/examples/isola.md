@@ -19,9 +19,9 @@ Input
 ---
 The input is an 7x7 matrix consisting only of `_`, `1`, `2` and `#`. Then another line follows with `1` or `2`, which is your player id.
 
-In the given matrix, top-left is (0, 0) and bottom-right is (6, 6). The x-coordinate increases from top to bottom, and y-coordinate increases from left to right.
-
 The cell marked `_` means it contains an empty square. The cell marked `1` means it contains player 1's piece. The cell marked `2` means it contains player 2's piece. The cell marked `#` means it doesn't contain the square.
+
+In the given matrix, top-left is (0, 0) and bottom-right is (6, 6). The x-coordinate increases from top to bottom, and y-coordinate increases from left to right.
 
 First input
 ---
