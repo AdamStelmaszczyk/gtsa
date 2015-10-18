@@ -1,12 +1,17 @@
 #include <vector>
 #include <memory>
 #include <cmath>
+#include <algorithm>
+#include <iostream>
+#include <typeinfo>
 
 using namespace std;
 
 static const double EPSILON = 0.01;
 
+template<class M>
 struct Move {
+    virtual bool operator==(const M &rhs) const = 0;
 };
 
 template<class S, class M>
@@ -14,8 +19,8 @@ struct State {
     unsigned visits = 0;
     double score = 0;
     char player_who_moved;
-    Move move;
-    const State<S, M> *parent;
+    unique_ptr<Move<M>> move;
+    const S *parent;
     vector<S> children;
 
     void expand(char player) {
@@ -37,7 +42,7 @@ struct State {
         child->visits = 0;
         child->score = 0;
         child->player_who_moved = player_who_moved;
-        child->move = move;
+        child->move = unique_ptr<Move<M>>(move);
         child->parent = this;
         child->children.clear();
         child->make_move(move, player_who_moved);
@@ -109,3 +114,81 @@ struct State {
     virtual void undo_move(M &move, char player) = 0;
 };
 
+template<class S, class M>
+struct Algorithm {
+    const char our_symbol;
+    const char enemy_symbol;
+
+    Algorithm(char our_symbol, char enemy_symbol) : our_symbol(our_symbol), enemy_symbol(enemy_symbol) { }
+
+    char get_opposite_player(char player) const {
+        return (player == our_symbol) ? enemy_symbol : our_symbol;
+    }
+
+    virtual M get_move(const S &state) const = 0;
+};
+
+template<class M>
+struct MoveReader {
+    virtual M read() const = 0;
+};
+
+template<class S, class M>
+struct Human : public Algorithm<S, M> {
+
+    const MoveReader<M> &move_reader;
+
+    Human(char our_symbol, char enemy_symbol, const MoveReader<M> &move_reader) :
+            Algorithm<S, M>(our_symbol, enemy_symbol),
+            move_reader(move_reader) { }
+
+    M get_move(const S &state) const override {
+        auto legal_moves = state.get_legal_moves(this->our_symbol);
+        if (legal_moves.empty()) {
+            throw invalid_argument("Given state is terminal");
+        }
+        while (true) {
+            const M &move = move_reader.read();
+            if (find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
+                return move;
+            } else {
+                cout << "Move " << move << " is not legal" << endl;
+            }
+        }
+    }
+};
+
+template<class S, class M>
+struct Tester {
+    S &state;
+    const Algorithm<S, M> &algorithm_1;
+    const char player_1;
+    const Algorithm<S, M> &algorithm_2;
+    const char player_2;
+
+    Tester(S &state, const Algorithm<S, M> &algorithm_1, const Algorithm<S, M> &algorithm_2) :
+            state(state),
+            algorithm_1(algorithm_1),
+            player_1(algorithm_1.our_symbol),
+            algorithm_2(algorithm_2),
+            player_2(algorithm_2.our_symbol) { }
+
+    void start() {
+        cout << state << endl;
+        while (true) {
+            if (state.is_terminal(player_1)) {
+                break;
+            }
+            auto move = algorithm_1.get_move(state);
+            state.make_move(move, player_1);
+            cout << state << endl;
+
+            if (state.is_terminal(player_2)) {
+                break;
+            }
+            move = algorithm_2.get_move(state);
+            state.make_move(move, player_2);
+            cout << state << endl;
+        }
+    }
+};

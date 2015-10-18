@@ -18,11 +18,15 @@ char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
 
-struct TicTacToeMove : public Move {
+struct TicTacToeMove : public Move<TicTacToeMove> {
     unsigned x;
     unsigned y;
 
     TicTacToeMove(unsigned x, unsigned y) : x(x), y(y) { }
+
+    bool operator==(const TicTacToeMove &rhs) const override {
+        return x == rhs.x && y == rhs.y;
+    }
 };
 
 ostream &operator<<(ostream &os, TicTacToeMove const &coord) {
@@ -196,9 +200,25 @@ ostream &operator<<(ostream &os, TicTacToeState const &state) {
     return os;
 }
 
+struct TicTacToeMoveReader : public MoveReader<TicTacToeMove> {
+    TicTacToeMove read() const {
+        cout << "Enter space separated X and Y of your move: ";
+        unsigned x, y;
+        cin >> x >> y;
+        return TicTacToeMove(x, y);
+    }
+};
+
 int main() {
     TicTacToeState state = TicTacToeState(3, "___"
-                                             "_X_"
+                                             "___"
                                              "___");
+    TicTacToeMoveReader move_reader = TicTacToeMoveReader();
+    auto algorithm_1 = Human<TicTacToeState, TicTacToeMove>('X', 'O', move_reader);
+    auto algorithm_2 = Human<TicTacToeState, TicTacToeMove>('O', 'X', move_reader);
+
+    auto tester = Tester<TicTacToeState, TicTacToeMove>(state, algorithm_1, algorithm_2);
+    tester.start();
+
     return 0;
 }
