@@ -200,7 +200,6 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
 };
 
-
 struct TicTacToeMoveReader : public MoveReader<TicTacToeMove> {
     TicTacToeMove read() const {
         cout << "Enter space separated X and Y of your move: ";

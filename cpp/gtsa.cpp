@@ -3,7 +3,6 @@
 #include <cmath>
 #include <algorithm>
 #include <iostream>
-#include <typeinfo>
 
 using namespace std;
 
