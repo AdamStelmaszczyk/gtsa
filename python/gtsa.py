@@ -224,9 +224,6 @@ class State(object):
         child.children = []
         return child
 
-    def clone(self):
-        raise NotImplementedError("Implement clone in State subclass")
-
     def remove_children(self):
         self.children = []
 
@@ -270,6 +267,9 @@ class State(object):
                 math.log(self.parent.visits + 1) / (self.visits + EPSILON)) \
             + random.random() * EPSILON
 
+    def clone(self):
+        raise NotImplementedError("Implement clone in State subclass")
+
     def get_goodness(self, current_player):
         raise NotImplementedError("Implement get_goodness in State subclass")
 
@@ -277,17 +277,17 @@ class State(object):
         raise NotImplementedError(
             "Implement get_legal_moves in State subclass")
 
-    def make_move(self, move, player):
-        raise NotImplementedError("Implement make_move in State subclass")
-
-    def undo_move(self, move, player):
-        raise NotImplementedError("Implement undo_move in State subclass")
-
     def is_terminal(self, player):
         raise NotImplementedError("Implement is_terminal in State subclass")
 
     def is_winner(self, player):
         raise NotImplementedError("Implement is_winner in State subclass")
+
+    def make_move(self, move, player):
+        raise NotImplementedError("Implement make_move in State subclass")
+
+    def undo_move(self, move, player):
+        raise NotImplementedError("Implement undo_move in State subclass")
 
     def __repr__(self):
         raise NotImplementedError("Implement __repr__ in State subclass")

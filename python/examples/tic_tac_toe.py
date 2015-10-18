@@ -70,21 +70,6 @@ class TicTacToeState(State):
                 if self.board[y][x] == EMPTY:
                     yield (x, y)
 
-    def has_empty_space(self):
-        for y in range(self.side):
-            for x in range(self.side):
-                if self.board[y][x] == EMPTY:
-                    return True
-        return False
-
-    def make_move(self, move, player):
-        self.board[move[1]][move[0]] = player
-        self.player_who_moved = player
-
-    def undo_move(self, move, player):
-        self.board[move[1]][move[0]] = EMPTY
-        self.player_who_moved = get_opposite_player(player)
-
     def is_terminal(self, player):
         if not self.has_empty_space():
             return True
@@ -99,6 +84,17 @@ class TicTacToeState(State):
                 return True
         return False
 
+    def make_move(self, move, player):
+        self.board[move[1]][move[0]] = player
+        self.player_who_moved = player
+
+    def undo_move(self, move, player):
+        self.board[move[1]][move[0]] = EMPTY
+        self.player_who_moved = get_opposite_player(player)
+
+    def __repr__(self):
+        return '\n'.join([''.join(row) for row in self.board]) + '\n'
+
     def count_players_on_lines(self, current_player):
         next_player = get_opposite_player(current_player)
         for line in LINES:
@@ -111,8 +107,12 @@ class TicTacToeState(State):
                     enemy_places += 1
             yield (player_places, enemy_places)
 
-    def __repr__(self):
-        return '\n'.join([''.join(row) for row in self.board]) + '\n'
+    def has_empty_space(self):
+        for y in range(self.side):
+            for x in range(self.side):
+                if self.board[y][x] == EMPTY:
+                    return True
+        return False
 
 
 class TicTacToeMoveReader(MoveReader):
