@@ -205,7 +205,7 @@ class State(object):
     def expand(self, player):
         children = []
         for move in self.get_legal_moves(player):
-            child = self._copy(player, move)
+            child = self._create_child(player, move)
             child.make_move(move, player)
             if child.is_winner(player):
                 # If player has a winning move he makes it.
@@ -214,15 +214,15 @@ class State(object):
             children.append(child)
         self.children = children
 
-    def _copy(self, player_who_moved, move):
-        copy = self.clone()
-        copy.children = []
-        copy.visits = 0
-        copy.score = 0
-        copy.player_who_moved = player_who_moved
-        copy.move = move
-        copy.parent = self
-        return copy
+    def _create_child(self, player_who_moved, move):
+        child = self.clone()
+        child.visits = 0
+        child.score = 0
+        child.player_who_moved = player_who_moved
+        child.move = move
+        child.parent = self
+        child.children = []
+        return child
 
     def clone(self):
         raise NotImplementedError("Implement clone in State subclass")
