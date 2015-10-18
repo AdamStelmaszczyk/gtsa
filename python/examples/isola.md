@@ -23,7 +23,7 @@ In the given matrix, top-left is (0, 0) and bottom-right is (6, 6). The x-coordi
 
 The cell marked `_` means it contains an empty square. The cell marked `1` means it contains player 1's piece. The cell marked `2` means it contains player 2's piece. The cell marked `#` means it doesn't contain the square.
 
-Starting state
+First input
 ---
 ```
 ___2___
@@ -33,6 +33,7 @@ _______
 _______
 _______
 ___1___
+1
 ```
 
 Sample input
