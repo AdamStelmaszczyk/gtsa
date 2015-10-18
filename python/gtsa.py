@@ -203,15 +203,15 @@ class State(object):
         self.children = []
 
     def expand(self, player):
-        children = []
+        current_children = []
         for move in self.get_legal_moves(player):
             child = self._create_child(move, player)
             if child.is_winner(player):
                 # If player has a winning move he makes it.
                 self.children.append(child)
                 return
-            children.append(child)
-        self.children = children
+            current_children.append(child)
+        self.children = current_children
 
     def _create_child(self, move, player_who_moved):
         child = self.clone()
