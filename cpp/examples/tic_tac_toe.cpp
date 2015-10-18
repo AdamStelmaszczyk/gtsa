@@ -77,7 +77,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         }
     }
 
-    unique_ptr<TicTacToeState> clone() const {
+    unique_ptr<TicTacToeState> clone() const override {
         TicTacToeState *clone = new TicTacToeState(side);
         clone->board = board;
         return unique_ptr<TicTacToeState>(clone);
@@ -121,16 +121,6 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return result;
     }
 
-    void make_move(TicTacToeMove &move, char player) override {
-        board[move.y * side + move.x] = player;
-        player_who_moved = player;
-    }
-
-    void undo_move(TicTacToeMove &move, char player) override {
-        board[move.y * side + move.x] = EMPTY;
-        player_who_moved = get_opposite_player(player);
-    }
-
     bool is_terminal(char player) const override {
         if (!has_empty_space()) {
             return true;
@@ -150,6 +140,16 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
             }
         }
         return false;
+    }
+
+    void make_move(TicTacToeMove &move, char player) override {
+        board[move.y * side + move.x] = player;
+        player_who_moved = player;
+    }
+
+    void undo_move(TicTacToeMove &move, char player) override {
+        board[move.y * side + move.x] = EMPTY;
+        player_who_moved = get_opposite_player(player);
     }
 
     bool has_empty_space() const {

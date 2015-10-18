@@ -100,12 +100,12 @@ struct State {
 
     virtual vector<M> get_legal_moves(char player) const = 0;
 
-    virtual void make_move(M &move, char player) = 0;
-
-    virtual void undo_move(M &move, char player) = 0;
-
     virtual bool is_terminal(char player) const = 0;
 
     virtual bool is_winner(char player) const = 0;
+
+    virtual void make_move(M &move, char player) = 0;
+
+    virtual void undo_move(M &move, char player) = 0;
 };
 
