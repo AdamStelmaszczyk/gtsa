@@ -27,11 +27,11 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
     bool operator==(const TicTacToeMove &rhs) const override {
         return x == rhs.x && y == rhs.y;
     }
-};
 
-ostream &operator<<(ostream &os, TicTacToeMove const &coord) {
-    return os << coord.x << " " << coord.y;
-}
+    ostream &to_stream(ostream &os) const override {
+        return os << x << " " << y;
+    }
+};
 
 const auto LINES = [] {
     vector<vector<TicTacToeMove>> lines;
@@ -188,17 +188,18 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return counts;
     }
 
+    ostream &to_stream(ostream &os) const override {
+        for (int y = 0; y < side; ++y) {
+            for (int x = 0; x < side; ++x) {
+                os << board[y * side + x];
+            }
+            os << "\n";
+        }
+        return os;
+    }
+
 };
 
-ostream &operator<<(ostream &os, TicTacToeState const &state) {
-    for (int y = 0; y < state.side; ++y) {
-        for (int x = 0; x < state.side; ++x) {
-            os << state.board[y * state.side + x];
-        }
-        os << "\n";
-    }
-    return os;
-}
 
 struct TicTacToeMoveReader : public MoveReader<TicTacToeMove> {
     TicTacToeMove read() const {
@@ -218,7 +219,6 @@ int main() {
     auto algorithm_2 = Human<TicTacToeState, TicTacToeMove>('O', 'X', move_reader);
 
     auto tester = Tester<TicTacToeState, TicTacToeMove>(state, algorithm_1, algorithm_2);
-    tester.start();
 
     return 0;
 }

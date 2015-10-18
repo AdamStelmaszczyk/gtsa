@@ -12,6 +12,12 @@ static const double EPSILON = 0.01;
 template<class M>
 struct Move {
     virtual bool operator==(const M &rhs) const = 0;
+
+    virtual ostream &to_stream(ostream &os) const = 0;
+
+    friend ostream &operator<<(std::ostream &os, Move const &move) {
+        return move.to_stream(os);
+    }
 };
 
 template<class S, class M>
@@ -112,6 +118,12 @@ struct State {
     virtual void make_move(M &move, char player) = 0;
 
     virtual void undo_move(M &move, char player) = 0;
+
+    virtual ostream &to_stream(ostream &os) const = 0;
+
+    friend ostream &operator<<(std::ostream &os, State const &state) {
+        return state.to_stream(os);
+    }
 };
 
 template<class S, class M>
