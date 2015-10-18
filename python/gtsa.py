@@ -37,7 +37,7 @@ class Human(Algorithm):
     def get_move(self, state):
         legal_moves = [_ for _ in state.get_legal_moves(self.our_symbol)]
         if not legal_moves:
-            raise ValueError("Given state is terminal")
+            raise ValueError("Given state is terminal:\n{}".format(state))
         while True:
             move = self.move_reader.read()
             if move in legal_moves:
@@ -55,7 +55,7 @@ class Minimax(Algorithm):
 
     def get_move(self, state):
         if state.is_terminal(self.our_symbol):
-            raise ValueError("Given state is terminal: {}".format(state))
+            raise ValueError("Given state is terminal:\n{}".format(state))
         self.timer = Timer()
         _, best_move = self._minimax(state,
                                      self.max_depth,
@@ -118,7 +118,7 @@ class MonteCarloTreeSearch(Algorithm):
 
     def get_move(self, state):
         if state.is_terminal(self.our_symbol):
-            raise ValueError("Given state is terminal: {}".format(state))
+            raise ValueError("Given state is terminal:\n{}".format(state))
         timer = Timer()
         state.remove_children()
         simulation = 0
