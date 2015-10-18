@@ -232,7 +232,7 @@ class State(object):
         self.visits += 1
 
     def is_leaf(self):
-        return len(self.children) == 0
+        return not self.children
 
     def select_child_by_ratio(self):
         best_child = None
