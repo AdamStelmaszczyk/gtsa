@@ -137,7 +137,7 @@ class MonteCarloTreeSearch(Algorithm):
         return state.select_child_by_ratio().move
 
     def _monte_carlo_tree_search(self, state, analyzed_player):
-        # 1. Selection - find the most promising leaf to expand
+        # 1. Selection - find the most promising not expanded yet state
         current = state
         while current.has_children() and \
                 not current.is_terminal(analyzed_player):
