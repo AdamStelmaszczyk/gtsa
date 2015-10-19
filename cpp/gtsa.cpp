@@ -255,7 +255,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             current->update_stats(result);
             current = current->parent;
         }
-        current->update_stats(result); // works without that, kept for consistency
+        current->update_stats(result);
     }
 
     double simulate(S *state, char analyzed_player) const {
