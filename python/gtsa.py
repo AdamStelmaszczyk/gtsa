@@ -139,7 +139,7 @@ class MonteCarloTreeSearch(Algorithm):
     def _monte_carlo_tree_search(self, state, analyzed_player):
         # 1. Selection - find the most promising leaf to expand
         current = state
-        while not current.is_leaf() and \
+        while current.has_children() and \
                 not current.is_terminal(analyzed_player):
             current = current.select_child_by_uct()
             analyzed_player = self.get_opposite_player(analyzed_player)
@@ -225,8 +225,8 @@ class State(object):
         self.score += result
         self.visits += 1
 
-    def is_leaf(self):
-        return not self.children
+    def has_children(self):
+        return self.children
 
     def select_child_by_ratio(self):
         best_child = None
