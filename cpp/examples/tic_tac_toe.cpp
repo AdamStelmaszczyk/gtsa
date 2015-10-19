@@ -22,6 +22,8 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
     unsigned x;
     unsigned y;
 
+    TicTacToeMove() { }
+
     TicTacToeMove(unsigned x, unsigned y) : x(x), y(y) { }
 
     bool operator==(const TicTacToeMove &rhs) const override {
@@ -58,8 +60,10 @@ const auto LINES = [] {
 
 struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
-    const unsigned side;
+    unsigned side;
     vector<char> board;
+
+    TicTacToeState() { }
 
     TicTacToeState(unsigned side, const string &init_string = "") : side(side) {
         const int correct_length = side * side;
@@ -81,10 +85,10 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         }
     }
 
-    unique_ptr<TicTacToeState> clone() const override {
+    TicTacToeState *clone() const override {
         TicTacToeState *clone = new TicTacToeState(side);
         clone->board = board;
-        return unique_ptr<TicTacToeState>(clone);
+        return clone;
     }
 
     int get_goodness(char current_player) const override {
@@ -210,14 +214,15 @@ struct TicTacToeMoveReader : public MoveReader<TicTacToeMove> {
 };
 
 int main() {
-    TicTacToeState state = TicTacToeState(3, "___"
-                                             "___"
-                                             "___");
-    TicTacToeMoveReader move_reader = TicTacToeMoveReader();
-    auto algorithm_1 = Human<TicTacToeState, TicTacToeMove>('X', 'O', move_reader);
-    auto algorithm_2 = Human<TicTacToeState, TicTacToeMove>('O', 'X', move_reader);
+    TicTacToeState *state = new TicTacToeState(3, "___"
+                                                  "___"
+                                                  "___");
+
+    auto algorithm_1 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
+    auto algorithm_2 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('O', 'X');
 
     auto tester = Tester<TicTacToeState, TicTacToeMove>(state, algorithm_1, algorithm_2);
+    tester.start();
 
     return 0;
 }

@@ -1,8 +1,10 @@
+#include <algorithm>
+#include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 #include <memory>
 #include <cmath>
-#include <algorithm>
-#include <iostream>
 
 using namespace std;
 
@@ -23,39 +25,51 @@ template<class S, class M>
 struct State {
     unsigned visits = 0;
     double score = 0;
-    char player_who_moved;
-    unique_ptr<Move<M>> move;
-    const S *parent;
-    vector<S> children;
+    char player_who_moved = 0;
+    M move;
+    S *parent = nullptr;
+    S *children = nullptr;
+    unsigned long children_size = 0;
+
+    State() { }
 
     void expand(char player) {
-        vector<S> current_children = vector<S>();
-        for (const auto &move : get_legal_moves(player)) {
-            unique_ptr<S> child = create_child(move, player);
+        vector<M> legal_moves = get_legal_moves(player);
+        children_size = legal_moves.size();
+        children = new S[children_size];
+        for (int i = 0; i < children_size; ++i) {
+            S *child = create_child(legal_moves[i], player);
             if (child->is_winner(player)) {
                 // If player has a winning move he makes it.
-                children.emplace_back(*child);
+                remove_children();
+                children_size = 1;
+                children = new S[children_size];
+                children[0] = *child;
                 return;
             }
-            current_children.emplace_back(*child);
+            children[i] = *child;
         }
-        children.swap(current_children);
     }
 
-    unique_ptr<S> create_child(M move, char player_who_moved) const {
-        unique_ptr<S> child = clone();
+    S *create_child(M move, char player_who_moved) {
+        S *child = clone();
         child->visits = 0;
         child->score = 0;
         child->player_who_moved = player_who_moved;
-        child->move = unique_ptr<Move<M>>(move);
-        child->parent = this;
-        child->children.clear();
+        child->move = move;
+        child->parent = (S *) this;
+        child->remove_children();
         child->make_move(move, player_who_moved);
         return child;
     }
 
     void remove_children() {
-        children.clear();
+        for (int i = 0; i < children_size; ++i) {
+            children[i].remove_children();
+        }
+        delete[] children;
+        children = nullptr;
+        children_size = 0;
     }
 
     void update_stats(double result) {
@@ -63,36 +77,42 @@ struct State {
         ++visits;
     }
 
-    bool is_leaf() const {
-        return children.empty();
+    bool has_children() const {
+        return children_size != 0;
     }
 
-    const S *select_child_by_ratio() const {
-        const S *best_child = nullptr;
+    S *select_child_by_ratio() const {
+        if (children_size == 0) {
+            return nullptr;
+        }
+        int best_index = -1;
         double max_ratio = -INFINITY;
         int max_visits = -INFINITY;
-        for (const auto &child : children) {
+        for (int i = 0; i < children_size; ++i) {
             double child_ratio = get_win_ratio();
-            if (max_ratio < child_ratio || (max_ratio == child_ratio && max_visits < child.visits)) {
+            if (max_ratio < child_ratio || (max_ratio == child_ratio && max_visits < children[i].visits)) {
                 max_ratio = child_ratio;
-                max_visits = child.visits;
-                best_child = &child;
+                max_visits = children[i].visits;
+                best_index = i;
             }
         }
-        return best_child;
+        return &children[best_index];
     }
 
-    const S *select_child_by_uct() const {
-        const S *best_child = nullptr;
+    S *select_child_by_uct() const {
+        if (children_size == 0) {
+            return nullptr;
+        }
+        int best_index = -1;
         double max_uct = -INFINITY;
-        for (const auto &child : children) {
-            double child_uct = child.get_uct_value();
+        for (int i = 0; i < children_size; ++i) {
+            double child_uct = children[i].get_uct_value();
             if (max_uct < child_uct) {
                 max_uct = child_uct;
-                best_child = &child;
+                best_index = i;
             }
         }
-        return best_child;
+        return &children[best_index];
     }
 
     double get_uct_value() const {
@@ -104,7 +124,7 @@ struct State {
         return score / (visits + EPSILON);
     }
 
-    virtual unique_ptr<S> clone() const = 0;
+    virtual S *clone() const = 0;
 
     virtual int get_goodness(char current_player) const = 0;
 
@@ -136,7 +156,7 @@ struct Algorithm {
         return (player == our_symbol) ? enemy_symbol : our_symbol;
     }
 
-    virtual M get_move(const S &state) const = 0;
+    virtual M get_move(S *state) const = 0;
 };
 
 template<class M>
@@ -146,17 +166,18 @@ struct MoveReader {
 
 template<class S, class M>
 struct Human : public Algorithm<S, M> {
-
     const MoveReader<M> &move_reader;
 
     Human(char our_symbol, char enemy_symbol, const MoveReader<M> &move_reader) :
             Algorithm<S, M>(our_symbol, enemy_symbol),
             move_reader(move_reader) { }
 
-    M get_move(const S &state) const override {
-        auto legal_moves = state.get_legal_moves(this->our_symbol);
+    M get_move(S *state) const override {
+        auto legal_moves = state->get_legal_moves(this->our_symbol);
         if (legal_moves.empty()) {
-            throw invalid_argument("Given state is terminal");
+            stringstream stream;
+            state->to_stream(stream);
+            throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         while (true) {
             const M &move = move_reader.read();
@@ -170,36 +191,137 @@ struct Human : public Algorithm<S, M> {
 };
 
 template<class S, class M>
+struct MonteCarloTreeSearch : public Algorithm<S, M> {
+    const int max_seconds;
+    const int max_simulations;
+    const bool verbose;
+
+    MonteCarloTreeSearch(char our_symbol,
+                         char enemy_symbol,
+                         int max_seconds = 10,
+                         int max_simulations = 500,
+                         bool verbose = true) :
+            Algorithm<S, M>(our_symbol, enemy_symbol),
+            max_seconds(max_seconds),
+            max_simulations(max_simulations),
+            verbose(verbose) { }
+
+    M get_move(S *state) const override {
+        auto legal_moves = state->get_legal_moves(this->our_symbol);
+        if (legal_moves.empty()) {
+            stringstream stream;
+            state->to_stream(stream);
+            throw invalid_argument("Given state is terminal:\n" + stream.str());
+        }
+        state->remove_children();
+        int simulation = 0;
+        while (simulation < max_simulations) {
+            monte_carlo_tree_search(state, this->our_symbol);
+            ++simulation;
+        }
+        if (verbose) {
+            cout << "simulations: " << simulation << " moves: " << state->children_size << endl;
+            for (int i = 0; i < state->children_size; ++i) {
+                const S *child = &state->children[i];
+                cout << "move: " << child->move
+                << " trials: " << child->visits
+                << " ratio: " << setprecision(1) << fixed << 100 * child->get_win_ratio() << "%" << endl;
+            }
+        }
+        return state->select_child_by_ratio()->move;
+    }
+
+    void monte_carlo_tree_search(S *state, char analyzed_player) const {
+        // 1. Selection - find state without children (not expanded yet)
+        S *current = state;
+        while (current->has_children() && !current->is_terminal(analyzed_player)) {
+            current = current->select_child_by_uct();
+            analyzed_player = this->get_opposite_player(analyzed_player);
+        }
+
+        // 2, Expansion
+        current->expand(analyzed_player);
+        S* best_child = current->select_child_by_uct();
+        if (best_child) {
+            current = best_child;
+            analyzed_player = this->get_opposite_player(analyzed_player);
+        }
+
+        // 3, Simulation
+        const double result = simulate(current, analyzed_player);
+
+        // 4. Propagation
+        while (current->parent) {
+            current->update_stats(result);
+            current = current->parent;
+        }
+        current->update_stats(result); // works without that, kept for consistency
+    }
+
+    double simulate(S *state, char analyzed_player) const {
+        const char opponent = this->get_opposite_player((analyzed_player));
+        if (state->is_terminal(analyzed_player) || state->is_terminal(opponent)) {
+            if (state->is_winner(analyzed_player)) {
+                return (analyzed_player == this->our_symbol) ? 1 : 0;
+            }
+            if (state->is_winner(opponent)) {
+                return (opponent == this->our_symbol) ? 1 : 0;
+            }
+            return 0.5;
+        }
+
+        // If player has a winning move he makes it.
+        auto legal_moves = state->get_legal_moves(analyzed_player);
+        for (M &move : legal_moves) {
+            state->make_move(move, analyzed_player);
+            if (state->is_winner(analyzed_player)) {
+                state->undo_move(move, analyzed_player);
+                return (analyzed_player == this->our_symbol) ? 1 : 0;
+            }
+            state->undo_move(move, analyzed_player);
+        }
+
+        // Otherwise random move.
+        M move = legal_moves[rand() % legal_moves.size()]; // not ideally uniform but should be fine
+        state->make_move(move, analyzed_player);
+        const double result = simulate(state, opponent);
+        state->undo_move(move, analyzed_player);
+        return result;
+    }
+};
+
+template<class S, class M>
 struct Tester {
-    S &state;
+    S *state = nullptr;
     const Algorithm<S, M> &algorithm_1;
     const char player_1;
     const Algorithm<S, M> &algorithm_2;
     const char player_2;
 
-    Tester(S &state, const Algorithm<S, M> &algorithm_1, const Algorithm<S, M> &algorithm_2) :
-            state(state),
+    Tester(S *s, const Algorithm<S, M> &algorithm_1, const Algorithm<S, M> &algorithm_2) :
+            state(s),
             algorithm_1(algorithm_1),
             player_1(algorithm_1.our_symbol),
             algorithm_2(algorithm_2),
-            player_2(algorithm_2.our_symbol) { }
+            player_2(algorithm_2.our_symbol) {
+    }
 
     void start() {
-        cout << state << endl;
+        cout << *state << endl;
         while (true) {
-            if (state.is_terminal(player_1)) {
+            if (state->is_terminal(player_1)) {
                 break;
             }
             auto move = algorithm_1.get_move(state);
-            state.make_move(move, player_1);
-            cout << state << endl;
+            state->make_move(move, player_1);
+            cout << *state << endl;
 
-            if (state.is_terminal(player_2)) {
+            if (state->is_terminal(player_2)) {
                 break;
             }
             move = algorithm_2.get_move(state);
-            state.make_move(move, player_2);
-            cout << state << endl;
+            state->make_move(move, player_2);
+            cout << *state << endl;
         }
     }
 };
