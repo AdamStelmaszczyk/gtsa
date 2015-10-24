@@ -221,7 +221,7 @@ int main() {
     auto algorithm_1 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
     auto algorithm_2 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('O', 'X');
 
-    auto tester = Tester<TicTacToeState, TicTacToeMove>(state, algorithm_1, algorithm_2);
+    auto tester = Tester<TicTacToeState, TicTacToeMove>(&state, algorithm_1, algorithm_2);
     tester.start();
 
     return 0;
