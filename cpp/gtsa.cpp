@@ -39,6 +39,9 @@ struct State {
     void expand(char player) {
         vector<M> legal_moves = get_legal_moves(player);
         children_size = legal_moves.size();
+        if (children_size == 0) {
+            return;
+        }
         children = new S[children_size];
         for (int i = 0; i < children_size; ++i) {
             S *child = create_child(legal_moves[i], player);
