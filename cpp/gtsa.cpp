@@ -44,25 +44,25 @@ struct State {
         }
         children = new S[children_size];
         for (int i = 0; i < children_size; ++i) {
-            S *child = create_child(legal_moves[i], player);
-            if (child->is_winner(player)) {
+            S child = create_child(legal_moves[i], player);
+            if (child.is_winner(player)) {
                 // If player has a winning move he makes it.
                 remove_children();
                 children_size = 1;
                 children = new S[children_size];
-                children[0] = *child;
+                children[0] = child;
                 return;
             }
-            children[i] = *child;
+            children[i] = child;
         }
     }
 
-    S *create_child(M move, char player_who_moved) {
-        S *child = clone();
-        child->player_who_moved = player_who_moved;
-        child->move = move;
-        child->parent = (S *) this;
-        child->make_move(move, player_who_moved);
+    S create_child(M move, char player_who_moved) {
+        S child = clone();
+        child.player_who_moved = player_who_moved;
+        child.move = move;
+        child.parent = (S *) this;
+        child.make_move(move, player_who_moved);
         return child;
     }
 
@@ -123,7 +123,7 @@ struct State {
         return score / (visits + EPSILON);
     }
 
-    virtual S *clone() const = 0;
+    virtual S clone() const = 0;
 
     virtual int get_goodness(char current_player) const = 0;
 

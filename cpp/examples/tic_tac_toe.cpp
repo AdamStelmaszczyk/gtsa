@@ -85,9 +85,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         }
     }
 
-    TicTacToeState *clone() const override {
-        TicTacToeState *clone = new TicTacToeState(side);
-        clone->board = board;
+    TicTacToeState clone() const override {
+        TicTacToeState clone = TicTacToeState(side);
+        clone.board = board;
         return clone;
     }
 
