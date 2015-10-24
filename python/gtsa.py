@@ -145,11 +145,9 @@ class MonteCarloTreeSearch(Algorithm):
             analyzed_player = self.get_opposite_player(analyzed_player)
 
         # 2. Expansion
-        current.expand(analyzed_player)
-
-        best_child = current.select_child_by_uct()
-        if best_child:
-            current = best_child
+        if not current.is_terminal(analyzed_player):
+            current.expand(analyzed_player)
+            current = current.select_child_by_uct()
             analyzed_player = self.get_opposite_player(analyzed_player)
 
         # 3. Simulation
