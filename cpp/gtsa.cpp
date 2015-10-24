@@ -239,10 +239,9 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
 
         // 2, Expansion
-        current->expand(analyzed_player);
-        S* best_child = current->select_child_by_uct();
-        if (best_child) {
-            current = best_child;
+        if (!current->is_terminal(analyzed_player)) {
+            current->expand(analyzed_player);
+            current = current->select_child_by_uct();
             analyzed_player = this->get_opposite_player(analyzed_player);
         }
 
