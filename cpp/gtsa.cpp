@@ -56,12 +56,9 @@ struct State {
 
     S *create_child(M move, char player_who_moved) {
         S *child = clone();
-        child->visits = 0;
-        child->score = 0;
         child->player_who_moved = player_who_moved;
         child->move = move;
         child->parent = (S *) this;
-        child->remove_children();
         child->make_move(move, player_who_moved);
         return child;
     }
