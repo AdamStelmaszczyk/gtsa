@@ -32,6 +32,10 @@ struct State {
 
     State() { }
 
+    ~State() {
+        remove_children();
+    }
+
     void expand(char player) {
         vector<M> legal_moves = get_legal_moves(player);
         children_size = legal_moves.size();
@@ -63,11 +67,7 @@ struct State {
     }
 
     void remove_children() {
-        for (int i = 0; i < children_size; ++i) {
-            children[i].remove_children();
-        }
         delete[] children;
-        children = nullptr;
         children_size = 0;
     }
 
