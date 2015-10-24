@@ -238,14 +238,14 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             analyzed_player = this->get_opposite_player(analyzed_player);
         }
 
-        // 2, Expansion
+        // 2. Expansion
         if (!current->is_terminal(analyzed_player)) {
             current->expand(analyzed_player);
             current = current->select_child_by_uct();
             analyzed_player = this->get_opposite_player(analyzed_player);
         }
 
-        // 3, Simulation
+        // 3. Simulation
         const double result = simulate(current, analyzed_player);
 
         // 4. Propagation
