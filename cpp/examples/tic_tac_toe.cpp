@@ -214,9 +214,11 @@ struct TicTacToeMoveReader : public MoveReader<TicTacToeMove> {
 };
 
 int main() {
-    TicTacToeState *state = new TicTacToeState(3, "___"
-                                                  "___"
-                                                  "___");
+    string init_string =
+        "___"
+        "___"
+        "___";
+    TicTacToeState state = TicTacToeState(3, init_string);
 
     auto algorithm_1 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
     auto algorithm_2 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('O', 'X');
