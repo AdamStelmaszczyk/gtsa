@@ -132,8 +132,7 @@ struct State {
     }
 
     double get_uct_value() const {
-        return score / (visits + EPSILON) + M_SQRT2 * sqrt(log(parent->visits + 1) / (visits + EPSILON))
-               + ((double) rand() / RAND_MAX) * EPSILON;
+        return score / (visits + EPSILON) + M_SQRT2 * sqrt(log(parent->visits + 1) / (visits + EPSILON));
     }
 
     double get_win_ratio() const {
