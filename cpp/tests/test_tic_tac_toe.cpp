@@ -2,15 +2,25 @@
 
 #include "../examples/tic_tac_toe.cpp"
 
+template<class S, class M>
+vector<Algorithm<S, M> *> get_algorithms() {
+    return {
+        new Minimax<S, M>('X', 'O'),
+        new MonteCarloTreeSearch<S, M>('X', 'O'),
+    };
+}
+
 void test_tic_tac_toe_finish() {
     string init_string =
         "XX_"
         "_O_"
         "___";
     TicTacToeState state = TicTacToeState(3, init_string);
-    auto algorithm = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
-    auto move = algorithm.get_move(&state);
-    assert(move == TicTacToeMove(2, 0));
+    for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
+        const auto move = algorithm->get_move(&state);
+        delete algorithm;
+        assert(move == TicTacToeMove(2, 0));
+    }
 }
 
 void test_tic_tac_toe_block() {
@@ -19,9 +29,11 @@ void test_tic_tac_toe_block() {
         "O__"
         "___";
     TicTacToeState state = TicTacToeState(3, init_string);
-    auto algorithm = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
-    auto move = algorithm.get_move(&state);
-    assert(move == TicTacToeMove(0, 2));
+    for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
+        const auto move = algorithm->get_move(&state);
+        delete algorithm;
+        assert(move == TicTacToeMove(0, 2));
+    }
 }
 
 void test_tic_tac_toe_block_2() {
@@ -30,9 +42,11 @@ void test_tic_tac_toe_block_2() {
         "OO_"
         "___";
     TicTacToeState state = TicTacToeState(3, init_string);
-    auto algorithm = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
-    auto move = algorithm.get_move(&state);
-    assert(move == TicTacToeMove(2, 1));
+    for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
+        const auto move = algorithm->get_move(&state);
+        delete algorithm;
+        assert(move == TicTacToeMove(2, 1));
+    }
 }
 
 void test_tic_tac_toe_corner() {
@@ -41,10 +55,12 @@ void test_tic_tac_toe_corner() {
         "_O_"
         "___";
     TicTacToeState state = TicTacToeState(3, init_string);
-    auto algorithm = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
-    auto move = algorithm.get_move(&state);
-    assert(move == TicTacToeMove(0, 0) || move == TicTacToeMove(0, 2) ||
-           move == TicTacToeMove(2, 0) || move == TicTacToeMove(2, 2));
+    for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
+        const auto move = algorithm->get_move(&state);
+        delete algorithm;
+        assert(move == TicTacToeMove(0, 0) || move == TicTacToeMove(0, 2) ||
+               move == TicTacToeMove(2, 0) || move == TicTacToeMove(2, 2));
+    }
 }
 
 void test_tic_tac_toe_terminal() {
@@ -53,14 +69,16 @@ void test_tic_tac_toe_terminal() {
         "OOX"
         "OXO";
     TicTacToeState state = TicTacToeState(3, init_string);
-    auto algorithm = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
-    bool exception_thrown = false;
-    try {
-        algorithm.get_move(&state);
-    } catch (invalid_argument &) {
-        exception_thrown = true;
+    for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
+        bool exception_thrown = false;
+        try {
+            algorithm->get_move(&state);
+        } catch (invalid_argument &) {
+            exception_thrown = true;
+        }
+        delete algorithm;
+        assert(exception_thrown);
     }
-    assert(exception_thrown);
 }
 
 int main() {
