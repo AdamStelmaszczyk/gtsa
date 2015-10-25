@@ -3,7 +3,7 @@ import itertools
 from gtsa import State, Minimax, MoveReader, Tester, MonteCarloTreeSearch
 
 
-SIDE = 7
+SIDE = 3
 PLAYER_1 = '1'
 PLAYER_2 = '2'
 EMPTY = '_'
@@ -26,13 +26,12 @@ def get_score(options):
 
 
 class IsolaState(State):
-    def __init__(self, side, init_string=None):
+    def __init__(self, init_string=None):
         super(IsolaState, self).__init__()
-        self.side = side
 
-        self.board = [[EMPTY for _ in range(side)] for _ in range(side)]
+        self.board = [[EMPTY for _ in range(SIDE)] for _ in range(SIDE)]
         if init_string:
-            correct_length = self.side ** 2
+            correct_length = SIDE ** 2
             if len(init_string) != correct_length:
                 raise ValueError("Initialization string length must be {}"
                                  .format(correct_length))
@@ -40,15 +39,15 @@ class IsolaState(State):
                 if char not in [PLAYER_1, PLAYER_2, EMPTY, REMOVED]:
                     raise ValueError("Undefined symbol used: '{}'".
                                      format(char))
-                x = i % self.side
-                y = i // self.side
+                x = i % SIDE
+                y = i // SIDE
                 self.board[y][x] = char
 
             self.player_1_cords = self.find_player_cords(PLAYER_1)
             self.player_2_cords = self.find_player_cords(PLAYER_2)
 
     def clone(self):
-        clone = IsolaState(self.side)
+        clone = IsolaState()
         clone.board = [row[:] for row in self.board]
         clone.player_1_cords = self.player_1_cords
         clone.player_2_cords = self.player_2_cords
@@ -103,8 +102,8 @@ class IsolaState(State):
         return '\n'.join([''.join(row) for row in self.board]) + '\n'
 
     def get_legal_remove_moves(self, player):
-        for y in range(self.side):
-            for x in range(self.side):
+        for y in range(SIDE):
+            for x in range(SIDE):
                 if self.board[y][x] in [EMPTY, player]:
                     yield (x, y)
 
@@ -113,7 +112,7 @@ class IsolaState(State):
             for dx in range(-1, 2):
                 x = start_x + dx
                 y = start_y + dy
-                if 0 <= x < self.side and 0 <= y < self.side and \
+                if 0 <= x < SIDE and 0 <= y < SIDE and \
                         self.board[y][x] == EMPTY:
                     yield (x, y)
 
@@ -124,7 +123,7 @@ class IsolaState(State):
             for dx in range(-1, 2):
                 x = start_x + dx
                 y = start_y + dy
-                if 0 <= x < self.side and 0 <= y < self.side and \
+                if 0 <= x < SIDE and 0 <= y < SIDE and \
                         self.board[y][x] == EMPTY:
                     result += 1
         return result
@@ -135,8 +134,8 @@ class IsolaState(State):
         return self.player_2_cords
 
     def find_player_cords(self, player):
-        for y in range(self.side):
-            for x in range(self.side):
+        for y in range(SIDE):
+            for x in range(SIDE):
                 if self.board[y][x] == player:
                     return x, y
         raise ValueError("No {} on the board:\n{}".format(player, self))
@@ -156,13 +155,9 @@ class IsolaMoveReader(MoveReader):
 
 
 if __name__ == "__main__":
-    state = IsolaState(SIDE, "___2___"
-                             "_______"
-                             "_______"
-                             "_______"
-                             "_______"
-                             "_______"
-                             "___1___")
+    state = IsolaState("_2_"
+                       "___"
+                       "_1_")
 
     algorithm_1 = Minimax(PLAYER_1, PLAYER_2, max_depth=1)
     algorithm_2 = MonteCarloTreeSearch(PLAYER_2,
