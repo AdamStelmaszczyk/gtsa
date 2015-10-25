@@ -64,7 +64,7 @@ struct State {
             S child = create_child(legal_moves[i], player);
             if (child.is_winner(player)) {
                 // If player has a winning move he makes it.
-                remove_children();
+                delete[] children;
                 children_size = 1;
                 children = new S[children_size];
                 children[0] = child;
