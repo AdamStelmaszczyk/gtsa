@@ -179,7 +179,8 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         for (int i = 0; i < LINES_SIZE; ++i) {
             int player_places = 0;
             int enemy_places = 0;
-            for (const TicTacToeMove &coord : LINES[i]) {
+            for (int j = 0; j < SIDE; ++j) {
+                const TicTacToeMove &coord = LINES[i][j];
                 const int board_index = coord.y * side + coord.x;
                 if (board[board_index] == current_player) {
                     ++player_places;
