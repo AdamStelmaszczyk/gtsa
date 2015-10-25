@@ -1,3 +1,4 @@
+#include <sys/time.h>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -8,6 +9,22 @@
 using namespace std;
 
 static const double EPSILON = 0.01;
+
+struct Timer {
+    const double start;
+
+    Timer() : start(get_time()) { }
+
+    double get_time() {
+        timeval tv;
+        gettimeofday(&tv, 0);
+        return tv.tv_sec + tv.tv_usec * 1e-6;
+    }
+
+    double seconds_elapsed() {
+        return get_time() - start;
+    }
+};
 
 template<class M>
 struct Move {
@@ -211,9 +228,10 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
+        Timer timer;
         state->remove_children();
         int simulation = 0;
-        while (simulation < max_simulations) {
+        while (simulation < max_simulations && timer.seconds_elapsed() < max_seconds) {
             monte_carlo_tree_search(state, this->our_symbol);
             ++simulation;
         }
