@@ -13,8 +13,8 @@ Alternatively, use `Tester` to play the whole game (typical for local testing).
 Game examples
 ---
 
-- Tic Tac Toe - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/tic_tac_toe.md), [code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/tic_tac_toe.py)
-- Isola - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.md), [code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.py)
+- Tic Tac Toe - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/tic_tac_toe.md), [Python code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/tic_tac_toe.py), [C++ code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/tic_tac_toe.cpp)
+- Isola - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.md), [Python code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.py)
 
 Planned:
 
