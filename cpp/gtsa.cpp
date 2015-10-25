@@ -24,6 +24,10 @@ struct Timer {
     double seconds_elapsed() {
         return get_time() - start;
     }
+
+    void print_seconds_elapsed() {
+        cout << setprecision(1) << fixed << seconds_elapsed() << "s" << endl;
+    }
 };
 
 template<class M>
@@ -172,6 +176,8 @@ struct Algorithm {
     }
 
     virtual M get_move(S *state) const = 0;
+
+    virtual string get_name() const = 0;
 };
 
 template<class M>
@@ -202,6 +208,10 @@ struct Human : public Algorithm<S, M> {
                 cout << "Move " << move << " is not legal" << endl;
             }
         }
+    }
+
+    string get_name() const {
+        return "Human";
     }
 };
 
@@ -270,6 +280,10 @@ struct Minimax : public Algorithm<S, M> {
         }
         return make_pair(best_goodness, best_move);
     };
+
+    string get_name() const {
+        return "Minimax";
+    }
 };
 
 template<class S, class M>
@@ -369,6 +383,10 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         state->undo_move(move, analyzed_player);
         return result;
     }
+
+    string get_name() const {
+        return "MonteCarloTreeSearch";
+    }
 };
 
 template<class S, class M>
@@ -393,14 +411,20 @@ struct Tester {
             if (state->is_terminal(player_1)) {
                 break;
             }
+            cout << algorithm_1.get_name() << endl;
+            Timer timer_1;
             auto move = algorithm_1.get_move(state);
+            timer_1.print_seconds_elapsed();
             state->make_move(move, player_1);
             cout << *state << endl;
 
             if (state->is_terminal(player_2)) {
                 break;
             }
+            cout << algorithm_2.get_name() << endl;
+            Timer timer_2;
             move = algorithm_2.get_move(state);
+            timer_2.print_seconds_elapsed();
             state->make_move(move, player_2);
             cout << *state << endl;
         }
