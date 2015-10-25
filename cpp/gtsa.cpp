@@ -216,10 +216,10 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
                          double max_seconds = 10,
                          int max_simulations = 500,
                          bool verbose = false) :
-            Algorithm<S, M>(our_symbol, enemy_symbol),
-            max_seconds(max_seconds),
-            max_simulations(max_simulations),
-            verbose(verbose) { }
+        Algorithm<S, M>(our_symbol, enemy_symbol),
+        max_seconds(max_seconds),
+        max_simulations(max_simulations),
+        verbose(verbose) { }
 
     M get_move(S *state) const override {
         if (state->is_terminal(this->our_symbol)) {
