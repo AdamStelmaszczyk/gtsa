@@ -206,6 +206,73 @@ struct Human : public Algorithm<S, M> {
 };
 
 template<class S, class M>
+struct Minimax : public Algorithm<S, M> {
+    const double max_seconds;
+    const int max_depth;
+    const bool verbose;
+
+    Minimax(char our_symbol,
+            char enemy_symbol,
+            double max_seconds = 10,
+            int max_depth = 10,
+            bool verbose = false) :
+        Algorithm<S, M>(our_symbol, enemy_symbol),
+        max_seconds(max_seconds),
+        max_depth(max_depth),
+        verbose(verbose) { }
+
+    M get_move(S *state) const override {
+        if (state->is_terminal(this->our_symbol)) {
+            stringstream stream;
+            state->to_stream(stream);
+            throw invalid_argument("Given state is terminal:\n" + stream.str());
+        }
+        return minimax(state, this->max_depth, (int) -INFINITY, (int) INFINITY, this->our_symbol).second;
+    }
+
+    pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) const {
+        if (depth <= 0 || state->is_terminal(analyzed_player)) {
+            return make_pair(state->get_goodness(this->our_symbol), M()); // FIXME: M() is not elegant
+        }
+        int best_goodness;
+        M best_move;
+        const auto &legal_moves = state->get_legal_moves(analyzed_player);
+        if (analyzed_player == this->our_symbol) {
+            best_goodness = (int) -INFINITY;
+            for (const auto& move : legal_moves) {
+                state->make_move(move, analyzed_player);
+                const int goodness = minimax(state, depth - 1, alpha, beta, this->enemy_symbol).first;
+                state->undo_move(move, analyzed_player);
+                if (best_goodness < goodness) {
+                    best_goodness = goodness;
+                    best_move = move;
+                }
+                alpha = max(alpha, best_goodness);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        } else {
+            best_goodness = (int) INFINITY;
+            for (const auto& move : legal_moves) {
+                state->make_move(move, analyzed_player);
+                const int goodness = minimax(state, depth - 1, alpha, beta, this->our_symbol).first;
+                state->undo_move(move, analyzed_player);
+                if (best_goodness > goodness) {
+                    best_goodness = goodness;
+                    best_move = move;
+                }
+                beta = min(beta, best_goodness);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+        }
+        return make_pair(best_goodness, best_move);
+    };
+};
+
+template<class S, class M>
 struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const double max_seconds;
     const int max_simulations;
