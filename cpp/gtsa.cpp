@@ -207,13 +207,13 @@ struct Human : public Algorithm<S, M> {
 
 template<class S, class M>
 struct MonteCarloTreeSearch : public Algorithm<S, M> {
-    const int max_seconds;
+    const double max_seconds;
     const int max_simulations;
     const bool verbose;
 
     MonteCarloTreeSearch(char our_symbol,
                          char enemy_symbol,
-                         int max_seconds = 10,
+                         double max_seconds = 10,
                          int max_simulations = 500,
                          bool verbose = false) :
             Algorithm<S, M>(our_symbol, enemy_symbol),
