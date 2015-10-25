@@ -156,12 +156,12 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    void make_move(TicTacToeMove &move, char player) override {
+    void make_move(const TicTacToeMove &move, char player) override {
         board[move.y * side + move.x] = player;
         player_who_moved = player;
     }
 
-    void undo_move(TicTacToeMove &move, char player) override {
+    void undo_move(const TicTacToeMove &move, char player) override {
         board[move.y * side + move.x] = EMPTY;
         player_who_moved = get_opposite_player(player);
     }

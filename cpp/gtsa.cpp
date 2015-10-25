@@ -149,9 +149,9 @@ struct State {
 
     virtual bool is_winner(char player) const = 0;
 
-    virtual void make_move(M &move, char player) = 0;
+    virtual void make_move(const M &move, char player) = 0;
 
-    virtual void undo_move(M &move, char player) = 0;
+    virtual void undo_move(const M &move, char player) = 0;
 
     virtual ostream &to_stream(ostream &os) const = 0;
 
@@ -285,8 +285,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
 
         // If player has a winning move he makes it.
-        auto legal_moves = state->get_legal_moves(analyzed_player);
-        for (M &move : legal_moves) {
+        const auto &legal_moves = state->get_legal_moves(analyzed_player);
+        for (const M &move : legal_moves) {
             state->make_move(move, analyzed_player);
             if (state->is_winner(analyzed_player)) {
                 state->undo_move(move, analyzed_player);
