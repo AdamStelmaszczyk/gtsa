@@ -62,12 +62,11 @@ const unsigned long LINES_SIZE = 2 * SIDE + 2;
 
 struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
-    unsigned side;
     vector<char> board;
 
     TicTacToeState() { }
 
-    TicTacToeState(unsigned side, const string &init_string = "") : side(side) {
+    TicTacToeState(unsigned side, const string &init_string = "") {
         const int correct_length = side * side;
         if (init_string != "") {
             const unsigned long length = init_string.length();
@@ -88,7 +87,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     }
 
     TicTacToeState clone() const override {
-        TicTacToeState clone = TicTacToeState(side);
+        TicTacToeState clone = TicTacToeState(SIDE);
         clone.board = board;
         return clone;
     }
@@ -99,17 +98,17 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         for (int i = 0; i < LINES_SIZE; ++i) {
             const int player_places = counts[2 * i];
             const int enemy_places = counts[2 * i + 1];
-            if (player_places == 3) {
-                goodness += side * side;
+            if (player_places == SIDE) {
+                goodness += SIDE * SIDE;
             }
-            else if (enemy_places == side) {
-                goodness -= side * side;
+            else if (enemy_places == SIDE) {
+                goodness -= SIDE * SIDE;
             }
             else if (player_places == SIDE - 1 and enemy_places == 0) {
-                goodness += side;
+                goodness += SIDE;
             }
             else if (enemy_places == SIDE - 1 and player_places == 0) {
-                goodness -= side;
+                goodness -= SIDE;
             }
             else if (player_places == SIDE - 2 and enemy_places == 0) {
                 ++goodness;
@@ -123,9 +122,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     vector<TicTacToeMove> get_legal_moves(char player) const override {
         vector<TicTacToeMove> result;
-        for (unsigned y = 0; y < side; ++y) {
-            for (unsigned x = 0; x < side; ++x) {
-                if (board[y * side + x] == EMPTY) {
+        for (unsigned y = 0; y < SIDE; ++y) {
+            for (unsigned x = 0; x < SIDE; ++x) {
+                if (board[y * SIDE + x] == EMPTY) {
                     result.emplace_back(TicTacToeMove(x, y));
                 }
             }
@@ -139,7 +138,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         }
         const auto &counts = count_players_on_lines(player);
         for (int i = 0; i < LINES_SIZE; ++i) {
-            if (counts[2 * i] == side || counts[2 * i + 1] == side) {
+            if (counts[2 * i] == SIDE || counts[2 * i + 1] == SIDE) {
                 return true;
             }
         }
@@ -149,7 +148,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     bool is_winner(char player) const override {
         const auto &counts = count_players_on_lines(player);
         for (int i = 0; i < LINES_SIZE; ++i) {
-            if (counts[2 * i] == side) {
+            if (counts[2 * i] == SIDE) {
                 return true;
             }
         }
@@ -157,19 +156,19 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     }
 
     void make_move(const TicTacToeMove &move, char player) override {
-        board[move.y * side + move.x] = player;
+        board[move.y * SIDE + move.x] = player;
         player_who_moved = player;
     }
 
     void undo_move(const TicTacToeMove &move, char player) override {
-        board[move.y * side + move.x] = EMPTY;
+        board[move.y * SIDE + move.x] = EMPTY;
         player_who_moved = get_opposite_player(player);
     }
 
     bool has_empty_space() const {
-        for (unsigned y = 0; y < side; ++y) {
-            for (unsigned x = 0; x < side; ++x) {
-                if (board[y * side + x] == EMPTY) {
+        for (unsigned y = 0; y < SIDE; ++y) {
+            for (unsigned x = 0; x < SIDE; ++x) {
+                if (board[y * SIDE + x] == EMPTY) {
                     return true;
                 }
             }
@@ -185,7 +184,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
             int enemy_places = 0;
             for (int j = 0; j < SIDE; ++j) {
                 const TicTacToeMove &coord = LINES[i][j];
-                const int board_index = coord.y * side + coord.x;
+                const int board_index = coord.y * SIDE + coord.x;
                 if (board[board_index] == current_player) {
                     ++player_places;
                 }
@@ -200,9 +199,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     }
 
     ostream &to_stream(ostream &os) const override {
-        for (int y = 0; y < side; ++y) {
-            for (int x = 0; x < side; ++x) {
-                os << board[y * side + x];
+        for (int y = 0; y < SIDE; ++y) {
+            for (int x = 0; x < SIDE; ++x) {
+                os << board[y * SIDE + x];
             }
             os << "\n";
         }
