@@ -212,19 +212,3 @@ struct TicTacToeMoveReader : public MoveReader<TicTacToeMove> {
         return TicTacToeMove(x, y);
     }
 };
-
-int main() {
-    string init_string =
-        "___"
-        "___"
-        "___";
-    TicTacToeState state = TicTacToeState(3, init_string);
-
-    auto algorithm_1 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('X', 'O');
-    auto algorithm_2 = MonteCarloTreeSearch<TicTacToeState, TicTacToeMove>('O', 'X');
-
-    auto tester = Tester<TicTacToeState, TicTacToeMove>(&state, algorithm_1, algorithm_2);
-    tester.start();
-
-    return 0;
-}
