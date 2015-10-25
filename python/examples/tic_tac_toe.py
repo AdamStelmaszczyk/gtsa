@@ -122,8 +122,8 @@ class TicTacToeMoveReader(MoveReader):
 
 if __name__ == "__main__":
     state = TicTacToeState("___"
-                         "___"
-                         "___")
+                           "___"
+                           "___")
 
     algorithm_1 = Minimax(PLAYER_2, PLAYER_1, verbose=True)
     algorithm_2 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
