@@ -32,3 +32,15 @@ https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitati
 Planned:
 
 - [Neural networks](https://en.wikipedia.org/wiki/Artificial_neural_network)
+
+Priorities
+---
+
+1. Correctness
+2. Performance
+
+Would like to help?
+---
+All suggestions are welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
+
+I'm sending £10 to anybody who submits successful bug report.
