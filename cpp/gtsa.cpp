@@ -217,19 +217,19 @@ struct Human : public Algorithm<S, M> {
 
 template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
-    const double max_seconds;
-    const int max_depth;
-    const bool verbose;
+    const double MAX_SECONDS;
+    const int MAX_DEPTH;
+    const bool VERBOSE;
 
     Minimax(char our_symbol,
             char enemy_symbol,
             double max_seconds = 10,
-            int max_depth = 10,
+            int max_depth = 2,
             bool verbose = false) :
         Algorithm<S, M>(our_symbol, enemy_symbol),
-        max_seconds(max_seconds),
-        max_depth(max_depth),
-        verbose(verbose) { }
+        MAX_SECONDS(max_seconds),
+        MAX_DEPTH(max_depth),
+        VERBOSE(verbose) { }
 
     M get_move(S *state) const override {
         if (state->is_terminal(this->our_symbol)) {
@@ -237,11 +237,11 @@ struct Minimax : public Algorithm<S, M> {
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
-        return minimax(state, this->max_depth, (int) -INFINITY, (int) INFINITY, this->our_symbol).second;
+        return minimax(state, 0, (int) -INFINITY, (int) INFINITY, this->our_symbol).second;
     }
 
     pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) const {
-        if (depth <= 0 || state->is_terminal(analyzed_player)) {
+        if (depth > this->MAX_DEPTH || state->is_terminal(analyzed_player)) {
             return make_pair(state->get_goodness(this->our_symbol), M()); // FIXME: M() is not elegant
         }
         int best_goodness;
@@ -251,7 +251,10 @@ struct Minimax : public Algorithm<S, M> {
             best_goodness = (int) -INFINITY;
             for (const auto& move : legal_moves) {
                 state->make_move(move, analyzed_player);
-                const int goodness = minimax(state, depth - 1, alpha, beta, this->enemy_symbol).first;
+                const int goodness = minimax(state, depth + 1, alpha, beta, this->enemy_symbol).first;
+                if (VERBOSE and depth == 0) {
+                    cout << "move: " << move << " goodness: " << goodness << endl;
+                }
                 state->undo_move(move, analyzed_player);
                 if (best_goodness < goodness) {
                     best_goodness = goodness;
@@ -266,7 +269,7 @@ struct Minimax : public Algorithm<S, M> {
             best_goodness = (int) INFINITY;
             for (const auto& move : legal_moves) {
                 state->make_move(move, analyzed_player);
-                const int goodness = minimax(state, depth - 1, alpha, beta, this->our_symbol).first;
+                const int goodness = minimax(state, depth + 1, alpha, beta, this->our_symbol).first;
                 state->undo_move(move, analyzed_player);
                 if (best_goodness > goodness) {
                     best_goodness = goodness;
