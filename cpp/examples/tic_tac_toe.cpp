@@ -14,7 +14,7 @@ const char PLAYER_1 = 'X';
 const char PLAYER_2 = 'O';
 const char EMPTY = '_';
 
-char get_opposite_player(char player) {
+static char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
 
