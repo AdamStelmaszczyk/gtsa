@@ -36,8 +36,8 @@ Planned:
 Priorities
 ---
 
-1. Correctness
-2. Performance
+1. Correctness in Python and C++.
+2. Performance in C++.
 
 Would like to help?
 ---
