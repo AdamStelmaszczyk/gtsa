@@ -295,10 +295,10 @@ class MoveReader(object):
 
 class Timer:
     def __init__(self):
-        self.start = time.clock()
+        self.start = time.time()
 
     def seconds_elapsed(self):
-        return time.clock() - self.start
+        return time.time() - self.start
 
     def print_seconds_elapsed(self):
         print("{0:.1f}s".format(self.seconds_elapsed()))
