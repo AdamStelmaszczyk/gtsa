@@ -188,8 +188,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
                     ++enemy_places;
                 }
             }
-            auto count = {player_places, enemy_places};
-            counts[i] = count;
+            counts[i] = {player_places, enemy_places};
         }
         return counts;
     }
