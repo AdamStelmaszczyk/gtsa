@@ -95,24 +95,26 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     int get_goodness(char current_player) const override {
         int goodness = 0;
-        auto counts = count_players_on_lines(current_player);
-        for (const auto &count : counts) {
-            if (count[0] == 3) {
+        const auto &counts = count_players_on_lines(current_player);
+        for (int i = 0; i < LINES_SIZE; ++i) {
+            const int player_places = counts[2 * i];
+            const int enemy_places = counts[2 * i + 1];
+            if (player_places == 3) {
                 goodness += side * side;
             }
-            else if (count[1] == side) {
+            else if (enemy_places == side) {
                 goodness -= side * side;
             }
-            else if (count[0] == SIDE - 1 and count[1] == 0) {
+            else if (player_places == SIDE - 1 and enemy_places == 0) {
                 goodness += side;
             }
-            else if (count[1] == SIDE - 1 and count[0] == 0) {
+            else if (enemy_places == SIDE - 1 and player_places == 0) {
                 goodness -= side;
             }
-            else if (count[0] == SIDE - 2 and count[1] == 0) {
+            else if (player_places == SIDE - 2 and enemy_places == 0) {
                 ++goodness;
             }
-            else if (count[1] == SIDE - 2 and count[0] == 0) {
+            else if (enemy_places == SIDE - 2 and player_places == 0) {
                 --goodness;
             }
         }
@@ -135,8 +137,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         if (!has_empty_space()) {
             return true;
         }
-        for (const auto &count : count_players_on_lines(player)) {
-            if (count[0] == side || count[1] == side) {
+        const auto &counts = count_players_on_lines(player);
+        for (int i = 0; i < LINES_SIZE; ++i) {
+            if (counts[2 * i] == side || counts[2 * i + 1] == side) {
                 return true;
             }
         }
@@ -144,8 +147,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     }
 
     bool is_winner(char player) const override {
-        for (const auto &count : count_players_on_lines(player)) {
-            if (count[0] == side) {
+        const auto &counts = count_players_on_lines(player);
+        for (int i = 0; i < LINES_SIZE; ++i) {
+            if (counts[2 * i] == side) {
                 return true;
             }
         }
@@ -173,8 +177,8 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    vector<vector<int>> count_players_on_lines(char current_player) const {
-        vector<vector<int>> counts(LINES_SIZE);
+    vector<int> count_players_on_lines(char current_player) const {
+        vector<int> counts(2 * LINES_SIZE);
         char next_player = get_opposite_player(current_player);
         for (int i = 0; i < LINES_SIZE; ++i) {
             int player_places = 0;
@@ -189,7 +193,8 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
                     ++enemy_places;
                 }
             }
-            counts[i] = {player_places, enemy_places};
+            counts[2 * i] = player_places;
+            counts[2 * i + 1] = enemy_places;
         }
         return counts;
     }
