@@ -15,7 +15,7 @@ void test_tic_tac_toe_finish() {
         "XX_"
         "_O_"
         "___";
-    TicTacToeState state = TicTacToeState(3, init_string);
+    TicTacToeState state = TicTacToeState(init_string);
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -28,7 +28,7 @@ void test_tic_tac_toe_block() {
         "O__"
         "O__"
         "___";
-    TicTacToeState state = TicTacToeState(3, init_string);
+    TicTacToeState state = TicTacToeState(init_string);
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -41,7 +41,7 @@ void test_tic_tac_toe_block_2() {
         "X__"
         "OO_"
         "___";
-    TicTacToeState state = TicTacToeState(3, init_string);
+    TicTacToeState state = TicTacToeState(init_string);
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -54,7 +54,7 @@ void test_tic_tac_toe_corner() {
         "___"
         "_O_"
         "___";
-    TicTacToeState state = TicTacToeState(3, init_string);
+    TicTacToeState state = TicTacToeState(init_string);
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -68,7 +68,7 @@ void test_tic_tac_toe_terminal() {
         "XOX"
         "OOX"
         "OXO";
-    TicTacToeState state = TicTacToeState(3, init_string);
+    TicTacToeState state = TicTacToeState(init_string);
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         bool exception_thrown = false;
         try {

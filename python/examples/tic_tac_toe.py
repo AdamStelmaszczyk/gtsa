@@ -23,13 +23,12 @@ LINES.append(tuple((SIDE - x - 1, x) for x in range(SIDE)))
 
 
 class TicTacToeState(State):
-    def __init__(self, side, init_string=None):
+    def __init__(self, init_string=None):
         super(TicTacToeState, self).__init__()
-        self.side = side
 
-        self.board = [[EMPTY for _ in range(side)] for _ in range(side)]
+        self.board = [[EMPTY for _ in range(SIDE)] for _ in range(SIDE)]
         if init_string:
-            correct_length = self.side ** 2
+            correct_length = SIDE ** 2
             if len(init_string) != correct_length:
                 raise ValueError("Initialization string length must be {}".
                                  format(correct_length))
@@ -37,12 +36,12 @@ class TicTacToeState(State):
                 if char not in [PLAYER_1, PLAYER_2, EMPTY]:
                     raise ValueError("Undefined symbol used: '{}'".
                                      format(char))
-                x = i % self.side
-                y = i // self.side
+                x = i % SIDE
+                y = i // SIDE
                 self.board[y][x] = char
 
     def clone(self):
-        clone = TicTacToeState(self.side)
+        clone = TicTacToeState()
         clone.board = [row[:] for row in self.board]
         return clone
 
@@ -51,13 +50,13 @@ class TicTacToeState(State):
         counts = self.count_players_on_lines(current_player)
         for count in counts:
             if count[0] == SIDE:
-                goodness += self.side ** 2
+                goodness += SIDE ** 2
             elif count[1] == SIDE:
-                goodness -= self.side ** 2
+                goodness -= SIDE ** 2
             elif count[0] == SIDE - 1 and count[1] == 0:
-                goodness += self.side
+                goodness += SIDE
             elif count[1] == SIDE - 1 and count[0] == 0:
-                goodness -= self.side
+                goodness -= SIDE
             elif count[0] == SIDE - 2 and count[1] == 0:
                 goodness += 1
             elif count[1] == SIDE - 2 and count[0] == 0:
@@ -65,8 +64,8 @@ class TicTacToeState(State):
         return goodness
 
     def get_legal_moves(self, player):
-        for y in range(self.side):
-            for x in range(self.side):
+        for y in range(SIDE):
+            for x in range(SIDE):
                 if self.board[y][x] == EMPTY:
                     yield (x, y)
 
@@ -108,8 +107,8 @@ class TicTacToeState(State):
             yield (player_places, enemy_places)
 
     def has_empty_space(self):
-        for y in range(self.side):
-            for x in range(self.side):
+        for y in range(SIDE):
+            for x in range(SIDE):
                 if self.board[y][x] == EMPTY:
                     return True
         return False
@@ -122,9 +121,9 @@ class TicTacToeMoveReader(MoveReader):
 
 
 if __name__ == "__main__":
-    state = TicTacToeState(SIDE, "___"
-                                 "___"
-                                 "___")
+    state = TicTacToeState("___"
+                         "___"
+                         "___")
 
     algorithm_1 = Minimax(PLAYER_2, PLAYER_1, verbose=True)
     algorithm_2 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))

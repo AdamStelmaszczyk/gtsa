@@ -66,28 +66,26 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     TicTacToeState() { }
 
-    TicTacToeState(unsigned side, const string &init_string = "") {
-        const int correct_length = side * side;
-        if (init_string != "") {
-            const unsigned long length = init_string.length();
-            if (length != correct_length) {
-                throw invalid_argument("Initialization string length must be " + std::to_string(correct_length));
-            }
-            for (int i = 0; i < length; i++) {
-                const char c = init_string[i];
-                if (c != PLAYER_1 && c != PLAYER_2 && c != EMPTY) {
-                    string message = "Undefined symbol used: '";
-                    message += c;
-                    message += "'";
-                    throw invalid_argument(message);
-                }
-            }
-            board = vector<char>(init_string.begin(), init_string.end());
+    TicTacToeState(const string &init_string) {
+        const unsigned long length = init_string.length();
+        const unsigned long correct_length = SIDE * SIDE;
+        if (length != correct_length) {
+            throw invalid_argument("Initialization string length must be " + std::to_string(correct_length));
         }
+        for (int i = 0; i < length; i++) {
+            const char c = init_string[i];
+            if (c != PLAYER_1 && c != PLAYER_2 && c != EMPTY) {
+                string message = "Undefined symbol used: '";
+                message += c;
+                message += "'";
+                throw invalid_argument(message);
+            }
+        }
+        board = vector<char>(init_string.begin(), init_string.end());
     }
 
     TicTacToeState clone() const override {
-        TicTacToeState clone = TicTacToeState(SIDE);
+        TicTacToeState clone = TicTacToeState();
         clone.board = board;
         return clone;
     }
