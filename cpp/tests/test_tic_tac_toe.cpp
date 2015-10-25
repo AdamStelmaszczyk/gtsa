@@ -11,11 +11,9 @@ vector<Algorithm<S, M> *> get_algorithms() {
 }
 
 void test_tic_tac_toe_finish() {
-    string init_string =
-        "XX_"
-        "_O_"
-        "___";
-    TicTacToeState state = TicTacToeState(init_string);
+    TicTacToeState state = TicTacToeState("XX_"
+                                          "_O_"
+                                          "___");
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -24,11 +22,9 @@ void test_tic_tac_toe_finish() {
 }
 
 void test_tic_tac_toe_block() {
-    string init_string =
-        "O__"
-        "O__"
-        "___";
-    TicTacToeState state = TicTacToeState(init_string);
+    TicTacToeState state = TicTacToeState("O__"
+                                          "O__"
+                                          "___");
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -37,11 +33,9 @@ void test_tic_tac_toe_block() {
 }
 
 void test_tic_tac_toe_block_2() {
-    string init_string =
-        "X__"
-        "OO_"
-        "___";
-    TicTacToeState state = TicTacToeState(init_string);
+    TicTacToeState state = TicTacToeState("X__"
+                                          "OO_"
+                                          "___");
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -50,11 +44,9 @@ void test_tic_tac_toe_block_2() {
 }
 
 void test_tic_tac_toe_corner() {
-    string init_string =
-        "___"
-        "_O_"
-        "___";
-    TicTacToeState state = TicTacToeState(init_string);
+    TicTacToeState state = TicTacToeState("___"
+                                          "_O_"
+                                          "___");
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -64,11 +56,9 @@ void test_tic_tac_toe_corner() {
 }
 
 void test_tic_tac_toe_terminal() {
-    string init_string =
-        "XOX"
-        "OOX"
-        "OXO";
-    TicTacToeState state = TicTacToeState(init_string);
+    TicTacToeState state = TicTacToeState("XOX"
+                                          "OOX"
+                                          "OXO");
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         bool exception_thrown = false;
         try {
