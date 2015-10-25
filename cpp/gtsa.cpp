@@ -206,8 +206,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             verbose(verbose) { }
 
     M get_move(S *state) const override {
-        auto legal_moves = state->get_legal_moves(this->our_symbol);
-        if (legal_moves.empty()) {
+        if (state->is_terminal(this->our_symbol)) {
             stringstream stream;
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
