@@ -47,10 +47,16 @@ class Human(Algorithm):
 
 
 class Minimax(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, max_seconds=10, max_depth=10):
+    def __init__(self,
+                 our_symbol,
+                 enemy_symbol,
+                 max_seconds=10,
+                 max_depth=2,
+                 verbose=False):
         super(Minimax, self).__init__(our_symbol, enemy_symbol)
         self.max_seconds = max_seconds
         self.max_depth = max_depth
+        self.verbose = verbose
         self.timer = None
 
     def get_move(self, state):
@@ -58,14 +64,14 @@ class Minimax(Algorithm):
             raise ValueError("Given state is terminal:\n{}".format(state))
         self.timer = Timer()
         _, best_move = self._minimax(state,
-                                     self.max_depth,
+                                     0,
                                      float('-inf'),
                                      float('inf'),
                                      self.our_symbol)
         return best_move
 
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
-        if depth <= 0 or state.is_terminal(analyzed_player) or \
+        if depth > self.max_depth or state.is_terminal(analyzed_player) or \
                 self.timer.seconds_elapsed() > self.max_seconds:
             return state.get_goodness(self.our_symbol), None
         best_move = None
@@ -75,10 +81,12 @@ class Minimax(Algorithm):
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
                 goodness, _ = self._minimax(state,
-                                            depth - 1,
+                                            depth + 1,
                                             alpha,
                                             beta,
                                             self.enemy_symbol)
+                if self.verbose and depth == 0:
+                    print("move: {} goodness: {}".format(move, goodness))
                 state.undo_move(move, analyzed_player)
                 if best_goodness < goodness:
                     best_goodness = goodness
@@ -91,7 +99,7 @@ class Minimax(Algorithm):
             for move in legal_moves:
                 state.make_move(move, analyzed_player)
                 goodness, _ = self._minimax(state,
-                                            depth - 1,
+                                            depth + 1,
                                             alpha,
                                             beta,
                                             self.our_symbol)
