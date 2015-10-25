@@ -1,5 +1,5 @@
 all:
-	g++-4.8 -std=c++11 examples/tic_tac_toe.cpp -o examples/tic_tac_toe.o
-
+	g++-4.8 -std=c++11 tests/test_tic_tac_toe.cpp -o tests/test_tic_tac_toe.o
+	
 clean:
-	rm -f examples/*.o
+	rm -f tests/*.o

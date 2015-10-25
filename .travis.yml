@@ -20,5 +20,5 @@ before_script:
   - flake8 .
 
 script: 
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then valgrind --error-exitcode=1 --leak-check=full ./cpp/examples/tic_tac_toe.o; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then valgrind --error-exitcode=1 --leak-check=full ./cpp/tests/test_tic_tac_toe.o; fi
   - py.test
