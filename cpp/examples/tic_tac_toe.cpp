@@ -58,7 +58,7 @@ const vector<vector<TicTacToeMove>> LINES = [] {
     return lines;
 }();
 
-const int LINES_SIZE = 2 * SIDE + 2;
+const unsigned long LINES_SIZE = 2 * SIDE + 2;
 
 struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
