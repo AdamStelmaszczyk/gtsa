@@ -35,7 +35,7 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
     }
 };
 
-const auto LINES = [] {
+const vector<vector<TicTacToeMove>> LINES = [] {
     vector<vector<TicTacToeMove>> lines;
     for (int y = 0; y < SIDE; ++y) {
         lines.emplace_back(); // add a new line to back()
@@ -57,6 +57,8 @@ const auto LINES = [] {
     }
     return lines;
 }();
+
+const int LINES_SIZE = 2 * SIDE + 2;
 
 struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
@@ -172,22 +174,22 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     }
 
     vector<vector<int>> count_players_on_lines(char current_player) const {
-        vector<vector<int>> counts;
+        vector<vector<int>> counts(LINES_SIZE);
         char next_player = get_opposite_player(current_player);
-        for (const auto &line : LINES) {
+        for (int i = 0; i < LINES_SIZE; ++i) {
             int player_places = 0;
             int enemy_places = 0;
-            for (const TicTacToeMove &coord : line) {
-                const int i = coord.y * side + coord.x;
-                if (board[i] == current_player) {
+            for (const TicTacToeMove &coord : LINES[i]) {
+                const int board_index = coord.y * side + coord.x;
+                if (board[board_index] == current_player) {
                     ++player_places;
                 }
-                else if (board[i] == next_player) {
+                else if (board[board_index] == next_player) {
                     ++enemy_places;
                 }
             }
             auto count = {player_places, enemy_places};
-            counts.emplace_back(count);
+            counts[i] = count;
         }
         return counts;
     }
