@@ -298,7 +298,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     MonteCarloTreeSearch(char our_symbol,
                          char enemy_symbol,
                          double max_seconds = 10,
-                         int max_simulations = 500,
+                         int max_simulations = 10000,
                          bool verbose = false) :
         Algorithm<S, M>(our_symbol, enemy_symbol),
         max_seconds(max_seconds),
