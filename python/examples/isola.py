@@ -160,10 +160,12 @@ if __name__ == "__main__":
                        "_1_")
 
     algorithm_1 = Minimax(PLAYER_1, PLAYER_2, max_seconds=1, verbose=True)
-    algorithm_2 = MonteCarloTreeSearch(PLAYER_2,
-                                       PLAYER_1,
-                                       max_seconds=1,
-                                       verbose=True)
+    algorithm_2 = MonteCarloTreeSearch(
+        PLAYER_2,
+        PLAYER_1,
+        max_seconds=1,
+        verbose=True,
+    )
 
     tester = Tester(state, algorithm_1, algorithm_2)
     tester.start()
