@@ -159,7 +159,7 @@ if __name__ == "__main__":
                        "___"
                        "_1_")
 
-    algorithm_1 = Minimax(PLAYER_1, PLAYER_2, max_depth=1)
+    algorithm_1 = Minimax(PLAYER_1, PLAYER_2, max_seconds=1, verbose=True)
     algorithm_2 = MonteCarloTreeSearch(PLAYER_2,
                                        PLAYER_1,
                                        max_seconds=1,
