@@ -5,8 +5,8 @@
 template<class S, class M>
 vector<Algorithm<S, M> *> get_algorithms() {
     return {
-        new Minimax<S, M>('X', 'O'),
-        new MonteCarloTreeSearch<S, M>('X', 'O'),
+        new Minimax<S, M>(PLAYER_1, PLAYER_2),
+        new MonteCarloTreeSearch<S, M>(PLAYER_1, PLAYER_2),
     };
 }
 
