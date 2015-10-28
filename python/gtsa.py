@@ -264,7 +264,8 @@ class State(object):
         return self.score / (self.visits + EPSILON) + \
             SQRT_2 * \
             math.sqrt(
-                math.log(self.parent.visits + 1) / (self.visits + EPSILON))
+                math.log(self.parent.visits + 1) / (self.visits + EPSILON)) \
+            + random.random() * EPSILON
 
     def clone(self):
         raise NotImplementedError("Implement clone in State subclass")
