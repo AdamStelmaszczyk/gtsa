@@ -41,6 +41,6 @@ Priorities
 
 Would like to help?
 ---
-All suggestions are welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
+Suggestions are welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
 
 I'm sending £10 to anybody who submits successful bug report.
