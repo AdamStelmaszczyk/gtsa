@@ -84,8 +84,7 @@ class IsolaState(State):
             self.get_number_of_legal_steps(get_opposite_player(player)) == 0
 
     def make_move(self, move, player):
-        x, y = self.get_player_cords(player)
-        self.board[y][x] = EMPTY
+        self.board[move[1]][move[0]] = EMPTY
         self.board[move[3]][move[2]] = player
         self.board[move[5]][move[4]] = REMOVED
         self.set_player_cords(player, (move[2], move[3]))
