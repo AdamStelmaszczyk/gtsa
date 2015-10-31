@@ -90,9 +90,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return clone;
     }
 
-    int get_goodness(char current_player) const override {
+    int get_goodness(char player) const override {
         int goodness = 0;
-        const auto &counts = count_players_on_lines(current_player);
+        const auto &counts = count_players_on_lines(player);
         for (int i = 0; i < LINES_SIZE; ++i) {
             const int player_places = counts[2 * i];
             const int enemy_places = counts[2 * i + 1];
