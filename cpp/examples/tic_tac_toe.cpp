@@ -75,10 +75,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         for (int i = 0; i < length; i++) {
             const char c = init_string[i];
             if (c != PLAYER_1 && c != PLAYER_2 && c != EMPTY) {
-                string message = "Undefined symbol used: '";
-                message += c;
-                message += "'";
-                throw invalid_argument(message);
+                throw invalid_argument(string("Undefined symbol used: '") + c + "'");
             }
         }
         board = vector<char>(init_string.begin(), init_string.end());
