@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../examples/tic_tac_toe.cpp"
+#include "../examples/tic_tac_toe.hpp"
 
 template<class S, class M>
 vector<Algorithm<S, M> *> get_algorithms() {

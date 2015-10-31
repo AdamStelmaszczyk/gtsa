@@ -5,7 +5,7 @@
 #include <memory>
 #include <limits>
 
-#include "../gtsa.cpp"
+#include "../gtsa.hpp"
 
 using namespace std;
 
