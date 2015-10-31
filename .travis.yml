@@ -21,5 +21,5 @@ before_script:
 
 script: 
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then valgrind --error-exitcode=1 --leak-check=full ./cpp/tests/test_tic_tac_toe.o; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then valgrind --error-exitcode=1 --leak-check=full ./cpp/tests/isola.o; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then valgrind --error-exitcode=1 --leak-check=full ./cpp/tests/test_isola.o; fi
   - py.test
