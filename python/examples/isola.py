@@ -138,7 +138,7 @@ class IsolaState(State):
             for x in range(SIDE):
                 if self.board[y][x] == player:
                     return x, y
-        raise ValueError("No {} on the board:\n{}".format(player, self))
+        raise ValueError("No {} on the board".format(player))
 
     def set_player_cords(self, player, cords):
         if player == PLAYER_1:
