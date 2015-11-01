@@ -317,7 +317,7 @@ class Tester(object):
         while True:
             if self.state.is_terminal(self.player_1):
                 break
-            print(type(self.algorithm_1).__name__)
+            print(self.algorithm_1.our_symbol, type(self.algorithm_1).__name__)
             timer = Timer()
             move = self.algorithm_1.get_move(self.state)
             timer.print_seconds_elapsed()
@@ -326,7 +326,7 @@ class Tester(object):
 
             if self.state.is_terminal(self.player_2):
                 break
-            print(type(self.algorithm_2).__name__)
+            print(self.algorithm_2.our_symbol, type(self.algorithm_2).__name__)
             timer = Timer()
             move = self.algorithm_2.get_move(self.state)
             timer.print_seconds_elapsed()

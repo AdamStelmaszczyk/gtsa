@@ -429,7 +429,7 @@ struct Tester {
             if (state->is_terminal(player_1)) {
                 break;
             }
-            cout << algorithm_1.get_name() << endl;
+            cout << algorithm_1.our_symbol << " " << algorithm_1.get_name() << endl;
             timer.start();
             auto move = algorithm_1.get_move(state);
             timer.print_seconds_elapsed();
@@ -439,7 +439,7 @@ struct Tester {
             if (state->is_terminal(player_2)) {
                 break;
             }
-            cout << algorithm_2.get_name() << endl;
+            cout << algorithm_2.our_symbol << " " << algorithm_2.get_name() << endl;
             timer.start();
             move = algorithm_2.get_move(state);
             timer.print_seconds_elapsed();
