@@ -1,4 +1,4 @@
-from gtsa import State, MoveReader, Human, Tester, Minimax
+from gtsa import State, Human, Tester, Minimax
 
 
 SIDE = 3
@@ -114,10 +114,9 @@ class TicTacToeState(State):
         return False
 
 
-class TicTacToeMoveReader(MoveReader):
-    def read(self):
-        message = "Enter space separated X and Y of your move: "
-        return tuple(map(int, input(message).split()))
+def read_tic_tac_toe_move(state, player):
+    message = "Enter space separated X and Y of your move: "
+    return tuple(map(int, input(message).split()))
 
 
 if __name__ == "__main__":
@@ -126,7 +125,7 @@ if __name__ == "__main__":
                            "___")
 
     algorithm_1 = Minimax(PLAYER_2, PLAYER_1, verbose=True)
-    algorithm_2 = Human(PLAYER_1, PLAYER_2, TicTacToeMoveReader(state))
+    algorithm_2 = Human(PLAYER_1, PLAYER_2, read_tic_tac_toe_move)
 
     tester = Tester(state, algorithm_1, algorithm_2)
     tester.start()

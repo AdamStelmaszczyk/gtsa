@@ -30,16 +30,16 @@ class Algorithm(object):
 
 
 class Human(Algorithm):
-    def __init__(self, our_symbol, enemy_symbol, move_reader):
+    def __init__(self, our_symbol, enemy_symbol, read_move_function):
         super(Human, self).__init__(our_symbol, enemy_symbol)
-        self.move_reader = move_reader
+        self.read_move_function = read_move_function
 
     def get_move(self, state):
         legal_moves = [_ for _ in state.get_legal_moves(self.our_symbol)]
         if not legal_moves:
             raise ValueError("Given state is terminal:\n{}".format(state))
         while True:
-            move = self.move_reader.read()
+            move = self.read_move_function(state, self.our_symbol)
             if move in legal_moves:
                 return move
             else:

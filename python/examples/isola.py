@@ -1,6 +1,6 @@
 import itertools
 
-from gtsa import State, Minimax, MoveReader, Tester, MonteCarloTreeSearch
+from gtsa import State, Minimax, Tester, MonteCarloTreeSearch
 
 
 SIDE = 3
@@ -146,11 +146,10 @@ class IsolaState(State):
             self.player_2_cords = cords
 
 
-class IsolaMoveReader(MoveReader):
-    def read(self):
-        message = "Enter space separated step_x step_y remove_x remove_y: "
-        x, y = state.get_player_cords(PLAYER_1)
-        return (x, y) + tuple(map(int, input(message).split()))
+def read_isola_move(state, player):
+    message = "Enter space separated step_x step_y remove_x remove_y: "
+    x, y = state.get_player_cords(player)
+    return (x, y) + tuple(map(int, input(message).split()))
 
 
 if __name__ == "__main__":
