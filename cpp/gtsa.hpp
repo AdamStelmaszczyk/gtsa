@@ -1,11 +1,9 @@
 #include <sys/time.h>
-#include <functional>
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <vector>
-#include <memory>
 #include <cmath>
 
 using namespace std;
