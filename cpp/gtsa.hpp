@@ -183,7 +183,7 @@ struct Algorithm {
         return (player == our_symbol) ? enemy_symbol : our_symbol;
     }
 
-    virtual M get_move(S *state) const = 0;
+    virtual M get_move(S *state) = 0;
 
     virtual string get_name() const = 0;
 };
@@ -220,38 +220,55 @@ struct Human : public Algorithm<S, M> {
 template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
-    const int MAX_DEPTH;
     const bool VERBOSE;
+    int max_depth;
     Timer *timer = new Timer();
 
     Minimax(char our_symbol,
             char enemy_symbol,
-            double max_seconds = 10,
-            int max_depth = 2,
+            double max_seconds = 1,
             bool verbose = false) :
         Algorithm<S, M>(our_symbol, enemy_symbol),
         MAX_SECONDS(max_seconds),
-        MAX_DEPTH(max_depth),
         VERBOSE(verbose) { }
 
     ~Minimax() {
         delete timer;
     }
 
-    M get_move(S *state) const override {
+    M get_move(S *state) override {
         if (state->is_terminal(this->our_symbol)) {
             stringstream stream;
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
-        this->timer->start();
-        return minimax(state, 0, (int) -INFINITY, (int) INFINITY, this->our_symbol).second;
+        timer->start();
+        max_depth = 1;
+        int best_goodness = (int) -INFINITY;
+        M best_move;
+        int best_at_depth = 1;
+        while (timer->seconds_elapsed() < MAX_SECONDS && max_depth < 100) {
+            auto pair = minimax(state, 0, (int) -INFINITY, (int) INFINITY, this->our_symbol);
+            if (VERBOSE) {
+                cout << "goodness: " << pair.first << " at max_depth: " << max_depth << endl;
+            }
+            if (best_goodness <= pair.first) {
+                best_goodness = pair.first;
+                best_move = pair.second;
+                best_at_depth = max_depth;
+            }
+            max_depth += 2;
+        }
+        if (VERBOSE) {
+            cout << "best_goodness: " << best_goodness << " at max_depth: " << best_at_depth << endl;
+        }
+        return best_move;
     }
 
     pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) const {
-        if (depth > this->MAX_DEPTH
+        if (depth >= max_depth
             || state->is_terminal(analyzed_player)
-            || this->timer->seconds_elapsed() > this->MAX_SECONDS) {
+            || timer->seconds_elapsed() > MAX_SECONDS) {
             return make_pair(state->get_goodness(this->our_symbol), M()); // FIXME: M() is not elegant
         }
         int best_goodness;
@@ -262,9 +279,6 @@ struct Minimax : public Algorithm<S, M> {
             for (const auto& move : legal_moves) {
                 state->make_move(move, analyzed_player);
                 const int goodness = minimax(state, depth + 1, alpha, beta, this->enemy_symbol).first;
-                if (VERBOSE and depth == 0) {
-                    cout << "move: " << move << " goodness: " << goodness << endl;
-                }
                 state->undo_move(move, analyzed_player);
                 if (best_goodness < goodness) {
                     best_goodness = goodness;
@@ -308,14 +322,14 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     MonteCarloTreeSearch(char our_symbol,
                          char enemy_symbol,
                          double max_seconds = 10,
-                         int max_simulations = 10000,
-                         bool verbose = false) :
+                         bool verbose = false,
+                         int max_simulations = 10000) :
         Algorithm<S, M>(our_symbol, enemy_symbol),
         max_seconds(max_seconds),
-        max_simulations(max_simulations),
-        verbose(verbose) { }
+        verbose(verbose),
+        max_simulations(max_simulations) { }
 
-    M get_move(S *state) const override {
+    M get_move(S *state) override {
         if (state->is_terminal(this->our_symbol)) {
             stringstream stream;
             state->to_stream(stream);
@@ -406,12 +420,12 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 template<class S, class M>
 struct Tester {
     S *state = nullptr;
-    const Algorithm<S, M> &algorithm_1;
+    Algorithm<S, M> &algorithm_1;
     const char player_1;
-    const Algorithm<S, M> &algorithm_2;
+    Algorithm<S, M> &algorithm_2;
     const char player_2;
 
-    Tester(S *s, const Algorithm<S, M> &algorithm_1, const Algorithm<S, M> &algorithm_2) :
+    Tester(S *s, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2) :
             state(s),
             algorithm_1(algorithm_1),
             player_1(algorithm_1.our_symbol),
