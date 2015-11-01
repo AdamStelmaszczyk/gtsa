@@ -293,14 +293,6 @@ class State(object):
         raise NotImplementedError("Implement __repr__ in State subclass")
 
 
-class MoveReader(object):
-    def __init__(self, state):
-        self.state = state
-
-    def read(self):
-        raise NotImplementedError("Implement read in MoveReader subclass")
-
-
 class Timer:
     def __init__(self):
         self.start = time.time()
