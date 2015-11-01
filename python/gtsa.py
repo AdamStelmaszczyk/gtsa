@@ -50,28 +50,50 @@ class Minimax(Algorithm):
     def __init__(self,
                  our_symbol,
                  enemy_symbol,
-                 max_seconds=10,
-                 max_depth=2,
+                 max_seconds=1,
                  verbose=False):
         super(Minimax, self).__init__(our_symbol, enemy_symbol)
         self.max_seconds = max_seconds
-        self.max_depth = max_depth
         self.verbose = verbose
         self.timer = None
+        self.max_depth = 1
 
     def get_move(self, state):
         if state.is_terminal(self.our_symbol):
             raise ValueError("Given state is terminal:\n{}".format(state))
         self.timer = Timer()
-        _, best_move = self._minimax(state,
-                                     0,
-                                     float('-inf'),
-                                     float('inf'),
-                                     self.our_symbol)
+        self.max_depth = 1
+        best_goodness = float('-inf')
+        best_move = None
+        best_at_depth = 1
+        while self.timer.seconds_elapsed() < self.max_seconds and \
+                self.max_depth < 100:
+            goodness, move = self._minimax(
+                state,
+                0,
+                float('-inf'),
+                float('inf'),
+                self.our_symbol,
+            )
+            if self.verbose:
+                print("goodness: {} at max_depth: {} ".format(
+                    goodness,
+                    self.max_depth,
+                ))
+            if best_goodness <= goodness:
+                best_goodness = goodness
+                best_move = move
+                best_at_depth = self.max_depth
+            self.max_depth += 1
+        if self.verbose:
+            print("best_goodness: {} at max_depth: {}".format(
+                best_goodness,
+                best_at_depth,
+            ))
         return best_move
 
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
-        if depth > self.max_depth or state.is_terminal(analyzed_player) or \
+        if depth >= self.max_depth or state.is_terminal(analyzed_player) or \
                 self.timer.seconds_elapsed() > self.max_seconds:
             return state.get_goodness(self.our_symbol), None
         best_move = None
@@ -85,8 +107,6 @@ class Minimax(Algorithm):
                                             alpha,
                                             beta,
                                             self.enemy_symbol)
-                if self.verbose and depth == 0:
-                    print("move: {} goodness: {}".format(move, goodness))
                 state.undo_move(move, analyzed_player)
                 if best_goodness < goodness:
                     best_goodness = goodness
