@@ -76,7 +76,7 @@ class Minimax(Algorithm):
                 self.our_symbol,
             )
             if self.verbose:
-                print("goodness: {} at max_depth: {} ".format(
+                print("goodness: {} at max_depth: {}".format(
                     goodness,
                     self.max_depth,
                 ))
