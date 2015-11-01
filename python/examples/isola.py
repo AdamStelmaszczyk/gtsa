@@ -146,10 +146,10 @@ class IsolaState(State):
             self.player_2_cords = cords
 
 
-def read_isola_move(state, player):
-    message = "Enter space separated step_x step_y remove_x remove_y: "
-    x, y = state.get_player_cords(player)
-    return (x, y) + tuple(map(int, input(message).split()))
+def read_isola_move():
+    message = "Enter space separated " \
+              "from_x from_y step_x step_y remove_x remove_y: "
+    return tuple(map(int, input(message).split()))
 
 
 if __name__ == "__main__":

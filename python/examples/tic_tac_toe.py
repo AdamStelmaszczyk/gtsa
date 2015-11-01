@@ -114,7 +114,7 @@ class TicTacToeState(State):
         return False
 
 
-def read_tic_tac_toe_move(state, player):
+def read_tic_tac_toe_move():
     message = "Enter space separated X and Y of your move: "
     return tuple(map(int, input(message).split()))
 

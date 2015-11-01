@@ -39,7 +39,7 @@ class Human(Algorithm):
         if not legal_moves:
             raise ValueError("Given state is terminal:\n{}".format(state))
         while True:
-            move = self.read_move_function(state, self.our_symbol)
+            move = self.read_move_function()
             if move in legal_moves:
                 return move
             else:
