@@ -56,6 +56,18 @@ struct IsolaMove : public Move<IsolaMove> {
                remove_x == rhs.remove_x && remove_y == rhs.remove_y;
     }
 
+    void read() override {
+        cout << "Enter space separated from_x from_y step_x step_y remove_x remove_y: ";
+        unsigned from_x, from_y, step_x, step_y, remove_x, remove_y;
+        cin >> from_x >> from_y >> step_x >> step_y >> remove_x >> remove_y;
+        this->from_x = from_x;
+        this->from_y = from_y;
+        this->step_x = step_x;
+        this->step_y = step_y;
+        this->remove_x = remove_x;
+        this->remove_y = remove_y;
+    }
+
     ostream &to_stream(ostream &os) const override {
         return os << from_x << " " << from_y << " " << step_x << " " << step_y << " " << remove_x << " " << remove_y;
     }
@@ -251,10 +263,4 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return os;
     }
 
-};
-
-struct IsolaMoveReader : public MoveReader<IsolaMove> {
-    IsolaMove read() const {
-        // TODO: implement
-    }
 };

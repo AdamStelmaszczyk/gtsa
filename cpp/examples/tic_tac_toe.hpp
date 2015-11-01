@@ -30,6 +30,14 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
         return x == rhs.x && y == rhs.y;
     }
 
+    void read() override {
+        cout << "Enter space separated X and Y of your move: ";
+        unsigned x, y;
+        cin >> x >> y;
+        this->x = x;
+        this->y = y;
+    }
+
     ostream &to_stream(ostream &os) const override {
         return os << x << " " << y;
     }
@@ -203,13 +211,4 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return os;
     }
 
-};
-
-struct TicTacToeMoveReader : public MoveReader<TicTacToeMove> {
-    TicTacToeMove read() const {
-        cout << "Enter space separated X and Y of your move: ";
-        unsigned x, y;
-        cin >> x >> y;
-        return TicTacToeMove(x, y);
-    }
 };

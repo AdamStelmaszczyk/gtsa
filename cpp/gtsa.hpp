@@ -1,4 +1,6 @@
 #include <sys/time.h>
+#include <functional>
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
@@ -33,6 +35,8 @@ struct Timer {
 template<class M>
 struct Move {
     virtual bool operator==(const M &rhs) const = 0;
+
+    virtual void read() = 0;
 
     virtual ostream &to_stream(ostream &os) const = 0;
 
@@ -181,28 +185,22 @@ struct Algorithm {
     virtual string get_name() const = 0;
 };
 
-template<class M>
-struct MoveReader {
-    virtual M read() const = 0;
-};
-
 template<class S, class M>
 struct Human : public Algorithm<S, M> {
-    const MoveReader<M> &move_reader;
 
-    Human(char our_symbol, char enemy_symbol, const MoveReader<M> &move_reader) :
-            Algorithm<S, M>(our_symbol, enemy_symbol),
-            move_reader(move_reader) { }
+    Human(char our_symbol, char enemy_symbol) :
+        Algorithm<S, M>(our_symbol, enemy_symbol) { }
 
     M get_move(S *state) const override {
-        auto legal_moves = state->get_legal_moves(this->our_symbol);
+        const vector<M> &legal_moves = state->get_legal_moves(this->our_symbol);
         if (legal_moves.empty()) {
             stringstream stream;
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         while (true) {
-            const M &move = move_reader.read();
+            M move = M();
+            move.read();
             if (find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
                 return move;
             } else {
