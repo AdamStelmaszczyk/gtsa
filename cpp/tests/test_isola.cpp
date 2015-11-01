@@ -1,6 +1,6 @@
 #include <assert.h>
 
-#include "../examples/isola.hpp"
+#include "../examples/isola.cpp"
 
 template<class S, class M>
 vector<Algorithm<S, M> *> get_algorithms() {
