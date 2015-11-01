@@ -174,16 +174,19 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     vector<cords> get_legal_step_moves(int start_x, int start_y) const {
-        vector<cords> result;
+        vector<cords> result(8);
+        unsigned moves_count = 0;
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
                 const int x = start_x + dx;
                 const int y = start_y + dy;
                 if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && board[y * SIDE + x] == EMPTY) {
-                    result.emplace_back(make_pair(x, y));
+                    result[moves_count] = make_pair(x, y);
+                    ++moves_count;
                 }
             }
         }
+        result.resize(moves_count);
         return result;
     }
 
