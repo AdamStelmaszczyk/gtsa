@@ -112,21 +112,24 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     vector<IsolaMove> get_legal_moves(char player) const override {
-        vector<IsolaMove> legal_moves;
         auto player_cords = get_player_cords(player);
         auto step_moves = get_legal_step_moves(player_cords.first, player_cords.second);
         auto remove_moves = get_legal_remove_moves(player);
+        vector<IsolaMove> legal_moves(step_moves.size() * remove_moves.size());
+        unsigned legal_moves_count = 0;
         for (const auto &step_move : step_moves) {
             for (const auto &remove_move : remove_moves) {
                 if (step_move != remove_move) {
-                    legal_moves.emplace_back(IsolaMove(
+                    legal_moves[legal_moves_count] = IsolaMove(
                             player_cords.first, player_cords.second,
                             step_move.first, step_move.second,
                             remove_move.first, remove_move.second
-                    ));
+                    );
+                    ++legal_moves_count;
                 }
             }
         }
+        legal_moves.resize(legal_moves_count);
         return legal_moves;
     }
 
