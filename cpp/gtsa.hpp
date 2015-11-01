@@ -36,6 +36,8 @@ struct Timer {
 
 template<class M>
 struct Move {
+    virtual ~Move() {}
+
     virtual bool operator==(const M &rhs) const = 0;
 
     virtual void read() = 0;
@@ -59,7 +61,7 @@ struct State {
 
     State() { }
 
-    ~State() {
+    virtual ~State() {
         remove_children();
     }
 
@@ -177,6 +179,8 @@ struct Algorithm {
     const char enemy_symbol;
 
     Algorithm(char our_symbol, char enemy_symbol) : our_symbol(our_symbol), enemy_symbol(enemy_symbol) { }
+
+    virtual ~Algorithm() {}
 
     char get_opposite_player(char player) const {
         return (player == our_symbol) ? enemy_symbol : our_symbol;
