@@ -13,9 +13,11 @@ using namespace std;
 static const double EPSILON = 0.01;
 
 struct Timer {
-    const double start;
+    double start_time;
 
-    Timer() : start(get_time()) { }
+    void start() {
+        start_time = get_time();
+    }
 
     double get_time() {
         timeval tv;
@@ -24,7 +26,7 @@ struct Timer {
     }
 
     double seconds_elapsed() {
-        return get_time() - start;
+        return get_time() - start_time;
     }
 
     void print_seconds_elapsed() {
@@ -219,6 +221,7 @@ struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const int MAX_DEPTH;
     const bool VERBOSE;
+    Timer *timer = new Timer();
 
     Minimax(char our_symbol,
             char enemy_symbol,
@@ -230,17 +233,24 @@ struct Minimax : public Algorithm<S, M> {
         MAX_DEPTH(max_depth),
         VERBOSE(verbose) { }
 
+    ~Minimax() {
+        delete timer;
+    }
+
     M get_move(S *state) const override {
         if (state->is_terminal(this->our_symbol)) {
             stringstream stream;
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
+        this->timer->start();
         return minimax(state, 0, (int) -INFINITY, (int) INFINITY, this->our_symbol).second;
     }
 
     pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) const {
-        if (depth > this->MAX_DEPTH || state->is_terminal(analyzed_player)) {
+        if (depth > this->MAX_DEPTH
+            || state->is_terminal(analyzed_player)
+            || this->timer->seconds_elapsed() > this->MAX_SECONDS) {
             return make_pair(state->get_goodness(this->our_symbol), M()); // FIXME: M() is not elegant
         }
         int best_goodness;
@@ -311,6 +321,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         Timer timer;
+        timer.start();
         state->remove_children();
         int simulation = 0;
         while (simulation < max_simulations && timer.seconds_elapsed() < max_seconds) {
@@ -409,14 +420,15 @@ struct Tester {
 
     void start() {
         cout << *state << endl;
+        Timer timer;
         while (true) {
             if (state->is_terminal(player_1)) {
                 break;
             }
             cout << algorithm_1.get_name() << endl;
-            Timer timer_1;
+            timer.start();
             auto move = algorithm_1.get_move(state);
-            timer_1.print_seconds_elapsed();
+            timer.print_seconds_elapsed();
             state->make_move(move, player_1);
             cout << *state << endl;
 
@@ -424,9 +436,9 @@ struct Tester {
                 break;
             }
             cout << algorithm_2.get_name() << endl;
-            Timer timer_2;
+            timer.start();
             move = algorithm_2.get_move(state);
-            timer_2.print_seconds_elapsed();
+            timer.print_seconds_elapsed();
             state->make_move(move, player_2);
             cout << *state << endl;
         }
