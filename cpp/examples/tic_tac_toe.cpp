@@ -1,10 +1,3 @@
-#include <vector>
-#include <string>
-#include <stdexcept>
-#include <iostream>
-#include <memory>
-#include <limits>
-
 #include "../gtsa.hpp"
 
 using namespace std;
