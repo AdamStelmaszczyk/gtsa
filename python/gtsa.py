@@ -84,7 +84,7 @@ class Minimax(Algorithm):
                 best_goodness = goodness
                 best_move = move
                 best_at_depth = self.max_depth
-            self.max_depth += 1
+            self.max_depth += 2
         if self.verbose:
             print("best_goodness: {} at max_depth: {}".format(
                 best_goodness,
