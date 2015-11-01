@@ -158,15 +158,18 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     vector<cords> get_legal_remove_moves(char player) const {
-        vector<cords> result;
+        vector<cords> result(SIDE * SIDE);
+        unsigned moves_count = 0;
         for (unsigned y = 0; y < SIDE; ++y) {
             for (unsigned x = 0; x < SIDE; ++x) {
                 const char symbol = board[y * SIDE + x];
                 if (symbol == EMPTY || symbol == player) {
-                    result.emplace_back(make_pair(x, y));
+                    result[moves_count] = make_pair(x, y);
+                    ++moves_count;
                 }
             }
         }
+        result.resize(moves_count);
         return result;
     }
 
