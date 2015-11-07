@@ -13,6 +13,10 @@ def get_random_from_generator(generator):
     return random.choice(results)
 
 
+def get_class_name(algorithm):
+    return type(algorithm).__name__
+
+
 class Algorithm(object):
     def __init__(self, our_symbol, enemy_symbol):
         self.our_symbol = our_symbol
@@ -325,30 +329,66 @@ class Timer:
 
 
 class Tester(object):
-    def __init__(self, state, algorithm_1, algorithm_2):
+    def __init__(
+            self,
+            state,
+            algorithm_1,
+            algorithm_2,
+            matches=1,
+            verbose=True,
+    ):
         self.state = state
         self.algorithm_1 = algorithm_1
         self.player_1 = algorithm_1.our_symbol
         self.algorithm_2 = algorithm_2
         self.player_2 = algorithm_2.our_symbol
+        self.matches = matches
+        self.verbose = verbose
 
     def start(self):
-        print(self.state)
-        while True:
-            if self.state.is_terminal(self.player_1):
-                break
-            print(self.algorithm_1.our_symbol, type(self.algorithm_1).__name__)
-            timer = Timer()
-            move = self.algorithm_1.get_move(self.state)
-            timer.print_seconds_elapsed()
-            self.state.make_move(move, self.player_1)
-            print(self.state)
+        algorithm_1_wins = 0
+        for i in range(self.matches):
+            print("Match {}/{}".format(i + 1, self.matches))
+            current_state = self.state.clone()
+            if self.verbose:
+                print(current_state)
+            while True:
+                if current_state.is_terminal(self.player_1):
+                    if current_state.is_winner(self.player_1):
+                        algorithm_1_wins += 1
+                    break
+                if self.verbose:
+                    print(
+                        self.algorithm_1.our_symbol,
+                        get_class_name(self.algorithm_1),
+                    )
+                timer = Timer()
+                move = self.algorithm_1.get_move(current_state)
+                if self.verbose:
+                    timer.print_seconds_elapsed()
+                current_state.make_move(move, self.player_1)
+                if self.verbose:
+                    print(current_state)
 
-            if self.state.is_terminal(self.player_2):
-                break
-            print(self.algorithm_2.our_symbol, type(self.algorithm_2).__name__)
-            timer = Timer()
-            move = self.algorithm_2.get_move(self.state)
-            timer.print_seconds_elapsed()
-            self.state.make_move(move, self.player_2)
-            print(self.state)
+                if current_state.is_terminal(self.player_2):
+                    if current_state.is_winner(self.player_1):
+                        algorithm_1_wins += 1
+                    break
+                if self.verbose:
+                    print(
+                        self.algorithm_2.our_symbol,
+                        get_class_name(self.algorithm_2),
+                    )
+                timer = Timer()
+                move = self.algorithm_2.get_move(current_state)
+                if self.verbose:
+                    timer.print_seconds_elapsed()
+                current_state.make_move(move, self.player_2)
+                if self.verbose:
+                    print(current_state)
+        print("{} {} won {}/{} matches".format(
+            self.player_1,
+            get_class_name(self.algorithm_1),
+            algorithm_1_wins,
+            self.matches,
+        ))
