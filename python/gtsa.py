@@ -136,7 +136,7 @@ class Minimax(Algorithm):
 class MonteCarloTreeSearch(Algorithm):
     def __init__(self, our_symbol,
                  enemy_symbol,
-                 max_seconds=10,
+                 max_seconds=1,
                  max_simulations=10000,
                  verbose=False):
         super(MonteCarloTreeSearch, self).__init__(our_symbol, enemy_symbol)
