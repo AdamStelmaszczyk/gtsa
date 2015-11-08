@@ -123,6 +123,7 @@ class Minimax(Algorithm):
                 break
         return best_goodness, best_move
 
+
 class MonteCarloTreeSearch(Algorithm):
     def __init__(self, our_symbol,
                  enemy_symbol,
