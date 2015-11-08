@@ -344,51 +344,49 @@ class Tester(object):
         self.player_2 = algorithm_2.our_symbol
         self.matches = matches
         self.verbose = verbose
+        self.algorithm_1_wins = None
+
+    def handle_player(self, state, player, algorithm):
+        if state.is_terminal(player):
+            if state.is_winner(self.player_1):
+                self.algorithm_1_wins += 1
+            return True
+        if self.verbose:
+            print(algorithm.our_symbol, get_class_name(algorithm))
+        timer = Timer()
+        move = algorithm.get_move(state)
+        if self.verbose:
+            timer.print_seconds_elapsed()
+        state.make_move(move, player)
+        if self.verbose:
+            print(state)
+        return False
 
     def start(self):
-        algorithm_1_wins = 0
+        self.algorithm_1_wins = 0
         for i in range(self.matches):
             print("Match {}/{}".format(i + 1, self.matches))
             current_state = self.state.clone()
             if self.verbose:
                 print(current_state)
             while True:
-                if current_state.is_terminal(self.player_1):
-                    if current_state.is_winner(self.player_1):
-                        algorithm_1_wins += 1
+                end = self.handle_player(
+                    current_state,
+                    self.player_1,
+                    self.algorithm_1,
+                )
+                if end:
                     break
-                if self.verbose:
-                    print(
-                        self.algorithm_1.our_symbol,
-                        get_class_name(self.algorithm_1),
-                    )
-                timer = Timer()
-                move = self.algorithm_1.get_move(current_state)
-                if self.verbose:
-                    timer.print_seconds_elapsed()
-                current_state.make_move(move, self.player_1)
-                if self.verbose:
-                    print(current_state)
-
-                if current_state.is_terminal(self.player_2):
-                    if current_state.is_winner(self.player_1):
-                        algorithm_1_wins += 1
+                end = self.handle_player(
+                    current_state,
+                    self.player_2,
+                    self.algorithm_2
+                )
+                if end:
                     break
-                if self.verbose:
-                    print(
-                        self.algorithm_2.our_symbol,
-                        get_class_name(self.algorithm_2),
-                    )
-                timer = Timer()
-                move = self.algorithm_2.get_move(current_state)
-                if self.verbose:
-                    timer.print_seconds_elapsed()
-                current_state.make_move(move, self.player_2)
-                if self.verbose:
-                    print(current_state)
         print("{} {} won {}/{} matches".format(
             self.player_1,
             get_class_name(self.algorithm_1),
-            algorithm_1_wins,
+            self.algorithm_1_wins,
             self.matches,
         ))
