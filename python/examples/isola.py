@@ -92,10 +92,22 @@ class IsolaState(State):
         return '\n'.join([''.join(row) for row in self.board]) + '\n'
 
     def get_legal_remove_moves(self, player):
-        for y in range(SIDE):
-            for x in range(SIDE):
-                if self.board[y][x] in [EMPTY, player]:
+        # Prioritize remove moves around the enemy
+        no_moves_around_enemy = True
+        start_x, start_y = self.get_player_cords(get_opposite_player(player))
+        for dy in range(-2, 3):
+            for dx in range(-2, 3):
+                x = start_x + dx
+                y = start_y + dy
+                if 0 <= x < SIDE and 0 <= y < SIDE and \
+                        self.board[y][x] in [EMPTY, player]:
+                    no_moves_around_enemy = False
                     yield (x, y)
+        if no_moves_around_enemy:
+            for y in range(SIDE):
+                for x in range(SIDE):
+                    if self.board[y][x] in [EMPTY, player]:
+                        yield (x, y)
 
     def get_legal_step_moves(self, start_x, start_y):
         for dy in range(-1, 2):
