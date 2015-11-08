@@ -60,7 +60,7 @@ class Minimax(Algorithm):
         self.max_seconds = max_seconds
         self.verbose = verbose
         self.timer = None
-        self.max_depth = 1
+        self.max_depth = None
 
     def get_move(self, state):
         if state.is_terminal(self.our_symbol):
@@ -99,43 +99,29 @@ class Minimax(Algorithm):
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
         if depth >= self.max_depth or state.is_terminal(analyzed_player) or \
                 self.timer.seconds_elapsed() > self.max_seconds:
-            return state.get_goodness(self.our_symbol), None
+            return state.get_goodness(analyzed_player), None
         best_move = None
         legal_moves = state.get_legal_moves(analyzed_player)
-        if analyzed_player == self.our_symbol:
-            best_goodness = float('-inf')
-            for move in legal_moves:
-                state.make_move(move, analyzed_player)
-                goodness, _ = self._minimax(state,
-                                            depth + 1,
-                                            alpha,
-                                            beta,
-                                            self.enemy_symbol)
-                state.undo_move(move, analyzed_player)
-                if best_goodness < goodness:
-                    best_goodness = goodness
-                    best_move = move
-                alpha = max(alpha, best_goodness)
-                if beta <= alpha:
-                    break
-        else:
-            best_goodness = float('inf')
-            for move in legal_moves:
-                state.make_move(move, analyzed_player)
-                goodness, _ = self._minimax(state,
-                                            depth + 1,
-                                            alpha,
-                                            beta,
-                                            self.our_symbol)
-                state.undo_move(move, analyzed_player)
-                if best_goodness > goodness:
-                    best_goodness = goodness
-                    best_move = move
-                beta = min(beta, best_goodness)
-                if beta <= alpha:
-                    break
-        return best_goodness, best_move
 
+        best_goodness = float('-inf')
+        for move in legal_moves:
+            state.make_move(move, analyzed_player)
+            goodness = -self._minimax(
+                state,
+                depth + 1,
+                -beta,
+                -alpha,
+                self.get_opposite_player(analyzed_player),
+            )[0]
+            print(goodness)
+            state.undo_move(move, analyzed_player)
+            if best_goodness < goodness:
+                best_goodness = goodness
+                best_move = move
+            alpha = max(alpha, best_goodness)
+            if best_goodness >= beta:
+                break
+        return best_goodness, best_move
 
 class MonteCarloTreeSearch(Algorithm):
     def __init__(self, our_symbol,
