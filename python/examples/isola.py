@@ -14,15 +14,8 @@ def get_opposite_player(player):
     return PLAYER_2 if player == PLAYER_1 else PLAYER_1
 
 
-def get_score(options):
-    if options == 0:
-        return -50
-    elif options == 1:
-        return -10
-    elif options == 2:
-        return 0
-    else:
-        return options + 2
+def get_score_for_cords(x, y):
+    return min(min(x + 1, SIDE - x), min(y + 1, SIDE - y))
 
 
 class IsolaState(State):
@@ -59,11 +52,9 @@ class IsolaState(State):
         enemy = get_opposite_player(player)
         if self.is_winner(enemy):
             return -100
-        current_player_options = self.get_number_of_legal_steps(player)
-        current_player_score = get_score(current_player_options)
-        next_player_options = self.get_number_of_legal_steps(enemy)
-        next_player_score = get_score(next_player_options)
-        return current_player_score - next_player_score
+        player_score = self.get_score_for_legal_steps(player)
+        enemy_score = self.get_score_for_legal_steps(enemy)
+        return player_score - enemy_score
 
     def get_legal_moves(self, player):
         x, y = self.get_player_cords(player)
@@ -77,11 +68,11 @@ class IsolaState(State):
                        remove_move[0], remove_move[1])
 
     def is_terminal(self, player):
-        return self.get_number_of_legal_steps(player) == 0
+        return self.get_score_for_legal_steps(player) == 0
 
     def is_winner(self, player):
         return self.player_who_moved == player and \
-            self.get_number_of_legal_steps(get_opposite_player(player)) == 0
+            self.get_score_for_legal_steps(get_opposite_player(player)) == 0
 
     def make_move(self, move, player):
         self.board[move[1]][move[0]] = EMPTY
@@ -115,7 +106,7 @@ class IsolaState(State):
                         self.board[y][x] == EMPTY:
                     yield (x, y)
 
-    def get_number_of_legal_steps(self, player):
+    def get_score_for_legal_steps(self, player):
         result = 0
         start_x, start_y = self.get_player_cords(player)
         for dy in range(-1, 2):
@@ -124,7 +115,7 @@ class IsolaState(State):
                 y = start_y + dy
                 if 0 <= x < SIDE and 0 <= y < SIDE and \
                         self.board[y][x] == EMPTY:
-                    result += 1
+                    result += get_score_for_cords(x, y)
         return result
 
     def get_player_cords(self, player):

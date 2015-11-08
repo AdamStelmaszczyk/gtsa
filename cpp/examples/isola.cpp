@@ -12,16 +12,8 @@ static char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
 
-static int get_score(int options) {
-    if (options == 0) {
-        return -50;
-    } else if (options == 1) {
-        return -10;
-    } else if (options == 2) {
-        return 0;
-    } else {
-        return options + 2;
-    }
+static int get_score_for_cords(int x, int y) {
+    return min(min(x + 1, SIDE - x), min(y + 1, SIDE - y));
 }
 
 struct IsolaMove : public Move<IsolaMove> {
@@ -109,11 +101,9 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         if (is_winner(enemy)) {
             return -100;
         }
-        const int current_player_options = get_number_of_legal_steps(player);
-        const int current_player_score = get_score(current_player_options);
-        const int next_player_options = get_number_of_legal_steps(enemy);
-        const int next_player_score = get_score(next_player_options);
-        return current_player_score - next_player_score;
+        const int player_score = get_score_for_legal_steps(player);
+        const int enemy_score = get_score_for_legal_steps(enemy);
+        return player_score - enemy_score;
     }
 
     vector<IsolaMove> get_legal_moves(char player) const override {
@@ -139,11 +129,11 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     bool is_terminal(char player) const override {
-        return get_number_of_legal_steps(player) == 0;
+        return get_score_for_legal_steps(player) == 0;
     }
 
     bool is_winner(char player) const override {
-        return this->player_who_moved == player && get_number_of_legal_steps(get_opposite_player(player)) == 0;
+        return this->player_who_moved == player && get_score_for_legal_steps(get_opposite_player(player)) == 0;
     }
 
     void make_move(const IsolaMove &move, char player) override {
@@ -212,7 +202,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    int get_number_of_legal_steps(char player) const {
+    int get_score_for_legal_steps(char player) const {
         int result = 0;
         auto player_cords = get_player_cords(player);
         for (int dy = -1; dy <= 1; ++dy) {
@@ -220,7 +210,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
                 const int x = player_cords.first + dx;
                 const int y = player_cords.second + dy;
                 if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && board[y * SIDE + x] == EMPTY) {
-                    ++result;
+                    result += get_score_for_cords(x, y);
                 }
             }
         }
