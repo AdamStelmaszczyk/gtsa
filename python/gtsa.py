@@ -113,7 +113,6 @@ class Minimax(Algorithm):
                 -alpha,
                 self.get_opposite_player(analyzed_player),
             )[0]
-            print(goodness)
             state.undo_move(move, analyzed_player)
             if best_goodness < goodness:
                 best_goodness = goodness
