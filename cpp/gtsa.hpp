@@ -267,12 +267,12 @@ struct Minimax : public Algorithm<S, M> {
     }
 
     pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) const {
+        M best_move;
         if (depth >= max_depth
             || state->is_terminal(analyzed_player)
             || timer->seconds_elapsed() > MAX_SECONDS) {
-            return make_pair(state->get_goodness(analyzed_player), M()); // FIXME: M() is not elegant
+            return make_pair(state->get_goodness(analyzed_player), best_move);
         }
-        M best_move;
         int best_goodness = (int) -INF;
         const auto &legal_moves = state->get_legal_moves(analyzed_player);
         for (const auto& move : legal_moves) {
