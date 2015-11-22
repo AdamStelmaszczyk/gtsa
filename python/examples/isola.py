@@ -20,7 +20,7 @@ def get_score_for_cords(x, y):
 
 class IsolaState(State):
     def __init__(self, init_string=None):
-        super(IsolaState, self).__init__()
+        super(IsolaState, self).__init__(PLAYER_1)
 
         self.board = [[EMPTY for _ in range(SIDE)] for _ in range(SIDE)]
         if init_string:
@@ -46,20 +46,20 @@ class IsolaState(State):
         clone.player_2_cords = self.player_2_cords
         return clone
 
-    def get_goodness(self, player):
-        if self.is_winner(player):
-            return 100
-        enemy = get_opposite_player(player)
-        if self.is_winner(enemy):
+    def get_goodness(self):
+        player_score = self.get_score_for_legal_steps(self.player_to_move)
+        if player_score == 0:
             return -100
-        player_score = self.get_score_for_legal_steps(player)
+        enemy = get_opposite_player(self.player_to_move)
         enemy_score = self.get_score_for_legal_steps(enemy)
+        if enemy_score == 0:
+            return 100
         return player_score - enemy_score
 
-    def get_legal_moves(self, player):
-        x, y = self.get_player_cords(player)
+    def get_legal_moves(self):
+        x, y = self.get_player_cords(self.player_to_move)
         step_moves = self.get_legal_step_moves(x, y)
-        remove_moves = self.get_legal_remove_moves(player)
+        remove_moves = self.get_legal_remove_moves(self.player_to_move)
         product = itertools.product(step_moves, remove_moves)
         for (step_move, remove_move) in product:
             if step_move != remove_move:
@@ -67,29 +67,39 @@ class IsolaState(State):
                        step_move[0], step_move[1],
                        remove_move[0], remove_move[1])
 
-    def is_terminal(self, player):
-        return self.get_score_for_legal_steps(player) == 0
+    def is_terminal(self):
+        return self.get_score_for_legal_steps(self.player_to_move) == 0
 
     def is_winner(self, player):
-        return self.player_who_moved == player and \
-            self.get_score_for_legal_steps(get_opposite_player(player)) == 0
+        enemy = get_opposite_player(player)
+        return self.player_to_move == enemy and \
+            self.get_score_for_legal_steps(enemy) == 0
 
-    def make_move(self, move, player):
+    def make_move(self, move):
         self.board[move[1]][move[0]] = EMPTY
-        self.board[move[3]][move[2]] = player
+        self.board[move[3]][move[2]] = self.player_to_move
         self.board[move[5]][move[4]] = REMOVED
-        self.set_player_cords(player, (move[2], move[3]))
-        self.player_who_moved = player
+        self.set_player_cords(self.player_to_move, (move[2], move[3]))
+        self.player_to_move = get_opposite_player(self.player_to_move)
 
-    def undo_move(self, move, player):
+    def undo_move(self, move):
+        self.player_to_move = get_opposite_player(self.player_to_move)
+        self.set_player_cords(self.player_to_move, (move[0], move[1]))
         self.board[move[5]][move[4]] = EMPTY
-        self.board[move[1]][move[0]] = player
         self.board[move[3]][move[2]] = EMPTY
-        self.set_player_cords(player, (move[0], move[1]))
-        self.player_who_moved = get_opposite_player(player)
+        self.board[move[1]][move[0]] = self.player_to_move
 
     def __repr__(self):
-        return '\n'.join([''.join(row) for row in self.board]) + '\n'
+        return '\n'.join([''.join(row) for row in self.board]) + '\n' + \
+            self.player_to_move + '\n'
+
+    def __hash__(self):
+        return hash(tuple(tuple(row) for row in self.board)) + \
+            hash(self.player_to_move)
+
+    def __eq__(self, other):
+        return self.board == other.board and \
+            self.player_to_move == other.player_to_move
 
     def get_legal_remove_moves(self, player):
         # Prioritize remove moves around the enemy

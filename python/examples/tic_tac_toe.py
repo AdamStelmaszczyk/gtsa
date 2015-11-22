@@ -24,7 +24,7 @@ LINES.append(tuple((SIDE - x - 1, x) for x in range(SIDE)))
 
 class TicTacToeState(State):
     def __init__(self, init_string=None):
-        super(TicTacToeState, self).__init__()
+        super(TicTacToeState, self).__init__(PLAYER_1)
 
         self.board = [[EMPTY for _ in range(SIDE)] for _ in range(SIDE)]
         if init_string:
@@ -45,9 +45,9 @@ class TicTacToeState(State):
         clone.board = [row[:] for row in self.board]
         return clone
 
-    def get_goodness(self, current_player):
+    def get_goodness(self):
         goodness = 0
-        counts = self.count_players_on_lines(current_player)
+        counts = self.count_players_on_lines(self.player_to_move)
         for count in counts:
             if count[0] == SIDE:
                 goodness += SIDE ** 2
@@ -63,16 +63,16 @@ class TicTacToeState(State):
                 goodness -= 1
         return goodness
 
-    def get_legal_moves(self, player):
+    def get_legal_moves(self):
         for y in range(SIDE):
             for x in range(SIDE):
                 if self.board[y][x] == EMPTY:
                     yield (x, y)
 
-    def is_terminal(self, player):
+    def is_terminal(self):
         if not self.has_empty_space():
             return True
-        for count in self.count_players_on_lines(player):
+        for count in self.count_players_on_lines(self.player_to_move):
             if count[0] == SIDE or count[1] == SIDE:
                 return True
         return False
@@ -83,16 +83,22 @@ class TicTacToeState(State):
                 return True
         return False
 
-    def make_move(self, move, player):
-        self.board[move[1]][move[0]] = player
-        self.player_who_moved = player
+    def make_move(self, move):
+        self.board[move[1]][move[0]] = self.player_to_move
+        self.player_to_move = get_opposite_player(self.player_to_move)
 
-    def undo_move(self, move, player):
+    def undo_move(self, move):
         self.board[move[1]][move[0]] = EMPTY
-        self.player_who_moved = get_opposite_player(player)
+        self.player_to_move = get_opposite_player(self.player_to_move)
 
     def __repr__(self):
         return '\n'.join([''.join(row) for row in self.board]) + '\n'
+
+    def __hash__(self):
+        return hash(tuple(tuple(row) for row in self.board))
+
+    def __eq__(self, other):
+        return self.board == other.board
 
     def count_players_on_lines(self, current_player):
         next_player = get_opposite_player(current_player)
@@ -124,8 +130,8 @@ if __name__ == "__main__":
                            "___"
                            "___")
 
-    algorithm_1 = Minimax(PLAYER_2, PLAYER_1, verbose=True)
-    algorithm_2 = Human(PLAYER_1, PLAYER_2, read_tic_tac_toe_move)
+    algorithm_1 = Minimax(PLAYER_1, PLAYER_2, verbose=True)
+    algorithm_2 = Human(PLAYER_2, PLAYER_1, read_tic_tac_toe_move)
 
     tester = Tester(state, algorithm_1, algorithm_2)
     tester.start()
