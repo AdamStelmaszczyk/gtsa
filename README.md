@@ -43,4 +43,4 @@ Would like to help?
 ---
 Suggestions are welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
 
-I'm sending £10 to anybody who submits successful bug report.
+I'm sending £20 to anybody who submits successful bug report.
