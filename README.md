@@ -42,5 +42,6 @@ Priorities
 Would like to help?
 ---
 Suggestions are welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
+[Pull requests](https://github.com/AdamStelmaszczyk/gtsa/pulls) are also awesome.
 
 I'm sending £20 to anybody who submits successful bug report.
