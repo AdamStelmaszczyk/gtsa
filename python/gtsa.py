@@ -112,11 +112,13 @@ class Minimax(Algorithm):
                 self.our_symbol,
             )
             if self.verbose:
-                print("goodness: {} tt_hits: {} at max_depth: {}".format(
-                    goodness,
-                    self.tt_hits,
-                    max_depth,
-                ))
+                print("goodness: {} tt_hits: {} "
+                      "tt_size: {} at max_depth: {}".format(
+                          goodness,
+                          self.tt_hits,
+                          len(TRANSPOSITION_TABLE),
+                          max_depth,
+                      ))
             if best_goodness <= goodness:
                 best_goodness = goodness
                 best_move = move
