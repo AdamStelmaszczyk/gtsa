@@ -162,6 +162,11 @@ class IsolaState(State):
 def read_isola_move():
     message = "Enter space separated " \
               "from_x from_y step_x step_y remove_x remove_y: "
+    # Both Python 2 and 3 will use raw_input() in place of input().
+    try:
+        input = raw_input
+    except NameError:
+        pass
     return tuple(map(int, input(message).split()))
 
 

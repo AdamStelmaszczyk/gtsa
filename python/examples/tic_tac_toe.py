@@ -122,6 +122,11 @@ class TicTacToeState(State):
 
 def read_tic_tac_toe_move():
     message = "Enter space separated X and Y of your move: "
+    # Both Python 2 and 3 will use raw_input() in place of input().
+    try:
+        input = raw_input
+    except NameError:
+        pass
     return tuple(map(int, input(message).split()))
 
 
