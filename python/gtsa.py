@@ -91,6 +91,7 @@ class Minimax(Algorithm):
         self.max_seconds = max_seconds
         self.verbose = verbose
         self.timer = None
+        self.tt_hits = None
 
     def get_move(self, state):
         if state.is_terminal():
@@ -102,6 +103,7 @@ class Minimax(Algorithm):
         max_depth = 1
         while self.timer.seconds_elapsed() < self.max_seconds and \
                 max_depth <= MAX_DEPTH:
+            self.tt_hits = 0
             goodness, move = self._minimax(
                 state,
                 max_depth,
@@ -110,8 +112,9 @@ class Minimax(Algorithm):
                 self.our_symbol,
             )
             if self.verbose:
-                print("goodness: {} at max_depth: {}".format(
+                print("goodness: {} tt_hits: {} at max_depth: {}".format(
                     goodness,
+                    self.tt_hits,
                     max_depth,
                 ))
             if best_goodness <= goodness:
@@ -129,6 +132,7 @@ class Minimax(Algorithm):
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
         entry = get_entry(state)
         if entry and entry.depth >= depth:
+            self.tt_hits += 1
             if entry.value_type == Entry.EXACT_VALUE:
                 return entry.value, entry.move
             if entry.value_type == Entry.LOWER_BOUND and entry.value > alpha:
