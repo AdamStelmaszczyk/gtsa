@@ -1,3 +1,4 @@
+#include <unordered_map>
 #include <sys/time.h>
 #include <algorithm>
 #include <iostream>
@@ -7,6 +8,7 @@
 
 using namespace std;
 
+static const int MAX_DEPTH = 100;
 static const double EPSILON = 0.01;
 static const int INF = 2147483647;
 
@@ -47,24 +49,48 @@ struct Move {
     }
 };
 
+enum EntryType { EXACT_VALUE, LOWER_BOUND, UPPER_BOUND };
+
+template<class M>
+struct Entry {
+    M move;
+    int depth;
+    int value;
+    EntryType value_type;
+
+    Entry() {}
+
+    Entry(M move, int depth, int value, EntryType value_type) :
+            move(move), depth(depth), value(value), value_type(value_type) {}
+
+    ostream &to_stream(ostream &os) {
+        os << "move: " << move << " depth: " << depth << " value: " << value << " value_type: " << value_type;
+    }
+
+    friend ostream &operator<<(std::ostream &os, Entry const &entry) {
+        return entry.to_stream(os);
+    }
+};
+
 template<class S, class M>
 struct State {
+    static unordered_map<S, Entry<M>, S>* TRANSPOSITION_TABLE;
     unsigned visits = 0;
     double score = 0;
-    char player_who_moved = 0;
+    char player_to_move = 0;
     M move;
     S *parent = nullptr;
     S *children = nullptr;
     unsigned long children_size = 0;
 
-    State() { }
+    State(char player_to_move) : player_to_move(player_to_move) {}
 
     virtual ~State() {
         remove_children();
     }
 
     void expand(char player) {
-        vector<M> legal_moves = get_legal_moves(player);
+        vector<M> legal_moves = get_legal_moves();
         children_size = legal_moves.size();
         if (children_size == 0) {
             return;
@@ -84,12 +110,12 @@ struct State {
         }
     }
 
-    S create_child(M move, char player_who_moved) {
+    S create_child(M move, char player_to_move) {
         S child = clone();
-        child.player_who_moved = player_who_moved;
+        child.player_to_move = player_to_move;
         child.move = move;
         child.parent = (S *) this;
-        child.make_move(move, player_who_moved);
+        child.make_move(move);
         return child;
     }
 
@@ -150,26 +176,46 @@ struct State {
         return score / (visits + EPSILON);
     }
 
+    static bool get_entry(S *state, Entry<M> &entry) {
+        auto it = TRANSPOSITION_TABLE->find(*state);
+        if (it == TRANSPOSITION_TABLE->end()) {
+            return false;
+        }
+        entry = it->second;
+        return true;
+    }
+
+    static void add_entry(S *state, Entry<M> &entry) {
+        TRANSPOSITION_TABLE->operator[](*state) = entry;
+    }
+
     virtual S clone() const = 0;
 
-    virtual int get_goodness(char current_player) const = 0;
+    virtual int get_goodness() const = 0;
 
-    virtual vector<M> get_legal_moves(char player) const = 0;
+    virtual vector<M> get_legal_moves() const = 0;
 
-    virtual bool is_terminal(char player) const = 0;
+    virtual bool is_terminal() const = 0;
 
     virtual bool is_winner(char player) const = 0;
 
-    virtual void make_move(const M &move, char player) = 0;
+    virtual void make_move(const M &move) = 0;
 
-    virtual void undo_move(const M &move, char player) = 0;
+    virtual void undo_move(const M &move) = 0;
 
     virtual ostream &to_stream(ostream &os) const = 0;
 
     friend ostream &operator<<(std::ostream &os, State const &state) {
         return state.to_stream(os);
     }
+
+    virtual bool operator==(const S &other) const = 0;
+
+    virtual size_t operator()(const S &key) const = 0;
 };
+
+template<class S, class M>
+unordered_map<S, Entry<M>, S>* State<S, M>::TRANSPOSITION_TABLE = new unordered_map<S, Entry<M>, S>();
 
 template<class S, class M>
 struct Algorithm {
@@ -196,7 +242,7 @@ struct Human : public Algorithm<S, M> {
         Algorithm<S, M>(our_symbol, enemy_symbol) { }
 
     M get_move(S *state) const override {
-        const vector<M> &legal_moves = state->get_legal_moves(this->our_symbol);
+        const vector<M> &legal_moves = state->get_legal_moves();
         if (legal_moves.empty()) {
             stringstream stream;
             state->to_stream(stream);
@@ -222,8 +268,8 @@ template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const bool VERBOSE;
-    int max_depth;
     Timer *timer = new Timer();
+    int tt_hits;
 
     Minimax(char our_symbol,
             char enemy_symbol,
@@ -238,27 +284,31 @@ struct Minimax : public Algorithm<S, M> {
     }
 
     M get_move(S *state) override {
-        if (state->is_terminal(this->our_symbol)) {
+        if (state->is_terminal()) {
             stringstream stream;
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         timer->start();
-        max_depth = 1;
         int best_goodness = (int) -INF;
         M best_move;
         int best_at_depth = 1;
-        while (timer->seconds_elapsed() < MAX_SECONDS && max_depth < 100) {
-            auto pair = minimax(state, 0, (int) -INF, (int) INF, this->our_symbol);
+        int max_depth = 1;
+        while (timer->seconds_elapsed() < MAX_SECONDS && max_depth < MAX_DEPTH) {
+            tt_hits = 0;
+            auto pair = minimax(state, max_depth, (int) -INF, (int) INF, this->our_symbol);
             if (VERBOSE) {
-                cout << "goodness: " << pair.first << " at max_depth: " << max_depth << endl;
+                cout << "goodness: " << pair.first
+                     << " tt_hits: " << tt_hits
+                     << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
+                     << " at max_depth: " << max_depth << endl;
             }
             if (best_goodness <= pair.first) {
                 best_goodness = pair.first;
                 best_move = pair.second;
                 best_at_depth = max_depth;
             }
-            max_depth += 2;
+            ++max_depth;
         }
         if (VERBOSE) {
             cout << "best_goodness: " << best_goodness << " at max_depth: " << best_at_depth << endl;
@@ -266,25 +316,40 @@ struct Minimax : public Algorithm<S, M> {
         return best_move;
     }
 
-    pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) const {
+    pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
+        Entry<M> entry;
+        bool found = State<S, M>::get_entry(state, entry);
+        if (found && entry.depth >= depth) {
+            ++tt_hits;
+            if (entry.value_type == EntryType::EXACT_VALUE) {
+                return make_pair(entry.value, entry.move);
+            }
+            if (entry.value_type == EntryType::LOWER_BOUND && entry.value > alpha) {
+                alpha = entry.value;
+            }
+            if (entry.value_type == EntryType::UPPER_BOUND && entry.value < beta) {
+                beta = entry.value;
+            }
+            if (alpha >= beta) {
+                return make_pair(entry.value, entry.move);
+            }
+        }
         M best_move;
-        if (depth >= max_depth
-            || state->is_terminal(analyzed_player)
-            || timer->seconds_elapsed() > MAX_SECONDS) {
-            return make_pair(state->get_goodness(analyzed_player), best_move);
+        if (depth == 0 || state->is_terminal() || timer->seconds_elapsed() > MAX_SECONDS) {
+            return make_pair(state->get_goodness(), best_move);
         }
         int best_goodness = (int) -INF;
-        const auto &legal_moves = state->get_legal_moves(analyzed_player);
+        const auto &legal_moves = state->get_legal_moves();
         for (const auto& move : legal_moves) {
-            state->make_move(move, analyzed_player);
+            state->make_move(move);
             const int goodness = -minimax(
                     state,
-                    depth + 1,
+                    depth - 1,
                     -beta,
                     -alpha,
                     this->get_opposite_player(analyzed_player)
             ).first;
-            state->undo_move(move, analyzed_player);
+            state->undo_move(move);
             if (best_goodness < goodness) {
                 best_goodness = goodness;
                 best_move = move;
@@ -294,6 +359,18 @@ struct Minimax : public Algorithm<S, M> {
                 break;
             }
         }
+        EntryType value_type;
+        if (best_goodness <= alpha) {
+            value_type = EntryType::LOWER_BOUND;
+        }
+        else if (best_goodness >= beta) {
+            value_type = EntryType::UPPER_BOUND;
+        }
+        else {
+            value_type = EntryType::EXACT_VALUE;
+        }
+        entry = {best_move, depth, best_goodness, value_type};
+        State<S, M>::add_entry(state, entry);
         return make_pair(best_goodness, best_move);
     };
 
@@ -319,7 +396,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         max_simulations(max_simulations) { }
 
     M get_move(S *state) override {
-        if (state->is_terminal(this->our_symbol)) {
+        if (state->is_terminal()) {
             stringstream stream;
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
@@ -347,13 +424,13 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     void monte_carlo_tree_search(S *state, char analyzed_player) const {
         // 1. Selection - find state without children (not expanded yet)
         S *current = state;
-        while (current->has_children() && !current->is_terminal(analyzed_player)) {
+        while (current->has_children() && !current->is_terminal()) {
             current = current->select_child_by_uct();
             analyzed_player = this->get_opposite_player(analyzed_player);
         }
 
         // 2. Expansion
-        if (!current->is_terminal(analyzed_player)) {
+        if (!current->is_terminal()) {
             current->expand(analyzed_player);
             current = current->select_child_by_uct();
             analyzed_player = this->get_opposite_player(analyzed_player);
@@ -372,7 +449,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     double simulate(S *state, char analyzed_player) const {
         const char opponent = this->get_opposite_player((analyzed_player));
-        if (state->is_terminal(analyzed_player) || state->is_terminal(opponent)) {
+        if (state->is_terminal()) {
             if (state->is_winner(analyzed_player)) {
                 return (analyzed_player == this->our_symbol) ? 1 : 0;
             }
@@ -383,21 +460,21 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
 
         // If player has a winning move he makes it.
-        const auto &legal_moves = state->get_legal_moves(analyzed_player);
+        const auto &legal_moves = state->get_legal_moves();
         for (const M &move : legal_moves) {
-            state->make_move(move, analyzed_player);
+            state->make_move(move);
             if (state->is_winner(analyzed_player)) {
-                state->undo_move(move, analyzed_player);
+                state->undo_move(move);
                 return (analyzed_player == this->our_symbol) ? 1 : 0;
             }
-            state->undo_move(move, analyzed_player);
+            state->undo_move(move);
         }
 
         // Otherwise random move.
         M move = legal_moves[rand() % legal_moves.size()]; // not ideally uniform but should be fine
-        state->make_move(move, analyzed_player);
+        state->make_move(move);
         const double result = simulate(state, opponent);
-        state->undo_move(move, analyzed_player);
+        state->undo_move(move);
         return result;
     }
 
@@ -427,7 +504,7 @@ struct Tester {
             verbose(verbose) { }
 
     bool handle_player(S &state, char player, Algorithm<S, M> &algorithm) {
-        if (state.is_terminal(player)) {
+        if (state.is_terminal()) {
             if (state.is_winner(player_1)) {
                 ++algorithm_1_wins;
             }
@@ -442,7 +519,7 @@ struct Tester {
         if (verbose) {
             timer.print_seconds_elapsed();
         }
-        state.make_move(move, player);
+        state.make_move(move);
         if (verbose) {
             cout << state << endl;
         }

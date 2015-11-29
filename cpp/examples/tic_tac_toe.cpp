@@ -1,3 +1,5 @@
+#include <boost/functional/hash.hpp>
+
 #include "../gtsa.hpp"
 
 using namespace std;
@@ -65,9 +67,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     vector<char> board;
 
-    TicTacToeState() { }
+    TicTacToeState() : State(PLAYER_1) { }
 
-    TicTacToeState(const string &init_string) {
+    TicTacToeState(const string &init_string) : State(PLAYER_1) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
@@ -88,9 +90,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return clone;
     }
 
-    int get_goodness(char player) const override {
+    int get_goodness() const override {
         int goodness = 0;
-        const auto &counts = count_players_on_lines(player);
+        const auto &counts = count_players_on_lines(player_to_move);
         for (int i = 0; i < LINES_SIZE; ++i) {
             const int player_places = counts[2 * i];
             const int enemy_places = counts[2 * i + 1];
@@ -116,7 +118,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return goodness;
     }
 
-    vector<TicTacToeMove> get_legal_moves(char player) const override {
+    vector<TicTacToeMove> get_legal_moves() const override {
         vector<TicTacToeMove> result;
         for (unsigned y = 0; y < SIDE; ++y) {
             for (unsigned x = 0; x < SIDE; ++x) {
@@ -128,11 +130,11 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return result;
     }
 
-    bool is_terminal(char player) const override {
+    bool is_terminal() const override {
         if (!has_empty_space()) {
             return true;
         }
-        const auto &counts = count_players_on_lines(player);
+        const auto &counts = count_players_on_lines(player_to_move);
         for (int i = 0; i < LINES_SIZE; ++i) {
             if (counts[2 * i] == SIDE || counts[2 * i + 1] == SIDE) {
                 return true;
@@ -151,14 +153,14 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    void make_move(const TicTacToeMove &move, char player) override {
-        board[move.y * SIDE + move.x] = player;
-        player_who_moved = player;
+    void make_move(const TicTacToeMove &move) override {
+        board[move.y * SIDE + move.x] = player_to_move;
+        player_to_move = get_opposite_player(player_to_move);
     }
 
-    void undo_move(const TicTacToeMove &move, char player) override {
+    void undo_move(const TicTacToeMove &move) override {
         board[move.y * SIDE + move.x] = EMPTY;
-        player_who_moved = get_opposite_player(player);
+        player_to_move = get_opposite_player(player_to_move);
     }
 
     bool has_empty_space() const {
@@ -204,4 +206,15 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return os;
     }
 
+    bool operator==(const TicTacToeState &other) const {
+        return board == other.board;
+    }
+
+    size_t operator()(const TicTacToeState& key) const {
+        using boost::hash_value;
+        using boost::hash_combine;
+        std::size_t seed = 0;
+        hash_combine(seed, hash_value(key.board));
+        return seed;
+    }
 };

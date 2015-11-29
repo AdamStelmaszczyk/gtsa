@@ -1,3 +1,5 @@
+#include <boost/functional/hash.hpp>
+
 #include "../gtsa.hpp"
 
 using namespace std;
@@ -66,9 +68,9 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     cords player_1_cords;
     cords player_2_cords;
 
-    IsolaState() { }
+    IsolaState() : State(PLAYER_1) { }
 
-    IsolaState(const string &init_string) {
+    IsolaState(const string &init_string) : State(PLAYER_1) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
@@ -93,23 +95,23 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return clone;
     }
 
-    int get_goodness(char player) const override {
-        if (is_winner(player)) {
-            return 100;
-        }
-        char enemy = get_opposite_player(player);
-        if (is_winner(enemy)) {
+    int get_goodness() const override {
+        const int player_score = get_score_for_legal_steps(player_to_move);
+        if (player_score == 0) {
             return -100;
         }
-        const int player_score = get_score_for_legal_steps(player);
+        const char enemy = get_opposite_player(player_to_move);
         const int enemy_score = get_score_for_legal_steps(enemy);
+        if (enemy_score == 0) {
+            return 100;
+        }
         return player_score - enemy_score;
     }
 
-    vector<IsolaMove> get_legal_moves(char player) const override {
-        auto player_cords = get_player_cords(player);
+    vector<IsolaMove> get_legal_moves() const override {
+        auto player_cords = get_player_cords(player_to_move);
         auto step_moves = get_legal_step_moves(player_cords.first, player_cords.second);
-        auto remove_moves = get_legal_remove_moves(player);
+        auto remove_moves = get_legal_remove_moves(player_to_move);
         vector<IsolaMove> legal_moves(step_moves.size() * remove_moves.size());
         unsigned legal_moves_count = 0;
         for (const auto &step_move : step_moves) {
@@ -128,28 +130,29 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return legal_moves;
     }
 
-    bool is_terminal(char player) const override {
-        return get_score_for_legal_steps(player) == 0;
+    bool is_terminal() const override {
+        return get_score_for_legal_steps(player_to_move) == 0;
     }
 
     bool is_winner(char player) const override {
-        return this->player_who_moved == player && get_score_for_legal_steps(get_opposite_player(player)) == 0;
+        const char enemy = get_opposite_player(player);
+        return player_to_move == enemy && get_score_for_legal_steps(enemy) == 0;
     }
 
-    void make_move(const IsolaMove &move, char player) override {
+    void make_move(const IsolaMove &move) override {
         board[move.from_y * SIDE + move.from_x] = EMPTY;
-        board[move.step_y * SIDE + move.step_x] = player;
+        board[move.step_y * SIDE + move.step_x] = player_to_move;
         board[move.remove_y * SIDE + move.remove_x] = REMOVED;
-        set_player_cords(player, make_pair(move.step_x, move.step_y));
-        player_who_moved = player;
+        set_player_cords(player_to_move, make_pair(move.step_x, move.step_y));
+        player_to_move = get_opposite_player(player_to_move);
     }
 
-    void undo_move(const IsolaMove &move, char player) override {
+    void undo_move(const IsolaMove &move) override {
+        player_to_move = get_opposite_player(player_to_move);
+        set_player_cords(player_to_move, make_pair(move.from_x, move.from_y));
         board[move.remove_y * SIDE + move.remove_x] = EMPTY;
-        board[move.from_y * SIDE + move.from_x] = player;
         board[move.step_y * SIDE + move.step_x] = EMPTY;
-        set_player_cords(player, make_pair(move.from_x, move.from_y));
-        player_who_moved = get_opposite_player(player);
+        board[move.from_y * SIDE + move.from_x] = player_to_move;
     }
 
     vector<cords> get_legal_remove_moves(char player) const {
@@ -243,7 +246,20 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             }
             os << "\n";
         }
+        os << player_to_move << "\n";
         return os;
     }
 
+    bool operator==(const IsolaState &other) const {
+        return board == other.board && player_to_move == other.player_to_move;
+    }
+
+    size_t operator()(const IsolaState& key) const {
+        using boost::hash_value;
+        using boost::hash_combine;
+        std::size_t seed = 0;
+        hash_combine(seed, hash_value(key.board));
+        hash_combine(seed, hash_value(key.player_to_move));
+        return seed;
+    }
 };
