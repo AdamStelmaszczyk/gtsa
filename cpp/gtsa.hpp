@@ -290,13 +290,13 @@ struct Minimax : public Algorithm<S, M> {
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         timer->start();
-        int best_goodness = (int) -INF;
+        int best_goodness = -INF;
         M best_move;
         int best_at_depth = 1;
         int max_depth = 1;
         while (timer->seconds_elapsed() < MAX_SECONDS && max_depth < MAX_DEPTH) {
             tt_hits = 0;
-            auto pair = minimax(state, max_depth, (int) -INF, (int) INF, this->our_symbol);
+            auto pair = minimax(state, max_depth, -INF, INF, this->our_symbol);
             if (VERBOSE) {
                 cout << "goodness: " << pair.first
                      << " tt_hits: " << tt_hits
@@ -338,7 +338,7 @@ struct Minimax : public Algorithm<S, M> {
         if (depth == 0 || state->is_terminal() || timer->seconds_elapsed() > MAX_SECONDS) {
             return make_pair(state->get_goodness(), best_move);
         }
-        int best_goodness = (int) -INF;
+        int best_goodness = -INF;
         const auto &legal_moves = state->get_legal_moves();
         for (const auto& move : legal_moves) {
             state->make_move(move);
