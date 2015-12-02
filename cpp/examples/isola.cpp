@@ -94,14 +94,16 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     int get_goodness() const override {
-        const int player_score = get_score_for_legal_steps(player_to_move);
+        cords player_cords = get_player_cords(player_to_move);
+        const int player_score = get_score_for_legal_steps(player_cords, 2);
         if (player_score == 0) {
-            return -100;
+            return -1000;
         }
         const char enemy = get_opposite_player(player_to_move);
-        const int enemy_score = get_score_for_legal_steps(enemy);
+        cords enemy_cords = get_player_cords(enemy);
+        const int enemy_score = get_score_for_legal_steps(enemy_cords, 2);
         if (enemy_score == 0) {
-            return 100;
+            return 1000;
         }
         return player_score - enemy_score;
     }
@@ -129,12 +131,14 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     bool is_terminal() const override {
-        return get_score_for_legal_steps(player_to_move) == 0;
+        cords player_cords = get_player_cords(player_to_move);
+        return get_score_for_legal_steps(player_cords) == 0;
     }
 
     bool is_winner(char player) const override {
         const char enemy = get_opposite_player(player);
-        return player_to_move == enemy && get_score_for_legal_steps(enemy) == 0;
+        cords player_cords = get_player_cords(enemy);
+        return player_to_move == enemy && get_score_for_legal_steps(player_cords) == 0;
     }
 
     void make_move(const IsolaMove &move) override {
@@ -203,15 +207,18 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    int get_score_for_legal_steps(char player) const {
+    int get_score_for_legal_steps(cords player_cords, int depth = 1) const {
         int result = 0;
-        auto player_cords = get_player_cords(player);
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
                 const int x = player_cords.first + dx;
                 const int y = player_cords.second + dy;
                 if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && board[y * SIDE + x] == EMPTY) {
-                    result += get_score_for_cords(x, y);
+                    if (depth <= 1) {
+                        result += get_score_for_cords(x, y);
+                    } else {
+                        result += get_score_for_legal_steps(make_pair(x, y), depth - 1);
+                    }
                 }
             }
         }

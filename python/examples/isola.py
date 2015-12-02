@@ -47,13 +47,15 @@ class IsolaState(State):
         return clone
 
     def get_goodness(self):
-        player_score = self.get_score_for_legal_steps(self.player_to_move)
+        x, y = self.get_player_cords(self.player_to_move)
+        player_score = self.get_score_for_legal_steps(x, y, 2)
         if player_score == 0:
-            return -100
+            return -1000
         enemy = get_opposite_player(self.player_to_move)
-        enemy_score = self.get_score_for_legal_steps(enemy)
+        x, y = self.get_player_cords(enemy)
+        enemy_score = self.get_score_for_legal_steps(x, y, 2)
         if enemy_score == 0:
-            return 100
+            return 1000
         return player_score - enemy_score
 
     def get_legal_moves(self):
@@ -68,12 +70,14 @@ class IsolaState(State):
                        remove_move[0], remove_move[1])
 
     def is_terminal(self):
-        return self.get_score_for_legal_steps(self.player_to_move) == 0
+        x, y = self.get_player_cords(self.player_to_move)
+        return self.get_score_for_legal_steps(x, y) == 0
 
     def is_winner(self, player):
         enemy = get_opposite_player(player)
+        x, y = self.get_player_cords(enemy)
         return self.player_to_move == enemy and \
-            self.get_score_for_legal_steps(enemy) == 0
+            self.get_score_for_legal_steps(x, y) == 0
 
     def make_move(self, move):
         self.board[move[1]][move[0]] = EMPTY
@@ -128,16 +132,22 @@ class IsolaState(State):
                         self.board[y][x] == EMPTY:
                     yield (x, y)
 
-    def get_score_for_legal_steps(self, player):
+    def get_score_for_legal_steps(self, start_x, start_y, depth=1):
         result = 0
-        start_x, start_y = self.get_player_cords(player)
         for dy in range(-1, 2):
             for dx in range(-1, 2):
                 x = start_x + dx
                 y = start_y + dy
                 if 0 <= x < SIDE and 0 <= y < SIDE and \
                         self.board[y][x] == EMPTY:
-                    result += get_score_for_cords(x, y)
+                    if depth <= 1:
+                        result += get_score_for_cords(x, y)
+                    else:
+                        result += self.get_score_for_legal_steps(
+                            x,
+                            y,
+                            depth - 1,
+                        )
         return result
 
     def get_player_cords(self, player):
