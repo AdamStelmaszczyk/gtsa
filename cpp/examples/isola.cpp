@@ -2,8 +2,6 @@
 
 #include "../gtsa.hpp"
 
-using namespace std;
-
 const int SIDE = 3;
 const char PLAYER_1 = '1';
 const char PLAYER_2 = '2';
