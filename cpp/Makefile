@@ -10,7 +10,8 @@ isola:
 	$(CC) $(FLAGS) tests/test_isola.cpp -o tests/test_isola.o
 
 test: all
-	tests/test_tic_tac_toe.o tests/test_isola.o
+	tests/test_tic_tac_toe.o
+	tests/test_isola.o
 
 clean:
 	rm -f tests/*.o
