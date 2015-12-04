@@ -148,34 +148,51 @@ class Minimax(Algorithm):
         if depth == 0 or state.is_terminal() or \
                 self.timer.seconds_elapsed() > self.max_seconds:
             return state.get_goodness(), best_move
-        legal_moves = state.get_legal_moves()
 
+        generate_moves = True
         best_goodness = float('-inf')
-        for move in legal_moves:
-            state.make_move(move)
-            goodness = -self._minimax(
+        if entry:
+            # Killer heuristic - first try the move from the table
+            best_move = entry.move
+            state.make_move(best_move)
+            best_goodness = -self._minimax(
                 state,
                 depth - 1,
                 -beta,
                 -alpha,
                 self.get_opposite_player(analyzed_player),
             )[0]
-            state.undo_move(move)
-            if best_goodness < goodness:
-                best_goodness = goodness
-                best_move = move
-            alpha = max(alpha, best_goodness)
+            state.undo_move(best_move)
             if best_goodness >= beta:
-                break
+                generate_moves = False
 
-        if best_goodness <= alpha:
-            value_type = Entry.LOWER_BOUND
-        elif best_goodness >= beta:
-            value_type = Entry.UPPER_BOUND
-        else:
-            value_type = Entry.EXACT_VALUE
+        if generate_moves:
+            legal_moves = state.get_legal_moves()
+            for move in legal_moves:
+                state.make_move(move)
+                goodness = -self._minimax(
+                    state,
+                    depth - 1,
+                    -beta,
+                    -alpha,
+                    self.get_opposite_player(analyzed_player),
+                )[0]
+                state.undo_move(move)
+                if best_goodness < goodness:
+                    best_goodness = goodness
+                    best_move = move
+                alpha = max(alpha, best_goodness)
+                if best_goodness >= beta:
+                    break
 
-        add_entry(state, Entry(best_move, depth, best_goodness, value_type))
+        if best_move is not None:
+            if best_goodness <= alpha:
+                value_type = Entry.LOWER_BOUND
+            elif best_goodness >= beta:
+                value_type = Entry.UPPER_BOUND
+            else:
+                value_type = Entry.EXACT_VALUE
+            add_entry(state, Entry(best_move, depth, best_goodness, value_type))
 
         return best_goodness, best_move
 

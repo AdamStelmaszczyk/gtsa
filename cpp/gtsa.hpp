@@ -318,8 +318,8 @@ struct Minimax : public Algorithm<S, M> {
 
     pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
         Entry<M> entry;
-        bool found = State<S, M>::get_entry(state, entry);
-        if (found && entry.depth >= depth) {
+        bool entry_found = State<S, M>::get_entry(state, entry);
+        if (entry_found && entry.depth >= depth) {
             ++tt_hits;
             if (entry.value_type == EntryType::EXACT_VALUE) {
                 return make_pair(entry.value, entry.move);
@@ -335,44 +335,71 @@ struct Minimax : public Algorithm<S, M> {
             }
         }
         M best_move;
+        bool best_move_is_valid = false;
         if (depth == 0 || state->is_terminal() || timer->seconds_elapsed() > MAX_SECONDS) {
             return make_pair(state->get_goodness(), best_move);
         }
+
+        bool generate_moves = true;
         int best_goodness = -INF;
-        const auto &legal_moves = state->get_legal_moves();
-        for (const auto& move : legal_moves) {
-            state->make_move(move);
-            const int goodness = -minimax(
+        if (entry_found) {
+            // Killer heuristic - first try the move from the table
+            best_move = entry.move;
+            best_move_is_valid = true;
+            state->make_move(best_move);
+            best_goodness = -minimax(
+                state,
+                depth - 1,
+                -beta,
+                -alpha,
+                this->get_opposite_player(analyzed_player)
+            ).first;
+            state->undo_move(best_move);
+            if (best_goodness >= beta) {
+                generate_moves = false;
+            }
+        }
+
+        if (generate_moves) {
+            const auto &legal_moves = state->get_legal_moves();
+            for (const auto& move : legal_moves) {
+                state->make_move(move);
+                const int goodness = -minimax(
                     state,
                     depth - 1,
                     -beta,
                     -alpha,
                     this->get_opposite_player(analyzed_player)
-            ).first;
-            state->undo_move(move);
-            if (best_goodness < goodness) {
-                best_goodness = goodness;
-                best_move = move;
+                ).first;
+                state->undo_move(move);
+                if (best_goodness < goodness) {
+                    best_goodness = goodness;
+                    best_move = move;
+                    best_move_is_valid = true;
+                }
+                alpha = max(alpha, best_goodness);
+                if (best_goodness >= beta) {
+                    break;
+                }
             }
-            alpha = max(alpha, best_goodness);
-            if (best_goodness >= beta) {
-                break;
+        }
+
+        if (best_move_is_valid) {
+            EntryType value_type;
+            if (best_goodness <= alpha) {
+                value_type = EntryType::LOWER_BOUND;
             }
+            else if (best_goodness >= beta) {
+                value_type = EntryType::UPPER_BOUND;
+            }
+            else {
+                value_type = EntryType::EXACT_VALUE;
+            }
+            entry = {best_move, depth, best_goodness, value_type};
+            State<S, M>::add_entry(state, entry);
         }
-        EntryType value_type;
-        if (best_goodness <= alpha) {
-            value_type = EntryType::LOWER_BOUND;
-        }
-        else if (best_goodness >= beta) {
-            value_type = EntryType::UPPER_BOUND;
-        }
-        else {
-            value_type = EntryType::EXACT_VALUE;
-        }
-        entry = {best_move, depth, best_goodness, value_type};
-        State<S, M>::add_entry(state, entry);
         return make_pair(best_goodness, best_move);
-    };
+    }
 
     string get_name() const {
         return "Minimax";
