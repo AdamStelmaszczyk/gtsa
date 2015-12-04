@@ -376,11 +376,11 @@ struct Minimax : public Algorithm<S, M> {
                     best_goodness = goodness;
                     best_move = move;
                     best_move_is_valid = true;
+                    if (best_goodness >= beta) {
+                        break;
+                    }
                 }
                 alpha = max(alpha, best_goodness);
-                if (best_goodness >= beta) {
-                    break;
-                }
             }
         }
 

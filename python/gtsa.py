@@ -181,9 +181,9 @@ class Minimax(Algorithm):
                 if best_goodness < goodness:
                     best_goodness = goodness
                     best_move = move
+                    if best_goodness >= beta:
+                        break
                 alpha = max(alpha, best_goodness)
-                if best_goodness >= beta:
-                    break
 
         if best_move is not None:
             if best_goodness <= alpha:
