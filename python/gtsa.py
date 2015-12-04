@@ -192,7 +192,8 @@ class Minimax(Algorithm):
                 value_type = Entry.UPPER_BOUND
             else:
                 value_type = Entry.EXACT_VALUE
-            add_entry(state, Entry(best_move, depth, best_goodness, value_type))
+            entry = Entry(best_move, depth, best_goodness, value_type)
+            add_entry(state, entry)
 
         return best_goodness, best_move
 
