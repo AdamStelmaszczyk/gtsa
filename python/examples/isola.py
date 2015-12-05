@@ -1,5 +1,3 @@
-import itertools
-
 from gtsa import State, Minimax, Tester, MonteCarloTreeSearch
 
 
@@ -8,6 +6,9 @@ PLAYER_1 = '1'
 PLAYER_2 = '2'
 EMPTY = '_'
 REMOVED = '#'
+
+DX = (-1, 1, 1, -1, 0, 0, -1, 1)
+DY = (-1, 1, -1, 1, -1, 1, 0, 0)
 
 
 def get_opposite_player(player):
@@ -60,11 +61,8 @@ class IsolaState(State):
 
     def get_legal_moves(self):
         x, y = self.get_player_cords(self.player_to_move)
-        step_moves = self.get_legal_step_moves(x, y)
-        remove_moves = self.get_legal_remove_moves(self.player_to_move)
-        product = itertools.product(step_moves, remove_moves)
-        for (step_move, remove_move) in product:
-            if step_move != remove_move:
+        for step_move in self.get_legal_step_moves(x, y):
+            for remove_move in self.get_legal_remove_moves():
                 yield (x, y,
                        step_move[0], step_move[1],
                        remove_move[0], remove_move[1])
@@ -105,32 +103,32 @@ class IsolaState(State):
         return self.board == other.board and \
             self.player_to_move == other.player_to_move
 
-    def get_legal_remove_moves(self, player):
-        # Prioritize remove moves around the enemy
-        no_moves_around_enemy = True
-        start_x, start_y = self.get_player_cords(get_opposite_player(player))
-        for dy in range(-2, 3):
-            for dx in range(-2, 3):
-                x = start_x + dx
-                y = start_y + dy
-                if 0 <= x < SIDE and 0 <= y < SIDE and \
-                        self.board[y][x] in [EMPTY, player]:
-                    no_moves_around_enemy = False
-                    yield (x, y)
-        if no_moves_around_enemy:
-            for y in range(SIDE):
-                for x in range(SIDE):
-                    if self.board[y][x] in [EMPTY, player]:
-                        yield (x, y)
+    def get_legal_remove_moves(self):
+        # Prioritize remove moves around the enemy + the field player is on
+        enemy = get_opposite_player(self.player_to_move)
+        enemy_cords = self.get_player_cords(enemy)
+        remove_moves = self.get_legal_step_moves(
+            enemy_cords[0],
+            enemy_cords[1],
+        )
+        if remove_moves:
+            remove_moves.append(self.get_player_cords(self.player_to_move))
+            return remove_moves
+        result = []
+        for y in range(SIDE):
+            for x in range(SIDE):
+                if self.board[y][x] in [EMPTY, self.player_to_move]:
+                    result.append((x, y))
+        return result
 
     def get_legal_step_moves(self, start_x, start_y):
-        for dy in range(-1, 2):
-            for dx in range(-1, 2):
-                x = start_x + dx
-                y = start_y + dy
-                if 0 <= x < SIDE and 0 <= y < SIDE and \
-                        self.board[y][x] == EMPTY:
-                    yield (x, y)
+        result = []
+        for i in range(8):
+            x = start_x + DX[i]
+            y = start_y + DY[i]
+            if 0 <= x < SIDE and 0 <= y < SIDE and self.board[y][x] == EMPTY:
+                result.append((x, y))
+        return result
 
     def get_score_for_legal_steps(self, start_x, start_y, depth=1):
         result = 0

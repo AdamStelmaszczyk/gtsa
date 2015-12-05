@@ -8,6 +8,9 @@ const char PLAYER_2 = '2';
 const char EMPTY = '_';
 const char REMOVED = '#';
 
+const int DX[] = {-1, 1, 1, -1, 0, 0, -1, 1 };
+const int DY[] = {-1, 1, -1, 1, -1, 1, 0, 0 };
+
 static char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
@@ -111,7 +114,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     vector<IsolaMove> get_legal_moves() const override {
         auto player_cords = get_player_cords(player_to_move);
         auto step_moves = get_legal_step_moves(player_cords.first, player_cords.second);
-        auto remove_moves = get_legal_remove_moves(player_to_move);
+        auto remove_moves = get_legal_remove_moves();
         vector<IsolaMove> legal_moves(step_moves.size() * remove_moves.size());
         unsigned legal_moves_count = 0;
         for (const auto &step_move : step_moves) {
@@ -157,32 +160,21 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         board[move.from_y * SIDE + move.from_x] = player_to_move;
     }
 
-    vector<cords> get_legal_remove_moves(char player) const {
+    vector<cords> get_legal_remove_moves() const {
+        // Prioritize remove moves around the enemy + the field player is standing on
+        const auto enemy_cords = get_player_cords(get_opposite_player(player_to_move));
+        auto remove_moves = get_legal_step_moves(enemy_cords.first, enemy_cords.second);
+        if (!remove_moves.empty()) {
+            remove_moves.emplace_back(get_player_cords(player_to_move));
+            return remove_moves;
+        }
         vector<cords> result(SIDE * SIDE);
         unsigned moves_count = 0;
-        // Prioritize remove moves around the enemy
-        cords enemy_cords = get_player_cords(get_opposite_player(player));
-        for (int dy = -2; dy <= 2; ++dy) {
-            for (int dx = -2; dx <= 2; ++dx) {
-                const int x = dx + enemy_cords.first;
-                const int y = dy + enemy_cords.second;
-                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE) {
-                    const char symbol = board[y * SIDE + x];
-                    if (symbol == EMPTY || symbol == player) {
-                        result[moves_count] = make_pair(x, y);
-                        ++moves_count;
-                    }
-                }
-            }
-        }
-        if (moves_count == 0) {
-            for (unsigned y = 0; y < SIDE; ++y) {
-                for (unsigned x = 0; x < SIDE; ++x) {
-                    const char symbol = board[y * SIDE + x];
-                    if (symbol == EMPTY || symbol == player) {
-                        result[moves_count] = make_pair(x, y);
-                        ++moves_count;
-                    }
+        for (unsigned y = 0; y < SIDE; ++y) {
+            for (unsigned x = 0; x < SIDE; ++x) {
+                const char symbol = board[y * SIDE + x];
+                if (symbol == EMPTY || symbol == player_to_move) {
+                    result[moves_count++] = make_pair(x, y);
                 }
             }
         }
@@ -193,14 +185,11 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     vector<cords> get_legal_step_moves(int start_x, int start_y) const {
         vector<cords> result(8);
         unsigned moves_count = 0;
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                const int x = start_x + dx;
-                const int y = start_y + dy;
-                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && board[y * SIDE + x] == EMPTY) {
-                    result[moves_count] = make_pair(x, y);
-                    ++moves_count;
-                }
+        for (int i = 0; i < 8; ++i) {
+            const int x = start_x + DX[i];
+            const int y = start_y + DY[i];
+            if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && board[y * SIDE + x] == EMPTY) {
+                result[moves_count++] = make_pair(x, y);
             }
         }
         result.resize(moves_count);
