@@ -33,6 +33,14 @@ def test_isola_finish():
         assert move[4] == 0 and move[5] == 1
 
 
+def test_isola_crowded():
+    state = IsolaState("#12"
+                       "_#_"
+                       "##_")
+    for algorithm in get_algorithms():
+        assert algorithm.get_move(state) == (1, 0, 2, 1, 1, 0)
+
+
 def test_isola_not_lose():
     state = IsolaState("___"
                        "2#1"

@@ -45,6 +45,17 @@ void test_isola_not_lose() {
     }
 }
 
+void test_isola_crowded() {
+    IsolaState state = IsolaState("#12"
+                                  "_#_"
+                                  "##_");
+    for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
+        const auto move = algorithm->get_move(&state);
+        delete algorithm;
+        assert(move == IsolaMove(1, 0, 2, 1, 1, 0));
+    }
+}
+
 void test_isola_terminal() {
     IsolaState state = IsolaState("#2#"
                                   "###"
@@ -65,6 +76,7 @@ int main() {
     test_isola_move();
     test_isola_finish();
     test_isola_not_lose();
+    test_isola_crowded();
     test_isola_terminal();
     return 0;
 }
