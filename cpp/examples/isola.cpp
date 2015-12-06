@@ -93,6 +93,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         clone.board = board;
         clone.player_1_cords = player_1_cords;
         clone.player_2_cords = player_2_cords;
+        clone.player_to_move = player_to_move;
         return clone;
     }
 

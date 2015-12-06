@@ -45,6 +45,7 @@ class IsolaState(State):
         clone.board = [row[:] for row in self.board]
         clone.player_1_cords = self.player_1_cords
         clone.player_2_cords = self.player_2_cords
+        clone.player_to_move = self.player_to_move
         return clone
 
     def get_goodness(self):
