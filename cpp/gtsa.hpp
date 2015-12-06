@@ -241,7 +241,7 @@ struct Human : public Algorithm<S, M> {
     Human(char our_symbol, char enemy_symbol) :
         Algorithm<S, M>(our_symbol, enemy_symbol) { }
 
-    M get_move(S *state) const override {
+    M get_move(S *state) override {
         const vector<M> &legal_moves = state->get_legal_moves();
         if (legal_moves.empty()) {
             stringstream stream;
