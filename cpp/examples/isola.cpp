@@ -163,22 +163,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     vector<cords> get_legal_remove_moves() const {
         // Prioritize remove moves around the enemy + the field player is standing on
         const auto enemy_cords = get_player_cords(get_opposite_player(player_to_move));
-        auto remove_moves = get_legal_step_moves(enemy_cords.first, enemy_cords.second);
-        if (!remove_moves.empty()) {
-            remove_moves.emplace_back(get_player_cords(player_to_move));
-            return remove_moves;
-        }
-        vector<cords> result(SIDE * SIDE);
-        unsigned moves_count = 0;
-        for (unsigned y = 0; y < SIDE; ++y) {
-            for (unsigned x = 0; x < SIDE; ++x) {
-                const char symbol = board[y * SIDE + x];
-                if (symbol == EMPTY || symbol == player_to_move) {
-                    result[moves_count++] = make_pair(x, y);
-                }
-            }
-        }
-        result.resize(moves_count);
+        auto result = get_legal_step_moves(enemy_cords.first, enemy_cords.second);
+        result.emplace_back(get_player_cords(player_to_move));
         return result;
     }
 

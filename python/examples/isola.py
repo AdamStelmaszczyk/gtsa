@@ -107,18 +107,8 @@ class IsolaState(State):
         # Prioritize remove moves around the enemy + the field player is on
         enemy = get_opposite_player(self.player_to_move)
         enemy_cords = self.get_player_cords(enemy)
-        remove_moves = self.get_legal_step_moves(
-            enemy_cords[0],
-            enemy_cords[1],
-        )
-        if remove_moves:
-            remove_moves.append(self.get_player_cords(self.player_to_move))
-            return remove_moves
-        result = []
-        for y in range(SIDE):
-            for x in range(SIDE):
-                if self.board[y][x] in [EMPTY, self.player_to_move]:
-                    result.append((x, y))
+        result = self.get_legal_step_moves(enemy_cords[0], enemy_cords[1])
+        result.append(self.get_player_cords(self.player_to_move))
         return result
 
     def get_legal_step_moves(self, start_x, start_y):
