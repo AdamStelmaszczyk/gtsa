@@ -417,6 +417,9 @@ class Tester(object):
         if state.is_terminal():
             if state.is_winner(self.player_1):
                 self.algorithm_1_wins += 1
+                print(get_class_name(self.algorithm_1))
+            else:
+                print(get_class_name(self.algorithm_2))
             return True
         if self.verbose:
             print(algorithm.our_symbol, get_class_name(algorithm))
@@ -432,7 +435,7 @@ class Tester(object):
     def start(self):
         self.algorithm_1_wins = 0
         for i in range(self.matches):
-            print("Match {}/{}".format(i + 1, self.matches))
+            print("Match {}/{}, winner: ".format(i + 1, self.matches), end="")
             current_state = self.state.clone()
             if self.verbose:
                 print(current_state)

@@ -534,6 +534,9 @@ struct Tester {
         if (state.is_terminal()) {
             if (state.is_winner(player_1)) {
                 ++algorithm_1_wins;
+                cout << algorithm_1.get_name() << endl;
+            } else {
+                cout << algorithm_2.get_name() << endl;
             }
             return true;
         }
@@ -556,7 +559,7 @@ struct Tester {
     void start() {
         algorithm_1_wins = 0;
         for (int i = 1; i <= matches; ++i) {
-            cout << "Match " << i << "/" << matches << endl;
+            cout << "Match " << i << "/" << matches << ", winner: ";
             auto current_state = state->clone();
             if (verbose) {
                 cout << *state << endl;
