@@ -8,7 +8,7 @@
 
 using namespace std;
 
-static const int MAX_DEPTH = 100;
+static const int MAX_DEPTH = 20;
 static const double EPSILON = 0.01;
 static const int INF = 2147483647;
 
@@ -294,7 +294,7 @@ struct Minimax : public Algorithm<S, M> {
         M best_move;
         int best_at_depth = 1;
         int max_depth = 1;
-        while (timer->seconds_elapsed() < MAX_SECONDS && max_depth < MAX_DEPTH) {
+        while (timer->seconds_elapsed() < MAX_SECONDS && max_depth <= MAX_DEPTH) {
             tt_hits = 0;
             auto pair = minimax(state, max_depth, -INF, INF, this->our_symbol);
             if (VERBOSE) {
