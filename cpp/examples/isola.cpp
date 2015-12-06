@@ -1,4 +1,5 @@
 #include <boost/functional/hash.hpp>
+#include <bitset>
 
 #include "../gtsa.hpp"
 
@@ -63,11 +64,37 @@ struct IsolaMove : public Move<IsolaMove> {
 
 typedef pair<unsigned, unsigned> cords;
 
+struct Board {
+    bitset<SIDE*SIDE> board;
+
+    Board() {}
+
+    Board(int size) {
+        board = bitset<SIDE*SIDE>();
+    }
+
+    Board(const Board& other) {
+        board = other.board;
+    }
+
+    void set(int x, int y, bool value) {
+        board.set(y * SIDE + x, value);
+    }
+
+    bool get(int x, int y) const {
+        return board.test(y * SIDE + x);
+    }
+
+    bool operator==(const Board &other) const {
+        return board == other.board;
+    }
+};
+
 struct IsolaState : public State<IsolaState, IsolaMove> {
 
-    vector<char> board;
-    cords player_1_cords;
-    cords player_2_cords;
+    Board board;
+    cords player_1_cords = {-1, -1};
+    cords player_2_cords = {-1, -1};
 
     IsolaState() : State(PLAYER_1) { }
 
@@ -77,20 +104,31 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         if (length != correct_length) {
             throw invalid_argument("Initialization string length must be " + std::to_string(correct_length));
         }
+        board = Board(correct_length);
         for (int i = 0; i < length; i++) {
+            int x = i % SIDE;
+            int y = i / SIDE;
             const char c = init_string[i];
-            if (c != PLAYER_1 && c != PLAYER_2 && c != EMPTY && c != REMOVED) {
+            if (c == PLAYER_1) {
+                player_1_cords = make_pair(x, y);
+            } else if (c == PLAYER_2) {
+                player_2_cords = make_pair(x, y);
+            } else if (c == EMPTY) {
+                board.set(x, y, 0);
+            } else if (c == REMOVED) {
+                board.set(x, y, 1);
+            } else {
                 throw invalid_argument(string("Undefined symbol used: '") + c + "'");
             }
         }
-        board = vector<char>(init_string.begin(), init_string.end());
-        player_1_cords = find_player_cords(PLAYER_1);
-        player_2_cords = find_player_cords(PLAYER_2);
+        if (player_1_cords.first == -1 || player_2_cords.first == -1) {
+            throw invalid_argument("Missing player symbols");
+        }
     }
 
     IsolaState clone() const override {
         IsolaState clone = IsolaState();
-        clone.board = board;
+        clone.board = Board(board);
         clone.player_1_cords = player_1_cords;
         clone.player_2_cords = player_2_cords;
         clone.player_to_move = player_to_move;
@@ -146,9 +184,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     void make_move(const IsolaMove &move) override {
-        board[move.from_y * SIDE + move.from_x] = EMPTY;
-        board[move.step_y * SIDE + move.step_x] = player_to_move;
-        board[move.remove_y * SIDE + move.remove_x] = REMOVED;
+        board.set(move.remove_x, move.remove_y, 1);
         set_player_cords(player_to_move, make_pair(move.step_x, move.step_y));
         player_to_move = get_opposite_player(player_to_move);
     }
@@ -156,9 +192,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     void undo_move(const IsolaMove &move) override {
         player_to_move = get_opposite_player(player_to_move);
         set_player_cords(player_to_move, make_pair(move.from_x, move.from_y));
-        board[move.remove_y * SIDE + move.remove_x] = EMPTY;
-        board[move.step_y * SIDE + move.step_x] = EMPTY;
-        board[move.from_y * SIDE + move.from_x] = player_to_move;
+        board.set(move.remove_x, move.remove_y, 0);
     }
 
     vector<cords> get_legal_remove_moves() const {
@@ -175,7 +209,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         for (int i = 0; i < 8; ++i) {
             const int x = start_x + DX[i];
             const int y = start_y + DY[i];
-            if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && board[y * SIDE + x] == EMPTY) {
+            if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
                 result[moves_count++] = make_pair(x, y);
             }
         }
@@ -189,7 +223,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             for (int dx = -1; dx <= 1; ++dx) {
                 const int x = player_cords.first + dx;
                 const int y = player_cords.second + dy;
-                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && board[y * SIDE + x] == EMPTY) {
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
                     if (depth <= 1) {
                         result += get_score_for_cords(x, y);
                     } else {
@@ -201,20 +235,16 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
+    bool is_empty(int x, int y) const {
+        const cords c = make_pair(x, y);
+        const auto player_cords = get_player_cords(player_to_move);
+        const auto enemy_cords = get_player_cords(get_opposite_player(player_to_move));
+        return board.get(x, y) == 0 && c != player_cords && c != enemy_cords;
+    }
+
     cords get_player_cords(char player) const {
         return (player == PLAYER_1) ? player_1_cords : player_2_cords;
     }
-
-    cords find_player_cords(char player) const {
-        for (int y = 0; y < SIDE; ++y) {
-            for (int x = 0; x < SIDE; ++x) {
-                if (board[y * SIDE + x] == player) {
-                    return make_pair(x, y);
-                }
-            }
-        }
-        throw invalid_argument(string("No ") + player + " on the board");
-    };
 
     void set_player_cords(char player, cords player_cords) {
         (player == PLAYER_1) ? player_1_cords = player_cords : player_2_cords = player_cords;
@@ -223,24 +253,40 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     ostream &to_stream(ostream &os) const override {
         for (int y = 0; y < SIDE; ++y) {
             for (int x = 0; x < SIDE; ++x) {
-                os << board[y * SIDE + x];
+                const cords c = make_pair(x, y);
+                if (c == player_1_cords) {
+                    os << PLAYER_1;
+                } else if (c == player_2_cords) {
+                    os << PLAYER_2;
+                } else if (board.get(x, y) == 0) {
+                    os << EMPTY;
+                } else if (board.get(x, y) == 1) {
+                    os << REMOVED;
+                }
             }
-            os << "\n";
+            os << endl;
         }
-        os << player_to_move << "\n";
+        os << player_to_move << endl;
         return os;
     }
 
     bool operator==(const IsolaState &other) const {
-        return board == other.board && player_to_move == other.player_to_move;
+        return board == other.board
+               && player_1_cords == other.player_1_cords
+               && player_2_cords == other.player_2_cords
+               && player_to_move == other.player_to_move;
     }
 
-    size_t operator()(const IsolaState& key) const {
+    size_t operator()(const IsolaState &key) const {
         using boost::hash_value;
         using boost::hash_combine;
-        std::size_t seed = 0;
-        hash_combine(seed, hash_value(key.board));
+        size_t seed = 0;
+        hash<bitset<SIDE*SIDE>> hash_fn;
+        hash_combine(seed, hash_fn(key.board.board)); // FIXME: should use hash_value(key.board)
+        hash_combine(seed, hash_value(key.player_1_cords));
+        hash_combine(seed, hash_value(key.player_2_cords));
         hash_combine(seed, hash_value(key.player_to_move));
         return seed;
     }
 };
+
