@@ -86,6 +86,11 @@ struct Board {
     }
 };
 
+size_t hash_value(const Board &board) {
+    hash<bitset<SIDE * SIDE>> hash_fn;
+    return hash_fn(board.board);
+}
+
 struct IsolaState : public State<IsolaState, IsolaMove> {
 
     Board board;
@@ -276,8 +281,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;
-        hash<bitset<SIDE * SIDE>> hash_fn;
-        hash_combine(seed, hash_fn(key.board.board)); // FIXME: should use hash_value(key.board)
+        hash_combine(seed, hash_value(key.board));
         hash_combine(seed, hash_value(key.player_1_cords));
         hash_combine(seed, hash_value(key.player_2_cords));
         hash_combine(seed, hash_value(key.player_to_move));
