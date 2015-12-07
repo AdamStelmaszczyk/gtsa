@@ -65,13 +65,9 @@ struct IsolaMove : public Move<IsolaMove> {
 typedef pair<unsigned, unsigned> cords;
 
 struct Board {
-    bitset<SIDE*SIDE> board;
+    bitset<SIDE * SIDE> board = bitset<SIDE * SIDE>();
 
     Board() {}
-
-    Board(int size) {
-        board = bitset<SIDE*SIDE>();
-    }
 
     Board(const Board& other) {
         board = other.board;
@@ -104,7 +100,6 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         if (length != correct_length) {
             throw invalid_argument("Initialization string length must be " + std::to_string(correct_length));
         }
-        board = Board(correct_length);
         for (int i = 0; i < length; i++) {
             int x = i % SIDE;
             int y = i / SIDE;
@@ -281,7 +276,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;
-        hash<bitset<SIDE*SIDE>> hash_fn;
+        hash<bitset<SIDE * SIDE>> hash_fn;
         hash_combine(seed, hash_fn(key.board.board)); // FIXME: should use hash_value(key.board)
         hash_combine(seed, hash_value(key.player_1_cords));
         hash_combine(seed, hash_value(key.player_2_cords));
