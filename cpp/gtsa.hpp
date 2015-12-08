@@ -60,7 +60,7 @@ struct Entry {
 
     Entry() {}
 
-    Entry(M move, int depth, int value, EntryType value_type) :
+    Entry(const M &move, int depth, int value, EntryType value_type) :
             move(move), depth(depth), value(value), value_type(value_type) {}
 
     ostream &to_stream(ostream &os) {
@@ -110,11 +110,11 @@ struct State {
         }
     }
 
-    S create_child(M move, char player_to_move) {
+    S create_child(const M &move, char player_to_move) {
         S child = clone();
         child.player_to_move = player_to_move;
         child.move = move;
-        child.parent = (S *) this;
+        child.parent = (S*) this;
         child.make_move(move);
         return child;
     }
@@ -185,7 +185,7 @@ struct State {
         return true;
     }
 
-    static void add_entry(S *state, Entry<M> &entry) {
+    static void add_entry(S *state, const Entry<M> &entry) {
         TRANSPOSITION_TABLE->operator[](*state) = entry;
     }
 
@@ -521,7 +521,13 @@ struct Tester {
     const bool verbose;
     int algorithm_1_wins;
 
-    Tester(S *s, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = 1, bool verbose = true) :
+    Tester(
+        S *s,
+        const Algorithm<S, M> &algorithm_1,
+        const Algorithm<S, M> &algorithm_2,
+        int matches = 1,
+        bool verbose = true
+    ) :
             state(s),
             algorithm_1(algorithm_1),
             player_1(algorithm_1.our_symbol),
@@ -530,7 +536,7 @@ struct Tester {
             matches(matches),
             verbose(verbose) { }
 
-    bool handle_player(S &state, char player, Algorithm<S, M> &algorithm) {
+    bool handle_player(const S &state, char player, const Algorithm<S, M> &algorithm) {
         if (state.is_terminal()) {
             if (state.is_winner(player_1)) {
                 ++algorithm_1_wins;
