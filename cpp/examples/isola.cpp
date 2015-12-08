@@ -217,7 +217,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    int get_score_for_legal_steps(cords player_cords, int depth = 1) const {
+    int get_score_for_legal_steps(const cords &player_cords, int depth = 1) const {
         int result = 0;
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
@@ -246,7 +246,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return (player == PLAYER_1) ? player_1_cords : player_2_cords;
     }
 
-    void set_player_cords(char player, cords player_cords) {
+    void set_player_cords(char player, const cords &player_cords) {
         (player == PLAYER_1) ? player_1_cords = player_cords : player_2_cords = player_cords;
     }
 
