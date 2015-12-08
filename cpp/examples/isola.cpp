@@ -103,7 +103,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
-            throw invalid_argument("Initialization string length must be " + std::to_string(correct_length));
+            throw invalid_argument("Initialization string length must be " + to_string(correct_length));
         }
         for (int i = 0; i < length; i++) {
             int x = i % SIDE;
@@ -288,4 +288,3 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return seed;
     }
 };
-

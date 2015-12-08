@@ -71,7 +71,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
-            throw invalid_argument("Initialization string length must be " + std::to_string(correct_length));
+            throw invalid_argument("Initialization string length must be " + to_string(correct_length));
         }
         for (int i = 0; i < length; i++) {
             const char c = init_string[i];
@@ -211,7 +211,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     size_t operator()(const TicTacToeState& key) const {
         using boost::hash_value;
         using boost::hash_combine;
-        std::size_t seed = 0;
+        size_t seed = 0;
         hash_combine(seed, hash_value(key.board));
         return seed;
     }

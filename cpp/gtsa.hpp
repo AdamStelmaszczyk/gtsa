@@ -44,7 +44,7 @@ struct Move {
 
     virtual ostream &to_stream(ostream &os) const = 0;
 
-    friend ostream &operator<<(std::ostream &os, const Move &move) {
+    friend ostream &operator<<(ostream &os, const Move &move) {
         return move.to_stream(os);
     }
 };
@@ -67,7 +67,7 @@ struct Entry {
         os << "move: " << move << " depth: " << depth << " value: " << value << " value_type: " << value_type;
     }
 
-    friend ostream &operator<<(std::ostream &os, const Entry &entry) {
+    friend ostream &operator<<(ostream &os, const Entry &entry) {
         return entry.to_stream(os);
     }
 };
@@ -205,7 +205,7 @@ struct State {
 
     virtual ostream &to_stream(ostream &os) const = 0;
 
-    friend ostream &operator<<(std::ostream &os, const State &state) {
+    friend ostream &operator<<(ostream &os, const State &state) {
         return state.to_stream(os);
     }
 
