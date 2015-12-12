@@ -2,7 +2,7 @@ import pytest
 from examples.tic_tac_toe import TicTacToeState, PLAYER_1, PLAYER_2
 from gtsa import Minimax, MonteCarloTreeSearch
 
-MAX_SIMULATIONS = 500
+MAX_SIMULATIONS = 1000
 
 
 def get_algorithms():

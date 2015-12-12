@@ -2,7 +2,7 @@
 
 #include "../examples/isola.cpp"
 
-const static int MAX_SIMULATIONS = 500;
+const static int MAX_SIMULATIONS = 1000;
 
 template<class S, class M>
 vector<Algorithm<S, M> *> get_algorithms() {
