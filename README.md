@@ -13,25 +13,15 @@ Alternatively, use `Tester` to play the whole game (typical for local testing).
 Implemented algorithms
 ---
 
-- [Minimax](https://en.wikipedia.org/wiki/Minimax) ([negamax](https://en.wikipedia.org/wiki/Negamax) precisely) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning), [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening), [transposition table](https://en.wikipedia.org/wiki/Transposition_table) and [killer heuristic](https://en.wikipedia.org/wiki/Killer_heuristic)
+- [Minimax](https://en.wikipedia.org/wiki/Minimax) ([negamax](https://en.wikipedia.org/wiki/Negamax) variant) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning), [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening), [transposition table](https://en.wikipedia.org/wiki/Transposition_table).
 - [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
-https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation)
-
-Planned:
-
-- [Neural networks](https://en.wikipedia.org/wiki/Artificial_neural_network)
+https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
 
 Game examples
 ---
 
-- Tic Tac Toe - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/games/tic_tac_toe.md), [Python code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/tic_tac_toe.py), [C++ code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/tic_tac_toe.cpp)
-- Isola - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/games/isola.md), [Python code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.py), [C++ code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp)
-
-Planned:
-
-- [Texas Hold'em](http://theaigames.com/competitions/texas-hold-em)
-- [Hex](https://www.hackerrank.com/challenges/hex)
-- [Checkers](https://www.hackerrank.com/challenges/checkers)
+- Tic Tac Toe - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/games/tic_tac_toe.md), [Python code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/tic_tac_toe.py), [C++ code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/tic_tac_toe.cpp).
+- Isola - [rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/games/isola.md), [Python code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.py), [C++ code](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp).
 
 Priorities
 ---
