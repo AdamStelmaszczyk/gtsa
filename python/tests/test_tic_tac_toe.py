@@ -12,7 +12,6 @@ def get_algorithms():
             PLAYER_1,
             PLAYER_2,
             max_simulations=MAX_SIMULATIONS,
-            max_seconds=3,
         ),
     ]
 
