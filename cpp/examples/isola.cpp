@@ -9,9 +9,6 @@ const char PLAYER_2 = '2';
 const char EMPTY = '_';
 const char REMOVED = '#';
 
-const int DX[] = {-1, 1, 1, -1, 0, 0, -1, 1 };
-const int DY[] = {-1, 1, -1, 1, -1, 1, 0, 0 };
-
 static char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
@@ -206,11 +203,13 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     vector<cords> get_legal_step_moves(int start_x, int start_y) const {
         vector<cords> result(8);
         unsigned moves_count = 0;
-        for (int i = 0; i < 8; ++i) {
-            const int x = start_x + DX[i];
-            const int y = start_y + DY[i];
-            if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
-                result[moves_count++] = make_pair(x, y);
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                const int x = start_x + dx;
+                const int y = start_y + dy;
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
+                    result[moves_count++] = make_pair(x, y);
+                }
             }
         }
         result.resize(moves_count);
