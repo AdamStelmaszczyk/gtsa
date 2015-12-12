@@ -152,7 +152,7 @@ class Minimax(Algorithm):
         generate_moves = True
         best_goodness = float('-inf')
         if entry:
-            # Killer heuristic - first try the move from the table
+            # If available, first try the best move from the table
             best_move = entry.move
             state.make_move(best_move)
             best_goodness = -self._minimax(

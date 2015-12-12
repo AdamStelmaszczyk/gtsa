@@ -343,7 +343,7 @@ struct Minimax : public Algorithm<S, M> {
         bool generate_moves = true;
         int best_goodness = -INF;
         if (entry_found) {
-            // Killer heuristic - first try the move from the table
+            // If available, first try the best move from the table
             best_move = entry.move;
             best_move_is_valid = true;
             state->make_move(best_move);
