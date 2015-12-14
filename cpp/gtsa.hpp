@@ -523,8 +523,8 @@ struct Tester {
 
     Tester(
         S *s,
-        const Algorithm<S, M> &algorithm_1,
-        const Algorithm<S, M> &algorithm_2,
+        Algorithm<S, M> &algorithm_1,
+        Algorithm<S, M> &algorithm_2,
         int matches = 1,
         bool verbose = true
     ) :
@@ -536,7 +536,7 @@ struct Tester {
             matches(matches),
             verbose(verbose) { }
 
-    bool handle_player(const S &state, char player, const Algorithm<S, M> &algorithm) {
+    bool handle_player(S &state, char player, Algorithm<S, M> &algorithm) {
         if (state.is_terminal()) {
             if (state.is_winner(player_1)) {
                 ++algorithm_1_wins;
