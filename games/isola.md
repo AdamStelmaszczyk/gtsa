@@ -1,4 +1,4 @@
-# Isola ([Python](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.py))
+# Isola ([Python](https://github.com/AdamStelmaszczyk/gtsa/blob/master/python/examples/isola.py), [C++](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp))
 
 Also known as: Isolation, Stranded.
 
