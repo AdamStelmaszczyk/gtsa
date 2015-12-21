@@ -9,24 +9,12 @@ const char PLAYER_2 = '2';
 const char EMPTY = '_';
 const char REMOVED = '#';
 
-const int BFS_1 = 50;
-const int BFS_2 = 10;
-const int BFS_3 = 5;
-const int BORDER_DIST = 10;
-const int ENEMY_DIST = -50;
-
-typedef pair<unsigned, unsigned> cords;
-
 static char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
 
-static int get_border_dist(cords from) {
-    return min(min(from.first, SIDE - from.first - 1), min(from.second, SIDE - from.second - 1));
-}
-
-static int dist(cords from, cords to) {
-    return min(abs(from.first - to.first), abs(from.second - to.second));
+static int get_score_for_cords(int x, int y) {
+    return min(min(x + 1, SIDE - x), min(y + 1, SIDE - y));
 }
 
 struct IsolaMove : public Move<IsolaMove> {
@@ -70,6 +58,8 @@ struct IsolaMove : public Move<IsolaMove> {
         return os << from_x << " " << from_y << " " << step_x << " " << step_y << " " << remove_x << " " << remove_y;
     }
 };
+
+typedef pair<unsigned, unsigned> cords;
 
 struct Board {
     bitset<SIDE * SIDE> board = bitset<SIDE * SIDE>();
@@ -143,36 +133,18 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     int get_goodness() const override {
-        const char enemy = get_opposite_player(player_to_move);
         cords player_cords = get_player_cords(player_to_move);
+        const int player_score = get_score_for_legal_steps(player_cords, 2);
+        if (player_score == 0) {
+            return -1000;
+        }
+        const char enemy = get_opposite_player(player_to_move);
         cords enemy_cords = get_player_cords(enemy);
-
-        // TODO: optimization - do one BFS not 3 DFS
-        const int bfs_1 = get_legal_steps(player_cords, 1);
-        if (bfs_1 == 0) {
-            return -INF;
+        const int enemy_score = get_score_for_legal_steps(enemy_cords, 2);
+        if (enemy_score == 0) {
+            return 1000;
         }
-        const int bfs_2 = get_legal_steps(player_cords, 2);
-        const int bfs_3 = get_legal_steps(player_cords, 3);
-
-        const int bfs_1_enemy = get_legal_steps(enemy_cords, 1);
-        if (bfs_1_enemy == 0) {
-            return INF;
-        }
-        const int bfs_2_enemy = get_legal_steps(player_cords, 2);
-        const int bfs_3_enemy = get_legal_steps(player_cords, 3);
-
-        const int border_dist = get_border_dist(player_cords);
-        const int border_dist_enemy = get_border_dist(enemy_cords);
-        const int enemy_dist = dist(player_cords, enemy_cords);
-
-        const int goodness = (bfs_1 - bfs_1_enemy) * BFS_1
-                             + (bfs_2 - bfs_2_enemy) * BFS_2
-                             + (bfs_3 - bfs_3_enemy) * BFS_3
-                             + (border_dist - border_dist_enemy) * BORDER_DIST
-                             + enemy_dist * ENEMY_DIST;
-
-        return goodness;
+        return player_score - enemy_score;
     }
 
     vector<IsolaMove> get_legal_moves() const override {
@@ -199,13 +171,13 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
     bool is_terminal() const override {
         cords player_cords = get_player_cords(player_to_move);
-        return get_legal_steps(player_cords) == 0;
+        return get_score_for_legal_steps(player_cords) == 0;
     }
 
     bool is_winner(char player) const override {
         const char enemy = get_opposite_player(player);
         cords player_cords = get_player_cords(enemy);
-        return player_to_move == enemy && get_legal_steps(player_cords) == 0;
+        return player_to_move == enemy && get_score_for_legal_steps(player_cords) == 0;
     }
 
     void make_move(const IsolaMove &move) override {
@@ -244,7 +216,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    int get_legal_steps(const cords &player_cords, int depth = 1) const {
+    int get_score_for_legal_steps(const cords &player_cords, int depth = 1) const {
         int result = 0;
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
@@ -252,9 +224,9 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
                 const int y = player_cords.second + dy;
                 if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
                     if (depth <= 1) {
-                        ++result;
+                        result += get_score_for_cords(x, y);
                     } else {
-                        result += get_legal_steps(make_pair(x, y), depth - 1);
+                        result += get_score_for_legal_steps(make_pair(x, y), depth - 1);
                     }
                 }
             }
