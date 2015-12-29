@@ -4,7 +4,7 @@ import time
 import math
 
 
-MAX_DEPTH = 100
+MAX_DEPTH = 20
 TRANSPOSITION_TABLE = {}
 EPSILON = 0.01
 SQRT_2 = math.sqrt(2)
