@@ -6,6 +6,7 @@ import math
 
 MAX_DEPTH = 20
 TRANSPOSITION_TABLE = {}
+HISTORY_TABLE = {}
 EPSILON = 0.01
 SQRT_2 = math.sqrt(2)
 
@@ -37,6 +38,20 @@ def get_entry(state):
 def add_entry(state, entry):
     key = hash(state)
     TRANSPOSITION_TABLE[key] = entry
+
+
+def update_history(move, depth):
+    key = hash(move)
+    score = HISTORY_TABLE.get(key, 0)
+    HISTORY_TABLE[key] = score + 2 ** depth
+
+
+def sort_by_history_heuristic(moves):
+    def compare_moves(a, b):
+        a_score = HISTORY_TABLE.get(hash(a), 0)
+        b_score = HISTORY_TABLE.get(hash(b), 0)
+        return a_score < b_score
+    moves.sort(compare_moves)
 
 
 def get_random_from_generator(generator):
@@ -167,7 +182,8 @@ class Minimax(Algorithm):
                 generate_moves = False
 
         if generate_moves:
-            legal_moves = state.get_legal_moves()
+            legal_moves = list(state.get_legal_moves())
+            sort_by_history_heuristic(legal_moves)
             for move in legal_moves:
                 state.make_move(move)
                 goodness = -self._minimax(
@@ -194,6 +210,8 @@ class Minimax(Algorithm):
                 value_type = Entry.EXACT_VALUE
             entry = Entry(best_move, depth, best_goodness, value_type)
             add_entry(state, entry)
+
+        update_history(best_move, depth)
 
         return best_goodness, best_move
 

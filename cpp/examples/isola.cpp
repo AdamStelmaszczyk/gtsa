@@ -36,12 +36,6 @@ struct IsolaMove : public Move<IsolaMove> {
         unsigned remove_y
     ): from_x(from_x), from_y(from_y), step_x(step_x), step_y(step_y), remove_x(remove_x), remove_y(remove_y) { }
 
-    bool operator==(const IsolaMove &rhs) const override {
-        return from_x == rhs.from_x && from_y == rhs.from_y &&
-               step_x == rhs.step_x && step_y == rhs.step_y &&
-               remove_x == rhs.remove_x && remove_y == rhs.remove_y;
-    }
-
     void read() override {
         cout << "Enter space separated from_x from_y step_x step_y remove_x remove_y: ";
         unsigned from_x, from_y, step_x, step_y, remove_x, remove_y;
@@ -56,6 +50,25 @@ struct IsolaMove : public Move<IsolaMove> {
 
     ostream &to_stream(ostream &os) const override {
         return os << from_x << " " << from_y << " " << step_x << " " << step_y << " " << remove_x << " " << remove_y;
+    }
+
+    bool operator==(const IsolaMove &rhs) const override {
+        return from_x == rhs.from_x && from_y == rhs.from_y &&
+               step_x == rhs.step_x && step_y == rhs.step_y &&
+               remove_x == rhs.remove_x && remove_y == rhs.remove_y;
+    }
+
+    size_t operator()(const IsolaMove &key) const override {
+        using boost::hash_value;
+        using boost::hash_combine;
+        size_t seed = 0;
+        hash_combine(seed, hash_value(key.from_x));
+        hash_combine(seed, hash_value(key.from_y));
+        hash_combine(seed, hash_value(key.step_x));
+        hash_combine(seed, hash_value(key.step_y));
+        hash_combine(seed, hash_value(key.remove_x));
+        hash_combine(seed, hash_value(key.remove_y));
+        return seed;
     }
 };
 

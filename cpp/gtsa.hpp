@@ -38,8 +38,6 @@ template<class M>
 struct Move {
     virtual ~Move() {}
 
-    virtual bool operator==(const M &rhs) const = 0;
-
     virtual void read() = 0;
 
     virtual ostream &to_stream(ostream &os) const = 0;
@@ -47,6 +45,10 @@ struct Move {
     friend ostream &operator<<(ostream &os, const Move &move) {
         return move.to_stream(os);
     }
+
+    virtual bool operator==(const M &rhs) const = 0;
+
+    virtual size_t operator()(const M &key) const = 0;
 };
 
 enum EntryType { EXACT_VALUE, LOWER_BOUND, UPPER_BOUND };
@@ -75,6 +77,7 @@ struct Entry {
 template<class S, class M>
 struct State {
     static unordered_map<S, Entry<M>, S>* TRANSPOSITION_TABLE;
+    static unordered_map<M, int, M>* HISTORY_TABLE;
     unsigned visits = 0;
     double score = 0;
     char player_to_move = 0;
@@ -189,6 +192,18 @@ struct State {
         TRANSPOSITION_TABLE->operator[](*state) = entry;
     }
 
+    static void update_history(const M &move, int depth) {
+        HISTORY_TABLE->operator[](move) += (1 << depth);
+    }
+
+    static void sort_by_history_heuristic(vector<M> &moves) {
+        stable_sort(moves.begin(), moves.end(), [](const M &a, const M &b) {
+            int a_score = HISTORY_TABLE->operator[](a);
+            int b_score = HISTORY_TABLE->operator[](b);
+            return a_score > b_score;
+        });
+    }
+
     virtual S clone() const = 0;
 
     virtual int get_goodness() const = 0;
@@ -216,6 +231,9 @@ struct State {
 
 template<class S, class M>
 unordered_map<S, Entry<M>, S>* State<S, M>::TRANSPOSITION_TABLE = new unordered_map<S, Entry<M>, S>();
+
+template<class S, class M>
+unordered_map<M, int, M>* State<S, M>::HISTORY_TABLE = new unordered_map<M, int, M>();
 
 template<class S, class M>
 struct Algorithm {
@@ -361,7 +379,8 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         if (generate_moves) {
-            const auto &legal_moves = state->get_legal_moves();
+            auto legal_moves = state->get_legal_moves();
+            State<S, M>::sort_by_history_heuristic(legal_moves);
             for (const auto& move : legal_moves) {
                 state->make_move(move);
                 const int goodness = -minimax(
@@ -398,6 +417,9 @@ struct Minimax : public Algorithm<S, M> {
             entry = {best_move, depth, best_goodness, value_type};
             State<S, M>::add_entry(state, entry);
         }
+
+        State<S, M>::update_history(best_move, depth);
+
         return make_pair(best_goodness, best_move);
     }
 

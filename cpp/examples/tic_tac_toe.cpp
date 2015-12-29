@@ -19,10 +19,6 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
 
     TicTacToeMove(unsigned x, unsigned y) : x(x), y(y) { }
 
-    bool operator==(const TicTacToeMove &rhs) const override {
-        return x == rhs.x && y == rhs.y;
-    }
-
     void read() override {
         cout << "Enter space separated X and Y of your move: ";
         unsigned x, y;
@@ -33,6 +29,19 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
 
     ostream &to_stream(ostream &os) const override {
         return os << x << " " << y;
+    }
+
+    bool operator==(const TicTacToeMove &rhs) const override {
+        return x == rhs.x && y == rhs.y;
+    }
+
+    size_t operator()(const TicTacToeMove &key) const override {
+        using boost::hash_value;
+        using boost::hash_combine;
+        size_t seed = 0;
+        hash_combine(seed, hash_value(key.x));
+        hash_combine(seed, hash_value(key.y));
+        return seed;
     }
 };
 
