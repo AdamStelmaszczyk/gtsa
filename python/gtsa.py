@@ -79,7 +79,7 @@ def sort_by_history_heuristic(moves):
         a_score = HISTORY_TABLE.get(hash(a), 0)
         b_score = HISTORY_TABLE.get(hash(b), 0)
         return a_score < b_score
-    moves.sort(compare_moves, key=cmp_to_key(compare_moves))
+    moves.sort(key=cmp_to_key(compare_moves))
 
 
 def get_random_from_generator(generator):
