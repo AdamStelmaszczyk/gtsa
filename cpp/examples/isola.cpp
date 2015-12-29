@@ -59,7 +59,7 @@ struct IsolaMove : public Move<IsolaMove> {
     }
 };
 
-typedef pair<unsigned, unsigned> cords;
+typedef pair<int, int> cords;
 
 struct Board {
     bitset<SIDE * SIDE> board = bitset<SIDE * SIDE>();
