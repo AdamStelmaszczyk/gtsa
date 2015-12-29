@@ -32,6 +32,10 @@ struct Timer {
     void print_seconds_elapsed() {
         cout << setprecision(1) << fixed << seconds_elapsed() << "s" << endl;
     }
+
+    bool exceeded(double seconds) {
+        return seconds_elapsed() > seconds;
+    }
 };
 
 template<class M>
@@ -288,6 +292,7 @@ struct Minimax : public Algorithm<S, M> {
     const bool VERBOSE;
     Timer *timer = new Timer();
     int tt_hits;
+    int nodes;
 
     Minimax(char our_symbol,
             char enemy_symbol,
@@ -308,33 +313,28 @@ struct Minimax : public Algorithm<S, M> {
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         timer->start();
-        int best_goodness = -INF;
         M best_move;
-        int best_at_depth = 1;
-        int max_depth = 1;
-        while (timer->seconds_elapsed() < MAX_SECONDS && max_depth <= MAX_DEPTH) {
+        for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
             tt_hits = 0;
+            nodes = 0;
             auto pair = minimax(state, max_depth, -INF, INF, this->our_symbol);
+            if (timer->exceeded(MAX_SECONDS)) {
+                break;
+            }
+            best_move = pair.second;
             if (VERBOSE) {
                 cout << "goodness: " << pair.first
+                     << " nodes: " << nodes
                      << " tt_hits: " << tt_hits
                      << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
-                     << " at max_depth: " << max_depth << endl;
+                     << " max_depth: " << max_depth << endl;
             }
-            if (best_goodness <= pair.first) {
-                best_goodness = pair.first;
-                best_move = pair.second;
-                best_at_depth = max_depth;
-            }
-            ++max_depth;
-        }
-        if (VERBOSE) {
-            cout << "best_goodness: " << best_goodness << " at max_depth: " << best_at_depth << endl;
         }
         return best_move;
     }
 
     pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
+        nodes++;
         Entry<M> entry;
         bool entry_found = State<S, M>::get_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
@@ -354,7 +354,7 @@ struct Minimax : public Algorithm<S, M> {
         }
         M best_move;
         bool best_move_is_valid = false;
-        if (depth == 0 || state->is_terminal() || timer->seconds_elapsed() > MAX_SECONDS) {
+        if (depth == 0 || state->is_terminal() || timer->exceeded(MAX_SECONDS)) {
             return make_pair(state->get_goodness(), best_move);
         }
 
@@ -454,7 +454,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         timer.start();
         state->remove_children();
         int simulation = 0;
-        while (simulation < max_simulations && timer.seconds_elapsed() < max_seconds) {
+        while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
             monte_carlo_tree_search(state, this->our_symbol);
             ++simulation;
         }

@@ -128,25 +128,23 @@ class Minimax(Algorithm):
     def __init__(self,
                  our_symbol,
                  enemy_symbol,
-                 max_seconds=1,
+                 max_seconds=2,
                  verbose=False):
         super(Minimax, self).__init__(our_symbol, enemy_symbol)
         self.max_seconds = max_seconds
         self.verbose = verbose
         self.timer = None
         self.tt_hits = None
+        self.nodes = None
 
     def get_move(self, state):
         if state.is_terminal():
             raise ValueError("Given state is terminal:\n{}".format(state))
         self.timer = Timer()
-        best_goodness = float('-inf')
         best_move = None
-        best_at_depth = 1
-        max_depth = 1
-        while self.timer.seconds_elapsed() < self.max_seconds and \
-                max_depth <= MAX_DEPTH:
+        for max_depth in range(1, MAX_DEPTH + 1):
             self.tt_hits = 0
+            self.nodes = 0
             goodness, move = self._minimax(
                 state,
                 max_depth,
@@ -154,27 +152,22 @@ class Minimax(Algorithm):
                 float('inf'),
                 self.our_symbol,
             )
+            if self.timer.exceeded(self.max_seconds):
+                break
+            best_move = move
             if self.verbose:
-                print("goodness: {} tt_hits: {} "
+                print("goodness: {} nodes: {} tt_hits: {} "
                       "tt_size: {} at max_depth: {}".format(
-                          goodness,
-                          self.tt_hits,
-                          len(TRANSPOSITION_TABLE),
-                          max_depth,
-                      ))
-            if best_goodness <= goodness:
-                best_goodness = goodness
-                best_move = move
-                best_at_depth = max_depth
-            max_depth += 1
-        if self.verbose:
-            print("best_goodness: {} at max_depth: {}".format(
-                best_goodness,
-                best_at_depth,
-            ))
+                    goodness,
+                    self.nodes,
+                    self.tt_hits,
+                    len(TRANSPOSITION_TABLE),
+                    max_depth,
+                ))
         return best_move
 
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
+        self.nodes += 1
         entry = get_entry(state)
         if entry and entry.depth >= depth:
             self.tt_hits += 1
@@ -262,7 +255,7 @@ class MonteCarloTreeSearch(Algorithm):
         state.remove_children()
         simulation = 0
         while simulation < self.max_simulations \
-                and timer.seconds_elapsed() < self.max_seconds:
+                and not timer.exceeded(self.max_seconds):
             self._monte_carlo_tree_search(state, self.our_symbol)
             simulation += 1
         if self.verbose:
@@ -439,6 +432,9 @@ class Timer:
 
     def print_seconds_elapsed(self):
         print("{0:.1f}s".format(self.seconds_elapsed()))
+
+    def exceeded(self, seconds):
+        return self.seconds_elapsed() > seconds
 
 
 class Tester(object):
