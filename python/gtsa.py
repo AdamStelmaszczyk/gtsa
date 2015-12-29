@@ -158,12 +158,12 @@ class Minimax(Algorithm):
             if self.verbose:
                 print("goodness: {} nodes: {} tt_hits: {} "
                       "tt_size: {} at max_depth: {}".format(
-                    goodness,
-                    self.nodes,
-                    self.tt_hits,
-                    len(TRANSPOSITION_TABLE),
-                    max_depth,
-                ))
+                          goodness,
+                          self.nodes,
+                          self.tt_hits,
+                          len(TRANSPOSITION_TABLE),
+                          max_depth,
+                      ))
         return best_move
 
     def _minimax(self, state, depth, alpha, beta, analyzed_player):
