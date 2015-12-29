@@ -46,12 +46,33 @@ def update_history(move, depth):
     HISTORY_TABLE[key] = score + 2 ** depth
 
 
+def cmp_to_key(mycmp):
+    class Key:
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        def __ne__(self, other):
+            return mycmp(self.obj, other.obj) != 0
+        def __hash__(self):
+            return hash(self.obj)
+    return Key
+
+
 def sort_by_history_heuristic(moves):
     def compare_moves(a, b):
         a_score = HISTORY_TABLE.get(hash(a), 0)
         b_score = HISTORY_TABLE.get(hash(b), 0)
         return a_score < b_score
-    moves.sort(compare_moves)
+    moves.sort(compare_moves, key=cmp_to_key(compare_moves))
 
 
 def get_random_from_generator(generator):
