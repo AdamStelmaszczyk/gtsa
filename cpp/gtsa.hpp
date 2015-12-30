@@ -291,6 +291,13 @@ struct Human : public Algorithm<S, M> {
     }
 };
 
+template<class M>
+struct Result {
+    int goodness;
+    M best_move;
+    bool valid_move;
+};
+
 template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
@@ -322,30 +329,33 @@ struct Minimax : public Algorithm<S, M> {
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
             tt_hits = 0;
             nodes = 0;
-            auto pair = minimax(state, max_depth, -INF, INF, this->our_symbol);
+            auto result = minimax(state, max_depth, -INF, INF, this->our_symbol);
+            if (result.valid_move) {
+                best_move = result.best_move;
+                if (VERBOSE) {
+                    cout << "goodness: " << result.goodness
+                    << " move: " << best_move
+                    << " nodes: " << nodes
+                    << " tt_hits: " << tt_hits
+                    << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
+                    << " max_depth: " << max_depth << endl;
+                }
+            }
             if (timer->exceeded(MAX_SECONDS)) {
                 break;
-            }
-            best_move = pair.second;
-            if (VERBOSE) {
-                cout << "goodness: " << pair.first
-                     << " nodes: " << nodes
-                     << " tt_hits: " << tt_hits
-                     << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
-                     << " max_depth: " << max_depth << endl;
             }
         }
         return best_move;
     }
 
-    pair<int, M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
+    Result<M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
         nodes++;
         Entry<M> entry;
         bool entry_found = State<S, M>::get_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
             ++tt_hits;
             if (entry.value_type == EntryType::EXACT_VALUE) {
-                return make_pair(entry.value, entry.move);
+                return {entry.value, entry.move, true};
             }
             if (entry.value_type == EntryType::LOWER_BOUND && entry.value > alpha) {
                 alpha = entry.value;
@@ -354,13 +364,13 @@ struct Minimax : public Algorithm<S, M> {
                 beta = entry.value;
             }
             if (alpha >= beta) {
-                return make_pair(entry.value, entry.move);
+                return {entry.value, entry.move, true};
             }
         }
         M best_move;
         bool best_move_is_valid = false;
-        if (depth == 0 || state->is_terminal() || timer->exceeded(MAX_SECONDS)) {
-            return make_pair(state->get_goodness(), best_move);
+        if (depth == 0 || state->is_terminal()) {
+            return {state->get_goodness(), best_move, best_move_is_valid};
         }
 
         bool generate_moves = true;
@@ -376,7 +386,7 @@ struct Minimax : public Algorithm<S, M> {
                 -beta,
                 -alpha,
                 this->get_opposite_player(analyzed_player)
-            ).first;
+            ).goodness;
             state->undo_move(best_move);
             if (best_goodness >= beta) {
                 generate_moves = false;
@@ -394,8 +404,11 @@ struct Minimax : public Algorithm<S, M> {
                     -beta,
                     -alpha,
                     this->get_opposite_player(analyzed_player)
-                ).first;
+                ).goodness;
                 state->undo_move(move);
+                if (timer->exceeded(MAX_SECONDS)) {
+                    break;
+                }
                 if (best_goodness < goodness) {
                     best_goodness = goodness;
                     best_move = move;
@@ -425,7 +438,7 @@ struct Minimax : public Algorithm<S, M> {
 
         State<S, M>::update_history(best_move, depth);
 
-        return make_pair(best_goodness, best_move);
+        return {best_goodness, best_move, best_move_is_valid};
     }
 
     string get_name() const {
