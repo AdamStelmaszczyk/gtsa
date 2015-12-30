@@ -12,6 +12,12 @@ isola:
 test: all
 	tests/test_tic_tac_toe.o
 	tests/test_isola.o
+	
+test_tic_tac_toe: tic_tac_toe
+	tests/test_tic_tac_toe.o
+	
+test_isola: isola
+	tests/test_isola.o
 
 clean:
 	rm -f tests/*.o
