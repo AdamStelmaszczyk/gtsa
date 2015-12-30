@@ -255,6 +255,11 @@ struct Algorithm {
     virtual M get_move(S *state) = 0;
 
     virtual string get_name() const = 0;
+
+    friend ostream &operator<<(ostream &os, const Algorithm &algorithm) {
+        os << algorithm.our_symbol << " " << algorithm.get_name();
+        return os;
+    }
 };
 
 template<class S, class M>
@@ -536,72 +541,45 @@ template<class S, class M>
 struct Tester {
     S *state = nullptr;
     Algorithm<S, M> &algorithm_1;
-    const char player_1;
     Algorithm<S, M> &algorithm_2;
-    const char player_2;
     const int matches;
     const bool verbose;
     int algorithm_1_wins;
 
-    Tester(
-        S *s,
-        Algorithm<S, M> &algorithm_1,
-        Algorithm<S, M> &algorithm_2,
-        int matches = 1,
-        bool verbose = true
-    ) :
-            state(s),
-            algorithm_1(algorithm_1),
-            player_1(algorithm_1.our_symbol),
-            algorithm_2(algorithm_2),
-            player_2(algorithm_2.our_symbol),
-            matches(matches),
-            verbose(verbose) { }
-
-    bool handle_player(S &state, char player, Algorithm<S, M> &algorithm) {
-        if (state.is_terminal()) {
-            if (state.is_winner(player_1)) {
-                ++algorithm_1_wins;
-            }
-            return true;
-        }
-        if (verbose) {
-            cout << algorithm.our_symbol << " " << algorithm.get_name() << endl;
-        }
-        Timer timer;
-        timer.start();
-        auto move = algorithm.get_move(&state);
-        if (verbose) {
-            timer.print_seconds_elapsed();
-        }
-        state.make_move(move);
-        if (verbose) {
-            cout << state << endl;
-        }
-        return false;
-    }
+    Tester(S *s, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = 1, bool verbose = true) :
+            state(s), algorithm_1(algorithm_1), algorithm_2(algorithm_2), matches(matches), verbose(verbose) { }
 
     void start() {
         algorithm_1_wins = 0;
         for (int i = 1; i <= matches; ++i) {
-            cout << "Match " << i << "/" << matches << endl;
-            auto current_state = state->clone();
             if (verbose) {
                 cout << *state << endl;
             }
-            Timer timer;
-            while (true) {
-                bool end = handle_player(current_state, player_1, algorithm_1);
-                if (end) {
-                    break;
+            auto current_state = state->clone();
+            while (!current_state.is_terminal()) {
+                auto &algorithm = (current_state.player_to_move == algorithm_1.our_symbol) ? algorithm_1 : algorithm_2;
+                if (verbose) {
+                    cout << algorithm << endl;
                 }
-                end = handle_player(current_state, player_2, algorithm_2);
-                if (end) {
-                    break;
+                Timer timer;
+                timer.start();
+                auto move = algorithm.get_move(&current_state);
+                if (verbose) {
+                    timer.print_seconds_elapsed();
+                }
+                current_state.make_move(move);
+                if (verbose) {
+                    cout << current_state << endl;
                 }
             }
+            cout << "Match " << i << "/" << matches << ", winner: ";
+            if (current_state.is_winner(algorithm_1.our_symbol)) {
+                ++algorithm_1_wins;
+                cout << algorithm_1 << endl;
+            } else {
+                cout << algorithm_2 << endl;
+            }
         }
-        cout << player_1 << " " << algorithm_1.get_name() << " won " <<
-                algorithm_1_wins << "/" << matches << " matches" << endl;
+        cout << algorithm_1 << " won " << algorithm_1_wins << "/" << matches << " matches" << endl;
     }
 };
