@@ -193,7 +193,7 @@ struct State {
     }
 
     static void add_entry(S *state, const Entry<M> &entry) {
-        TRANSPOSITION_TABLE->emplace(*state, entry);
+        TRANSPOSITION_TABLE->operator[](*state) = entry;
     }
 
     static void update_history(const M &move, int depth) {
