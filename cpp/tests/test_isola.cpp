@@ -13,9 +13,13 @@ vector<Algorithm<S, M> *> get_algorithms() {
 }
 
 void test_isola_move() {
-    IsolaState state = IsolaState("###"
-                                  "#2#"
-                                  "#1_");
+    IsolaState state = IsolaState("#######"
+                                  "#2#####"
+                                  "#1_####"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######");
     for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -24,9 +28,13 @@ void test_isola_move() {
 }
 
 void test_isola_finish() {
-    IsolaState state = IsolaState("2#_"
-                                  "_#_"
-                                  "__1");
+    IsolaState state = IsolaState("2#_####"
+                                  "_#_####"
+                                  "__1####"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######");
     for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -35,9 +43,13 @@ void test_isola_finish() {
 }
 
 void test_isola_not_lose() {
-    IsolaState state = IsolaState("___"
-                                  "2#1"
-                                  "_#_");
+    IsolaState state = IsolaState("___####"
+                                  "2#1####"
+                                  "_#_####"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######");
     for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -46,9 +58,13 @@ void test_isola_not_lose() {
 }
 
 void test_isola_crowded() {
-    IsolaState state = IsolaState("#12"
-                                  "_#_"
-                                  "##_");
+    IsolaState state = IsolaState("#12####"
+                                  "_#_####"
+                                  "##_####"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######");
     for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         const auto move = algorithm->get_move(&state);
         delete algorithm;
@@ -57,9 +73,13 @@ void test_isola_crowded() {
 }
 
 void test_isola_terminal() {
-    IsolaState state = IsolaState("#2#"
-                                  "###"
-                                  "#1#");
+    IsolaState state = IsolaState("###2###"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "###1###");
     for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         bool exception_thrown = false;
         try {

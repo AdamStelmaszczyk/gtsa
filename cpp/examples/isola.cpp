@@ -3,7 +3,7 @@
 
 #include "../gtsa.hpp"
 
-const int SIDE = 3;
+const int SIDE = 7;
 const char PLAYER_1 = '1';
 const char PLAYER_2 = '2';
 const char EMPTY = '_';
