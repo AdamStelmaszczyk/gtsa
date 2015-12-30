@@ -338,6 +338,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " nodes: " << nodes
                     << " tt_hits: " << tt_hits
                     << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
+                    << " ht_size: " << State<S, M>::HISTORY_TABLE->size()
                     << " max_depth: " << max_depth << endl;
                 }
             }
