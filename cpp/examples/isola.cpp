@@ -14,7 +14,7 @@ static char get_opposite_player(char player) {
 }
 
 static int get_score_for_cords(int x, int y) {
-    return min(min(x + 1, SIDE - x), min(y + 1, SIDE - y));
+    return 100 + min(min(x + 1, SIDE - x), min(y + 1, SIDE - y));
 }
 
 struct IsolaMove : public Move<IsolaMove> {
@@ -149,13 +149,13 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         cords player_cords = get_player_cords(player_to_move);
         const int player_score = get_score_for_legal_steps(player_cords, 2);
         if (player_score == 0) {
-            return -1000;
+            return -INF;
         }
         const char enemy = get_opposite_player(player_to_move);
         cords enemy_cords = get_player_cords(enemy);
         const int enemy_score = get_score_for_legal_steps(enemy_cords, 2);
         if (enemy_score == 0) {
-            return 1000;
+            return INF;
         }
         return player_score - enemy_score;
     }
