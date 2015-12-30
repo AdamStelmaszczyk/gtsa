@@ -434,9 +434,9 @@ struct Minimax : public Algorithm<S, M> {
             }
             entry = {best_move, depth, best_goodness, value_type};
             State<S, M>::add_entry(state, entry);
-        }
 
-        State<S, M>::update_history(best_move, depth);
+            State<S, M>::update_history(best_move, depth);
+        }
 
         return {best_goodness, best_move, best_move_is_valid};
     }
