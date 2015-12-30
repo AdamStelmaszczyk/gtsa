@@ -30,7 +30,7 @@ struct Timer {
     }
 
     void print_seconds_elapsed() {
-        cout << setprecision(1) << fixed << seconds_elapsed() << "s" << endl;
+        cout << setprecision(2) << fixed << seconds_elapsed() << "s" << endl;
     }
 
     bool exceeded(double seconds) {
