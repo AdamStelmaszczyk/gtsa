@@ -303,7 +303,7 @@ struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const bool VERBOSE;
     Timer *timer = new Timer();
-    int tt_hits, tt_exacts, tt_cuts;
+    int tt_hits, tt_exacts, tt_cuts, tt_firsts;
     int nodes;
 
     Minimax(char our_symbol,
@@ -330,6 +330,7 @@ struct Minimax : public Algorithm<S, M> {
             tt_hits = 0;
             tt_exacts = 0;
             tt_cuts = 0;
+            tt_firsts = 0;
             nodes = 0;
             auto result = minimax(state, max_depth, -INF, INF, this->our_symbol);
             if (result.valid_move) {
@@ -341,6 +342,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " tt_hits: " << tt_hits
                     << " tt_exacts: " << tt_exacts
                     << " tt_cuts: " << tt_cuts
+                    << " tt_firsts: " << tt_firsts
                     << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
                     << " ht_size: " << State<S, M>::HISTORY_TABLE->size()
                     << " max_depth: " << max_depth << endl;
@@ -400,6 +402,7 @@ struct Minimax : public Algorithm<S, M> {
             ).goodness;
             state->undo_move(best_move);
             if (best_goodness >= beta) {
+                ++tt_firsts;
                 generate_moves = false;
             }
         }
