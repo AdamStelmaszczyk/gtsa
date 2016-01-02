@@ -359,6 +359,12 @@ struct Minimax : public Algorithm<S, M> {
         nodes++;
         const int alpha_original = alpha;
 
+        M best_move;
+        bool best_move_is_valid = false;
+        if (depth == 0 || state->is_terminal()) {
+            return {state->get_goodness(), best_move, best_move_is_valid};
+        }
+
         Entry<M> entry;
         bool entry_found = State<S, M>::get_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
@@ -377,12 +383,6 @@ struct Minimax : public Algorithm<S, M> {
                 ++tt_cuts;
                 return {entry.value, entry.move, true};
             }
-        }
-
-        M best_move;
-        bool best_move_is_valid = false;
-        if (depth == 0 || state->is_terminal()) {
-            return {state->get_goodness(), best_move, best_move_is_valid};
         }
 
         bool generate_moves = true;
