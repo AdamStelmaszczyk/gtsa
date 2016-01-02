@@ -19,22 +19,22 @@ struct Timer {
         start_time = get_time();
     }
 
-    double get_time() {
+    double get_time() const {
         timeval tv;
         gettimeofday(&tv, 0);
         return tv.tv_sec + tv.tv_usec * 1e-6;
     }
 
-    double seconds_elapsed() {
+    double seconds_elapsed() const {
         return get_time() - start_time;
     }
 
-    void print_seconds_elapsed() {
-        cout << setprecision(2) << fixed << seconds_elapsed() << "s" << endl;
+    bool exceeded(double seconds) const {
+        return seconds_elapsed() > seconds;
     }
 
-    bool exceeded(double seconds) {
-        return seconds_elapsed() > seconds;
+    friend ostream &operator<<(ostream &os, const Timer &timer) {
+        return os << setprecision(2) << fixed << timer.seconds_elapsed() << "s";
     }
 };
 
@@ -337,6 +337,7 @@ struct Minimax : public Algorithm<S, M> {
                 best_move = result.best_move;
                 if (VERBOSE) {
                     cout << "goodness: " << result.goodness
+                    << " time: " << *timer
                     << " move: " << best_move
                     << " nodes: " << nodes
                     << " tt_hits: " << tt_hits
@@ -594,7 +595,7 @@ struct Tester {
                 timer.start();
                 auto move = algorithm.get_move(&current_state);
                 if (verbose) {
-                    timer.print_seconds_elapsed();
+                    cout << timer << endl;
                 }
                 current_state.make_move(move);
                 if (verbose) {
