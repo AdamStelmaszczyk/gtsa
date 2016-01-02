@@ -303,7 +303,7 @@ struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const bool VERBOSE;
     Timer *timer = new Timer();
-    int tt_hits;
+    int tt_hits, tt_exacts, tt_cuts;
     int nodes;
 
     Minimax(char our_symbol,
@@ -328,6 +328,8 @@ struct Minimax : public Algorithm<S, M> {
         M best_move;
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
             tt_hits = 0;
+            tt_exacts = 0;
+            tt_cuts = 0;
             nodes = 0;
             auto result = minimax(state, max_depth, -INF, INF, this->our_symbol);
             if (result.valid_move) {
@@ -337,6 +339,8 @@ struct Minimax : public Algorithm<S, M> {
                     << " move: " << best_move
                     << " nodes: " << nodes
                     << " tt_hits: " << tt_hits
+                    << " tt_exacts: " << tt_exacts
+                    << " tt_cuts: " << tt_cuts
                     << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
                     << " ht_size: " << State<S, M>::HISTORY_TABLE->size()
                     << " max_depth: " << max_depth << endl;
@@ -356,6 +360,7 @@ struct Minimax : public Algorithm<S, M> {
         if (entry_found && entry.depth >= depth) {
             ++tt_hits;
             if (entry.value_type == EntryType::EXACT_VALUE) {
+                ++tt_exacts;
                 return {entry.value, entry.move, true};
             }
             if (entry.value_type == EntryType::LOWER_BOUND && entry.value > alpha) {
@@ -365,6 +370,7 @@ struct Minimax : public Algorithm<S, M> {
                 beta = entry.value;
             }
             if (alpha >= beta) {
+                ++tt_cuts;
                 return {entry.value, entry.move, true};
             }
         }
