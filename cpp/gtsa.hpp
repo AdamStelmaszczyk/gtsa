@@ -304,7 +304,7 @@ struct Minimax : public Algorithm<S, M> {
     const bool VERBOSE;
     Timer *timer = new Timer();
     int tt_hits, tt_exacts, tt_cuts, tt_firsts;
-    int nodes;
+    int nodes, leafs;
 
     Minimax(char our_symbol,
             char enemy_symbol,
@@ -332,6 +332,7 @@ struct Minimax : public Algorithm<S, M> {
             tt_cuts = 0;
             tt_firsts = 0;
             nodes = 0;
+            leafs = 0;
             auto result = minimax(state, max_depth, -INF, INF, this->our_symbol);
             if (result.valid_move) {
                 best_move = result.best_move;
@@ -340,6 +341,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " time: " << *timer
                     << " move: " << best_move
                     << " nodes: " << nodes
+                    << " leafs: " << leafs
                     << " tt_hits: " << tt_hits
                     << " tt_exacts: " << tt_exacts
                     << " tt_cuts: " << tt_cuts
@@ -363,6 +365,7 @@ struct Minimax : public Algorithm<S, M> {
         M best_move;
         bool best_move_is_valid = false;
         if (depth == 0 || state->is_terminal()) {
+            ++leafs;
             return {state->get_goodness(), best_move, best_move_is_valid};
         }
 
