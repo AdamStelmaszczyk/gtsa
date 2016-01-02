@@ -355,6 +355,8 @@ struct Minimax : public Algorithm<S, M> {
 
     Result<M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
         nodes++;
+        const int alpha_original = alpha;
+
         Entry<M> entry;
         bool entry_found = State<S, M>::get_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
@@ -430,11 +432,11 @@ struct Minimax : public Algorithm<S, M> {
 
         if (best_move_is_valid) {
             EntryType value_type;
-            if (best_goodness <= alpha) {
-                value_type = EntryType::LOWER_BOUND;
+            if (best_goodness <= alpha_original) {
+                value_type = EntryType::UPPER_BOUND;
             }
             else if (best_goodness >= beta) {
-                value_type = EntryType::UPPER_BOUND;
+                value_type = EntryType::LOWER_BOUND;
             }
             else {
                 value_type = EntryType::EXACT_VALUE;
