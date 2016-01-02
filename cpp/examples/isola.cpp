@@ -149,13 +149,13 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         cords player_cords = get_player_cords(player_to_move);
         const int player_score = get_score_for_legal_steps(player_cords, 2);
         if (player_score == 0) {
-            return -INF;
+            return -10000;
         }
         const char enemy = get_opposite_player(player_to_move);
         cords enemy_cords = get_player_cords(enemy);
         const int enemy_score = get_score_for_legal_steps(enemy_cords, 2);
         if (enemy_score == 0) {
-            return INF;
+            return 10000;
         }
         return player_score - enemy_score;
     }
