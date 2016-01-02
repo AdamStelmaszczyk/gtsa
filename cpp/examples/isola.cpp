@@ -13,10 +13,6 @@ static char get_opposite_player(char player) {
     return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
 }
 
-static int get_score_for_cords(int x, int y) {
-    return 100 + min(min(x + 1, SIDE - x), min(y + 1, SIDE - y));
-}
-
 struct IsolaMove : public Move<IsolaMove> {
     unsigned from_x;
     unsigned from_y;
@@ -237,7 +233,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
                 const int y = player_cords.second + dy;
                 if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
                     if (depth <= 1) {
-                        result += get_score_for_cords(x, y);
+                        ++result;
                     } else {
                         result += get_score_for_legal_steps(make_pair(x, y), depth - 1);
                     }
