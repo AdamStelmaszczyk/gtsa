@@ -359,7 +359,7 @@ struct Minimax : public Algorithm<S, M> {
     }
 
     Result<M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
-        nodes++;
+        ++nodes;
         const int alpha_original = alpha;
 
         M best_move;
