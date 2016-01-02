@@ -365,10 +365,10 @@ struct Minimax : public Algorithm<S, M> {
                 ++tt_exacts;
                 return {entry.value, entry.move, true};
             }
-            if (entry.value_type == EntryType::LOWER_BOUND && entry.value > alpha) {
+            if (entry.value_type == EntryType::LOWER_BOUND && alpha < entry.value) {
                 alpha = entry.value;
             }
-            if (entry.value_type == EntryType::UPPER_BOUND && entry.value < beta) {
+            if (entry.value_type == EntryType::UPPER_BOUND && beta > entry.value) {
                 beta = entry.value;
             }
             if (alpha >= beta) {
@@ -376,6 +376,7 @@ struct Minimax : public Algorithm<S, M> {
                 return {entry.value, entry.move, true};
             }
         }
+
         M best_move;
         bool best_move_is_valid = false;
         if (depth == 0 || state->is_terminal()) {
@@ -384,6 +385,7 @@ struct Minimax : public Algorithm<S, M> {
 
         bool generate_moves = true;
         int best_goodness = -INF;
+
         if (entry_found) {
             // If available, first try the best move from the table
             best_move = entry.move;
@@ -426,7 +428,9 @@ struct Minimax : public Algorithm<S, M> {
                         break;
                     }
                 }
-                alpha = max(alpha, best_goodness);
+                if (alpha < best_goodness) {
+                    alpha = best_goodness;
+                }
             }
         }
 
