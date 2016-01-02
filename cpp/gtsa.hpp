@@ -303,6 +303,7 @@ struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const bool VERBOSE;
     Timer *timer = new Timer();
+    int beta_cuts;
     int tt_hits, tt_exacts, tt_cuts, tt_firsts;
     int nodes, leafs;
 
@@ -327,6 +328,7 @@ struct Minimax : public Algorithm<S, M> {
         timer->start();
         M best_move;
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
+            beta_cuts = 0;
             tt_hits = 0;
             tt_exacts = 0;
             tt_cuts = 0;
@@ -342,6 +344,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " move: " << best_move
                     << " nodes: " << nodes
                     << " leafs: " << leafs
+                    << " beta_cuts: " << beta_cuts
                     << " tt_hits: " << tt_hits
                     << " tt_exacts: " << tt_exacts
                     << " tt_cuts: " << tt_cuts
@@ -432,6 +435,7 @@ struct Minimax : public Algorithm<S, M> {
                     best_move = move;
                     best_move_is_valid = true;
                     if (best_goodness >= beta) {
+                        ++beta_cuts;
                         break;
                     }
                 }
