@@ -142,7 +142,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     static void populate_tt() {
-        add_best_move(6174959539824785963, {3, 6, 3, 5, 3, 2});
+        add_best_move(6174959539824785963U, {3, 6, 3, 5, 3, 2});
+        add_best_move(6174959539824786132U, {3, 0, 3, 1, 3, 4});
     }
 
     int get_goodness() const override {
