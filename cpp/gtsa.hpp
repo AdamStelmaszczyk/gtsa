@@ -196,6 +196,21 @@ struct State {
         TRANSPOSITION_TABLE->operator[](*state) = entry;
     }
 
+    static void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
+        EntryType value_type;
+        if (best_goodness <= alpha) {
+            value_type = EntryType::UPPER_BOUND;
+        }
+        else if (best_goodness >= beta) {
+            value_type = EntryType::LOWER_BOUND;
+        }
+        else {
+            value_type = EntryType::EXACT_VALUE;
+        }
+        Entry<M> entry = {best_move, depth, best_goodness, value_type};
+        add_entry(state, entry);
+    }
+
     static void update_history(const M &move, int depth) {
         HISTORY_TABLE->operator[](move) += (1 << depth);
     }
@@ -446,19 +461,7 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         if (best_move_is_valid) {
-            EntryType value_type;
-            if (best_goodness <= alpha_original) {
-                value_type = EntryType::UPPER_BOUND;
-            }
-            else if (best_goodness >= beta) {
-                value_type = EntryType::LOWER_BOUND;
-            }
-            else {
-                value_type = EntryType::EXACT_VALUE;
-            }
-            entry = {best_move, depth, best_goodness, value_type};
-            State<S, M>::add_entry(state, entry);
-
+            State<S, M>::update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
             State<S, M>::update_history(best_move, depth);
         }
 
