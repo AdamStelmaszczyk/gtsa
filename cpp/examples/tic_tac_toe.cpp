@@ -217,11 +217,11 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return board == other.board;
     }
 
-    size_t operator()(const TicTacToeState& key) const {
+    size_t hash() const {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;
-        hash_combine(seed, hash_value(key.board));
+        hash_combine(seed, hash_value(board));
         return seed;
     }
 };
