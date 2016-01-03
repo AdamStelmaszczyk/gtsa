@@ -105,7 +105,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
     IsolaState() : State(PLAYER_1) { }
 
-    IsolaState(const string &init_string) : State(PLAYER_1) {
+    IsolaState(const string &init_string, char player_to_move = PLAYER_1) : State(player_to_move) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
