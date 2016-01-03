@@ -616,6 +616,7 @@ struct Tester {
                 }
                 current_state.make_move(move);
                 if (verbose) {
+                    cout << current_state.hash() << endl;
                     cout << current_state << endl;
                 }
             }
