@@ -45,7 +45,7 @@ struct IsolaMove : public Move<IsolaMove> {
     }
 
     ostream &to_stream(ostream &os) const override {
-        return os << from_x << " " << from_y << " " << step_x << " " << step_y << " " << remove_x << " " << remove_y;
+        return os << from_x << ", " << from_y << ", " << step_x << ", " << step_y << ", " << remove_x << ", " << remove_y;
     }
 
     bool operator==(const IsolaMove &rhs) const override {
