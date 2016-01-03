@@ -80,7 +80,7 @@ struct Entry {
 
 template<class S, class M>
 struct State {
-    static unordered_map<S, Entry<M>, S>* TRANSPOSITION_TABLE;
+    static unordered_map<size_t, Entry<M>>* TRANSPOSITION_TABLE;
     static unordered_map<M, int, M>* HISTORY_TABLE;
     unsigned visits = 0;
     double score = 0;
@@ -184,7 +184,8 @@ struct State {
     }
 
     static bool get_entry(S *state, Entry<M> &entry) {
-        auto it = TRANSPOSITION_TABLE->find(*state);
+        auto key = state->hash();
+        auto it = TRANSPOSITION_TABLE->find(key);
         if (it == TRANSPOSITION_TABLE->end()) {
             return false;
         }
@@ -193,7 +194,8 @@ struct State {
     }
 
     static void add_entry(S *state, const Entry<M> &entry) {
-        TRANSPOSITION_TABLE->operator[](*state) = entry;
+        auto key = state->hash();
+        TRANSPOSITION_TABLE->operator[](key) = entry;
     }
 
     static void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
@@ -245,11 +247,11 @@ struct State {
 
     virtual bool operator==(const S &other) const = 0;
 
-    virtual size_t operator()(const S &key) const = 0;
+    virtual size_t hash() const = 0;
 };
 
 template<class S, class M>
-unordered_map<S, Entry<M>, S>* State<S, M>::TRANSPOSITION_TABLE = new unordered_map<S, Entry<M>, S>();
+unordered_map<size_t, Entry<M>>* State<S, M>::TRANSPOSITION_TABLE = new unordered_map<size_t, Entry<M>>();
 
 template<class S, class M>
 unordered_map<M, int, M>* State<S, M>::HISTORY_TABLE = new unordered_map<M, int, M>();

@@ -285,14 +285,14 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
                && player_to_move == other.player_to_move;
     }
 
-    size_t operator()(const IsolaState &key) const {
+    size_t hash() const {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;
-        hash_combine(seed, hash_value(key.board));
-        hash_combine(seed, hash_value(key.player_1_cords));
-        hash_combine(seed, hash_value(key.player_2_cords));
-        hash_combine(seed, hash_value(key.player_to_move));
+        hash_combine(seed, hash_value(board));
+        hash_combine(seed, hash_value(player_1_cords));
+        hash_combine(seed, hash_value(player_2_cords));
+        hash_combine(seed, hash_value(player_to_move));
         return seed;
     }
 };
