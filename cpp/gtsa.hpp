@@ -198,6 +198,11 @@ struct State {
         TRANSPOSITION_TABLE->operator[](key) = entry;
     }
 
+    static void add_best_move(size_t key, M best_move) {
+        Entry<M> entry = {best_move, MAX_DEPTH, INF, EntryType::EXACT_VALUE};
+        TRANSPOSITION_TABLE->operator[](key) = entry;
+    }
+
     static void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
         EntryType value_type;
         if (best_goodness <= alpha) {
