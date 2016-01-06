@@ -215,12 +215,21 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     vector<cords> get_legal_step_moves(int start_x, int start_y) const {
+        // Closer to the center first
         vector<cords> result(8);
+        int dx_order = 1;
+        if (start_x < SIDE / 2) {
+            dx_order = -1;
+        }
+        int dy_order = 1;
+        if (start_y < SIDE / 2) {
+            dy_order = -1;
+        }
         unsigned moves_count = 0;
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
-                const int x = start_x + dx;
-                const int y = start_y + dy;
+                const int x = start_x + dx * dx_order;
+                const int y = start_y + dy * dy_order;
                 if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
                     result[moves_count++] = make_pair(x, y);
                 }
