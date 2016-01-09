@@ -189,9 +189,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     bool is_winner(char player) const override {
-        const char enemy = get_opposite_player(player);
-        cords player_cords = get_player_cords(enemy);
-        return player_to_move == enemy && get_score_for_legal_steps(player_cords) == 0;
+        char enemy = get_opposite_player(player);
+        return player_to_move == enemy && is_terminal();
     }
 
     void make_move(const IsolaMove &move) override {
