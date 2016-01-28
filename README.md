@@ -27,7 +27,8 @@ Priorities
 ---
 
 1. Correctness.
-2. Performance.
+2. Compliance with environment typical for competitions. One file submission, compiled with one invocation of `g++`.
+3. Performance.
 
 Would like to help?
 ---
