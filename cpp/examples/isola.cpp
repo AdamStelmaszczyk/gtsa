@@ -54,16 +54,16 @@ struct IsolaMove : public Move<IsolaMove> {
                remove_x == rhs.remove_x && remove_y == rhs.remove_y;
     }
 
-    size_t operator()(const IsolaMove &key) const override {
+    size_t hash() const override {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;
-        hash_combine(seed, hash_value(key.from_x));
-        hash_combine(seed, hash_value(key.from_y));
-        hash_combine(seed, hash_value(key.step_x));
-        hash_combine(seed, hash_value(key.step_y));
-        hash_combine(seed, hash_value(key.remove_x));
-        hash_combine(seed, hash_value(key.remove_y));
+        hash_combine(seed, hash_value(from_x));
+        hash_combine(seed, hash_value(from_y));
+        hash_combine(seed, hash_value(step_x));
+        hash_combine(seed, hash_value(step_y));
+        hash_combine(seed, hash_value(remove_x));
+        hash_combine(seed, hash_value(remove_y));
         return seed;
     }
 };

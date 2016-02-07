@@ -52,7 +52,7 @@ struct Move {
 
     virtual bool operator==(const M &rhs) const = 0;
 
-    virtual size_t operator()(const M &key) const = 0;
+    virtual size_t hash() const = 0;
 };
 
 enum EntryType { EXACT_VALUE, LOWER_BOUND, UPPER_BOUND };
@@ -81,7 +81,7 @@ struct Entry {
 template<class S, class M>
 struct State {
     static unordered_map<size_t, Entry<M>>* TRANSPOSITION_TABLE;
-    static unordered_map<M, int, M>* HISTORY_TABLE;
+    static unordered_map<size_t, int>* HISTORY_TABLE;
     unsigned visits = 0;
     double score = 0;
     char player_to_move = 0;
@@ -219,13 +219,14 @@ struct State {
     }
 
     static void update_history(const M &move, int depth) {
-        HISTORY_TABLE->operator[](move) += (1 << depth);
+        auto key = move.hash();
+        HISTORY_TABLE->operator[](key) += (1 << depth);
     }
 
     static void sort_by_history_heuristic(vector<M> &moves) {
         stable_sort(moves.begin(), moves.end(), [](const M &a, const M &b) {
-            int a_score = HISTORY_TABLE->operator[](a);
-            int b_score = HISTORY_TABLE->operator[](b);
+            int a_score = HISTORY_TABLE->operator[](a.hash());
+            int b_score = HISTORY_TABLE->operator[](b.hash());
             return a_score > b_score;
         });
     }
@@ -259,7 +260,7 @@ template<class S, class M>
 unordered_map<size_t, Entry<M>>* State<S, M>::TRANSPOSITION_TABLE = new unordered_map<size_t, Entry<M>>();
 
 template<class S, class M>
-unordered_map<M, int, M>* State<S, M>::HISTORY_TABLE = new unordered_map<M, int, M>();
+unordered_map<size_t, int>* State<S, M>::HISTORY_TABLE = new unordered_map<size_t, int>();
 
 template<class S, class M>
 struct Algorithm {

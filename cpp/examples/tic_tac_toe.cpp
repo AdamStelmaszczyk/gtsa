@@ -35,12 +35,12 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
         return x == rhs.x && y == rhs.y;
     }
 
-    size_t operator()(const TicTacToeMove &key) const override {
+    size_t hash() const override {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;
-        hash_combine(seed, hash_value(key.x));
-        hash_combine(seed, hash_value(key.y));
+        hash_combine(seed, hash_value(x));
+        hash_combine(seed, hash_value(y));
         return seed;
     }
 };
