@@ -60,7 +60,7 @@ void test_isola_not_lose() {
 void test_isola_crowded() {
     IsolaState state = IsolaState("#12####"
                                   "_#_####"
-                                  "##_####"
+                                  "#######"
                                   "#######"
                                   "#######"
                                   "#######"
