@@ -246,16 +246,21 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     int get_score_for_legal_steps(const cords &player_cords, int depth = 1) const {
+        bool visited[SIDE][SIDE] = {0, };
+        return get_score_for_legal_steps_rec(visited, player_cords, depth);
+    }
+
+    int get_score_for_legal_steps_rec(bool visited[SIDE][SIDE], const cords &player_cords, int depth = 1) const {
         int result = 0;
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
                 const int x = player_cords.first + dx;
                 const int y = player_cords.second + dy;
-                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
-                    if (depth <= 1) {
-                        ++result;
-                    } else {
-                        result += get_score_for_legal_steps(make_pair(x, y), depth - 1);
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y) && !visited[x][y]) {
+                    visited[x][y] = true;
+                    ++result;
+                    if (depth > 1) {
+                        result += get_score_for_legal_steps_rec(visited, make_pair(x, y), depth - 1);
                     }
                 }
             }
