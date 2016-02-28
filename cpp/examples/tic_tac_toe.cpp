@@ -7,10 +7,6 @@ const char PLAYER_1 = 'X';
 const char PLAYER_2 = 'O';
 const char EMPTY = '_';
 
-static char get_opposite_player(char player) {
-    return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
-}
-
 struct TicTacToeMove : public Move<TicTacToeMove> {
     unsigned x;
     unsigned y;
@@ -137,6 +133,10 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return result;
     }
 
+    char get_enemy(char player) const override {
+        return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
+    }
+
     bool is_terminal() const override {
         if (!has_empty_space()) {
             return true;
@@ -162,12 +162,12 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     void make_move(const TicTacToeMove &move) override {
         board[move.y * SIDE + move.x] = player_to_move;
-        player_to_move = get_opposite_player(player_to_move);
+        player_to_move = get_enemy(player_to_move);
     }
 
     void undo_move(const TicTacToeMove &move) override {
         board[move.y * SIDE + move.x] = EMPTY;
-        player_to_move = get_opposite_player(player_to_move);
+        player_to_move = get_enemy(player_to_move);
     }
 
     bool has_empty_space() const {
@@ -181,19 +181,19 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    vector<int> count_players_on_lines(char current_player) const {
+    vector<int> count_players_on_lines(char player) const {
         vector<int> counts(2 * LINES_SIZE);
-        char next_player = get_opposite_player(current_player);
+        char enemy = get_enemy(player);
         for (int i = 0; i < LINES_SIZE; ++i) {
             int player_places = 0;
             int enemy_places = 0;
             for (int j = 0; j < SIDE; ++j) {
                 const TicTacToeMove &coord = LINES[i][j];
                 const int board_index = coord.y * SIDE + coord.x;
-                if (board[board_index] == current_player) {
+                if (board[board_index] == player) {
                     ++player_places;
                 }
-                else if (board[board_index] == next_player) {
+                else if (board[board_index] == enemy) {
                     ++enemy_places;
                 }
             }

@@ -9,10 +9,6 @@ const char PLAYER_2 = '2';
 const char EMPTY = '_';
 const char REMOVED = '#';
 
-static char get_opposite_player(char player) {
-    return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
-}
-
 struct IsolaMove : public Move<IsolaMove> {
     unsigned from_x;
     unsigned from_y;
@@ -152,8 +148,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         if (player_score == 0) {
             return -10000;
         }
-        const char enemy = get_opposite_player(player_to_move);
-        cords enemy_cords = get_player_cords(enemy);
+        cords enemy_cords = get_player_cords(get_enemy(player_to_move));
         const int enemy_score = get_score_for_legal_steps(enemy_cords, 2);
         if (enemy_score == 0) {
             return 10000;
@@ -183,24 +178,27 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return legal_moves;
     }
 
+    char get_enemy(char player) const override {
+        return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
+    }
+
     bool is_terminal() const override {
         cords player_cords = get_player_cords(player_to_move);
         return get_score_for_legal_steps(player_cords) == 0;
     }
 
     bool is_winner(char player) const override {
-        char enemy = get_opposite_player(player);
-        return player_to_move == enemy && is_terminal();
+        return player == get_enemy(player_to_move) && is_terminal();
     }
 
     void make_move(const IsolaMove &move) override {
         board.set(move.remove_x, move.remove_y, 1);
         set_player_cords(player_to_move, make_pair(move.step_x, move.step_y));
-        player_to_move = get_opposite_player(player_to_move);
+        player_to_move = get_enemy(player_to_move);
     }
 
     void undo_move(const IsolaMove &move) override {
-        player_to_move = get_opposite_player(player_to_move);
+        player_to_move = get_enemy(player_to_move);
         set_player_cords(player_to_move, make_pair(move.from_x, move.from_y));
         board.set(move.remove_x, move.remove_y, 0);
     }
@@ -271,7 +269,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     bool is_empty(int x, int y) const {
         const cords c = make_pair(x, y);
         const auto player_cords = get_player_cords(player_to_move);
-        const auto enemy_cords = get_player_cords(get_opposite_player(player_to_move));
+        const auto enemy_cords = get_player_cords(get_enemy(player_to_move));
         return board.get(x, y) == 0 && c != player_cords && c != enemy_cords;
     }
 

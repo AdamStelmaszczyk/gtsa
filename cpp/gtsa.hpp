@@ -96,7 +96,7 @@ struct State {
         remove_children();
     }
 
-    void expand(char player) {
+    void expand() {
         vector<M> legal_moves = get_legal_moves();
         children_size = legal_moves.size();
         if (children_size == 0) {
@@ -104,8 +104,8 @@ struct State {
         }
         children = new S[children_size];
         for (int i = 0; i < children_size; ++i) {
-            S child = create_child(legal_moves[i], player);
-            if (child.is_winner(player)) {
+            S child = create_child(legal_moves[i]);
+            if (child.is_winner(player_to_move)) {
                 // If player has a winning move he makes it.
                 delete[] children;
                 children_size = 1;
@@ -117,7 +117,7 @@ struct State {
         }
     }
 
-    S create_child(const M &move, char player_to_move) {
+    S create_child(const M &move) {
         S child = clone();
         child.player_to_move = player_to_move;
         child.move = move;
@@ -237,6 +237,8 @@ struct State {
 
     virtual vector<M> get_legal_moves() const = 0;
 
+    virtual char get_enemy(char player) const = 0;
+
     virtual bool is_terminal() const = 0;
 
     virtual bool is_winner(char player) const = 0;
@@ -264,23 +266,17 @@ unordered_map<size_t, int>* State<S, M>::HISTORY_TABLE = new unordered_map<size_
 
 template<class S, class M>
 struct Algorithm {
-    const char our_symbol;
-    const char enemy_symbol;
 
-    Algorithm(char our_symbol, char enemy_symbol) : our_symbol(our_symbol), enemy_symbol(enemy_symbol) { }
+    Algorithm() { }
 
-    virtual ~Algorithm() {}
-
-    char get_opposite_player(char player) const {
-        return (player == our_symbol) ? enemy_symbol : our_symbol;
-    }
+    virtual ~Algorithm() { }
 
     virtual M get_move(S *state) = 0;
 
     virtual string get_name() const = 0;
 
     friend ostream &operator<<(ostream &os, const Algorithm &algorithm) {
-        os << algorithm.our_symbol << " " << algorithm.get_name();
+        os << algorithm.get_name();
         return os;
     }
 };
@@ -288,8 +284,7 @@ struct Algorithm {
 template<class S, class M>
 struct Human : public Algorithm<S, M> {
 
-    Human(char our_symbol, char enemy_symbol) :
-        Algorithm<S, M>(our_symbol, enemy_symbol) { }
+    Human() : Algorithm<S, M>() { }
 
     M get_move(S *state) override {
         const vector<M> &legal_moves = state->get_legal_moves();
@@ -330,13 +325,10 @@ struct Minimax : public Algorithm<S, M> {
     int tt_hits, tt_exacts, tt_cuts, tt_firsts;
     int nodes, leafs;
 
-    Minimax(char our_symbol,
-            char enemy_symbol,
-            double max_seconds = 1,
-            bool verbose = false) :
-        Algorithm<S, M>(our_symbol, enemy_symbol),
-        MAX_SECONDS(max_seconds),
-        VERBOSE(verbose) { }
+    Minimax(double max_seconds = 1, bool verbose = false) :
+            Algorithm<S, M>(),
+            MAX_SECONDS(max_seconds),
+            VERBOSE(verbose) { }
 
     ~Minimax() {
         delete timer;
@@ -358,7 +350,7 @@ struct Minimax : public Algorithm<S, M> {
             tt_firsts = 0;
             nodes = 0;
             leafs = 0;
-            auto result = minimax(state, max_depth, -INF, INF, this->our_symbol);
+            auto result = minimax(state, max_depth, -INF, INF);
             if (result.valid_move) {
                 best_move = result.best_move;
                 if (VERBOSE) {
@@ -384,7 +376,7 @@ struct Minimax : public Algorithm<S, M> {
         return best_move;
     }
 
-    Result<M> minimax(S *state, int depth, int alpha, int beta, char analyzed_player) {
+    Result<M> minimax(S *state, int depth, int alpha, int beta) {
         ++nodes;
         const int alpha_original = alpha;
 
@@ -427,8 +419,7 @@ struct Minimax : public Algorithm<S, M> {
                 state,
                 depth - 1,
                 -beta,
-                -alpha,
-                this->get_opposite_player(analyzed_player)
+                -alpha
             ).goodness;
             state->undo_move(best_move);
             if (best_goodness >= beta) {
@@ -446,8 +437,7 @@ struct Minimax : public Algorithm<S, M> {
                     state,
                     depth - 1,
                     -beta,
-                    -alpha,
-                    this->get_opposite_player(analyzed_player)
+                    -alpha
                 ).goodness;
                 state->undo_move(move);
                 if (timer->exceeded(MAX_SECONDS)) {
@@ -487,12 +477,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const int max_simulations;
     const bool verbose;
 
-    MonteCarloTreeSearch(char our_symbol,
-                         char enemy_symbol,
-                         double max_seconds = 1,
-                         bool verbose = false,
-                         int max_simulations = 1000000) :
-        Algorithm<S, M>(our_symbol, enemy_symbol),
+    MonteCarloTreeSearch(double max_seconds = 1, bool verbose = false, int max_simulations = 1000000) :
+        Algorithm<S, M>(),
         max_seconds(max_seconds),
         verbose(verbose),
         max_simulations(max_simulations) { }
@@ -508,7 +494,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         state->remove_children();
         int simulation = 0;
         while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
-            monte_carlo_tree_search(state, this->our_symbol);
+            monte_carlo_tree_search(state);
             ++simulation;
         }
         if (verbose) {
@@ -523,23 +509,21 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return state->select_child_by_ratio()->move;
     }
 
-    void monte_carlo_tree_search(S *state, char analyzed_player) const {
+    void monte_carlo_tree_search(S *root) const {
         // 1. Selection - find state without children (not expanded yet)
-        S *current = state;
+        S *current = root;
         while (current->has_children() && !current->is_terminal()) {
             current = current->select_child_by_uct();
-            analyzed_player = this->get_opposite_player(analyzed_player);
         }
 
         // 2. Expansion
         if (!current->is_terminal()) {
-            current->expand(analyzed_player);
+            current->expand();
             current = current->select_child_by_uct();
-            analyzed_player = this->get_opposite_player(analyzed_player);
         }
 
         // 3. Simulation
-        const double result = simulate(current, analyzed_player);
+        const double result = simulate(current, root);
 
         // 4. Propagation
         while (current->parent) {
@@ -549,14 +533,14 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         current->update_stats(result);
     }
 
-    double simulate(S *state, char analyzed_player) const {
-        const char opponent = this->get_opposite_player((analyzed_player));
+    double simulate(S *state, S *root) const {
+        char enemy = root->get_enemy(root->player_to_move);
         if (state->is_terminal()) {
-            if (state->is_winner(analyzed_player)) {
-                return (analyzed_player == this->our_symbol) ? 1 : 0;
+            if (state->is_winner(root->player_to_move)) {
+                return 1;
             }
-            if (state->is_winner(opponent)) {
-                return (opponent == this->our_symbol) ? 1 : 0;
+            if (state->is_winner(root->get_enemy(root->player_to_move))) {
+                return 0;
             }
             return 0.5;
         }
@@ -565,9 +549,9 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         const auto &legal_moves = state->get_legal_moves();
         for (const M &move : legal_moves) {
             state->make_move(move);
-            if (state->is_winner(analyzed_player)) {
+            if (state->is_winner(state->player_to_move)) {
                 state->undo_move(move);
-                return (analyzed_player == this->our_symbol) ? 1 : 0;
+                return 1;
             }
             state->undo_move(move);
         }
@@ -575,7 +559,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         // Otherwise random move.
         M move = legal_moves[rand() % legal_moves.size()]; // not ideally uniform but should be fine
         state->make_move(move);
-        const double result = simulate(state, opponent);
+        const double result = simulate(state, root);
         state->undo_move(move);
         return result;
     }
@@ -587,25 +571,25 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
 template<class S, class M>
 struct Tester {
-    S *state = nullptr;
+    S *root = nullptr;
     Algorithm<S, M> &algorithm_1;
     Algorithm<S, M> &algorithm_2;
     const int matches;
     const bool verbose;
     int algorithm_1_wins;
 
-    Tester(S *s, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = 1, bool verbose = true) :
-            state(s), algorithm_1(algorithm_1), algorithm_2(algorithm_2), matches(matches), verbose(verbose) { }
+    Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = 1, bool verbose = true) :
+            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), matches(matches), verbose(verbose) { }
 
     void start() {
         algorithm_1_wins = 0;
         for (int i = 1; i <= matches; ++i) {
             if (verbose) {
-                cout << *state << endl;
+                cout << *root << endl;
             }
-            auto current_state = state->clone();
+            auto current_state = root->clone();
             while (!current_state.is_terminal()) {
-                auto &algorithm = (current_state.player_to_move == algorithm_1.our_symbol) ? algorithm_1 : algorithm_2;
+                auto &algorithm = (current_state.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
                 if (verbose) {
                     cout << algorithm << endl;
                 }
@@ -621,13 +605,14 @@ struct Tester {
                 }
             }
             cout << "Match " << i << "/" << matches << ", winner: ";
-            if (current_state.is_winner(algorithm_1.our_symbol)) {
+            if (current_state.is_winner(root->player_to_move)) {
                 ++algorithm_1_wins;
-                cout << algorithm_1 << endl;
+                cout << root->player_to_move << " " << algorithm_1 << endl;
             } else {
-                cout << algorithm_2 << endl;
+                cout << root->get_enemy(root->player_to_move) << " " << algorithm_2 << endl;
             }
         }
-        cout << algorithm_1 << " won " << algorithm_1_wins << "/" << matches << " matches" << endl;
+        cout << root->player_to_move << " " << algorithm_1 << " won " <<
+                algorithm_1_wins << "/" << matches << " matches" << endl;
     }
 };
