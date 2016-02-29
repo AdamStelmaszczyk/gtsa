@@ -534,7 +534,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     }
 
     double simulate(S *state, S *root) const {
-        char enemy = root->get_enemy(root->player_to_move);
         if (state->is_terminal()) {
             if (state->is_winner(root->player_to_move)) {
                 return 1;
