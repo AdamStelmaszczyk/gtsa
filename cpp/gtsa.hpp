@@ -594,7 +594,8 @@ struct Tester {
                 }
                 Timer timer;
                 timer.start();
-                auto move = algorithm.get_move(&current_state);
+                auto copy = current_state.clone();
+                auto move = algorithm.get_move(&copy);
                 if (verbose) {
                     cout << timer << endl;
                 }
