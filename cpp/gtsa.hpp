@@ -140,43 +140,23 @@ struct State {
         return children_size != 0;
     }
 
-    S *select_child_by_ratio() const {
-        if (children_size == 0) {
-            return nullptr;
-        }
+    S *select_random_child(S *root) const {
+        assert(children_size > 0);
+        return &children[rand() % children_size];
+    }
+
+    S *select_best_child(S *root) const {
+        assert(children_size > 0);
         int best_index = -1;
         double max_ratio = -INF;
-        int max_visits = -INF;
         for (int i = 0; i < children_size; ++i) {
-            double child_ratio = get_win_ratio();
-            if (max_ratio < child_ratio || (max_ratio == child_ratio && max_visits < children[i].visits)) {
-                max_ratio = child_ratio;
-                max_visits = children[i].visits;
+            double ratio = children[i].get_win_ratio();
+            if (max_ratio < ratio) {
+                max_ratio = ratio;
                 best_index = i;
             }
         }
         return &children[best_index];
-    }
-
-    S *select_child_by_uct() const {
-        if (children_size == 0) {
-            return nullptr;
-        }
-        int best_index = -1;
-        double max_uct = -INF;
-        for (int i = 0; i < children_size; ++i) {
-            double child_uct = children[i].get_uct_value();
-            if (max_uct < child_uct) {
-                max_uct = child_uct;
-                best_index = i;
-            }
-        }
-        return &children[best_index];
-    }
-
-    double get_uct_value() const {
-        return score / (visits + EPSILON) + M_SQRT2 * sqrt(log(parent->visits + 1) / (visits + EPSILON))
-               + ((double) rand() / RAND_MAX) * EPSILON;
     }
 
     double get_win_ratio() const {
@@ -506,20 +486,20 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
                 << " ratio: " << setprecision(1) << fixed << 100 * child->get_win_ratio() << "%" << endl;
             }
         }
-        return state->select_child_by_ratio()->move;
+        return state->select_best_child(state)->move;
     }
 
     void monte_carlo_tree_search(S *root) const {
         // 1. Selection - find state without children (not expanded yet)
         S *current = root;
         while (current->has_children() && !current->is_terminal()) {
-            current = current->select_child_by_uct();
+            current = current->select_random_child(root);
         }
 
         // 2. Expansion
         if (!current->is_terminal()) {
             current->expand();
-            current = current->select_child_by_uct();
+            current = current->select_random_child(root);
         }
 
         // 3. Simulation
@@ -550,7 +530,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             state->make_move(move);
             if (state->is_winner(state->player_to_move)) {
                 state->undo_move(move);
-                return 1;
+                return (state->player_to_move == root->player_to_move) ? 1 : 0;
             }
             state->undo_move(move);
         }
