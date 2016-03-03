@@ -163,6 +163,18 @@ struct State {
         return score / (visits + EPSILON);
     }
 
+    string tree_to_string(int indent = 0) {
+        string result = "\n";
+        for (int i = 0; i < indent; ++i) {
+            result += " ";
+        }
+        result += to_string(score) + "/" + to_string(visits);
+        for (int i = 0; i < children_size; ++i) {
+            result += children[i].tree_to_string(indent + 1);
+        }
+        return result;
+    }
+
     static bool get_entry(S *state, Entry<M> &entry) {
         auto key = state->hash();
         auto it = TRANSPOSITION_TABLE->find(key);
