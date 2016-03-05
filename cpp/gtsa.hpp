@@ -245,7 +245,7 @@ template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const bool VERBOSE;
-    Timer *timer = new Timer();
+    Timer timer;
     int beta_cuts;
     int tt_hits, tt_exacts, tt_cuts, tt_firsts;
     int nodes, leafs;
@@ -253,11 +253,8 @@ struct Minimax : public Algorithm<S, M> {
     Minimax(double max_seconds = 1, bool verbose = false) :
             Algorithm<S, M>(),
             MAX_SECONDS(max_seconds),
-            VERBOSE(verbose) { }
-
-    ~Minimax() {
-        delete timer;
-    }
+            VERBOSE(verbose),
+            timer(Timer()) { }
 
     M get_move(S *state) override {
         if (state->is_terminal()) {
@@ -265,7 +262,7 @@ struct Minimax : public Algorithm<S, M> {
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
-        timer->start();
+        timer.start();
         M best_move;
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
             beta_cuts = 0;
@@ -280,7 +277,7 @@ struct Minimax : public Algorithm<S, M> {
                 best_move = result.best_move;
                 if (VERBOSE) {
                     cout << "goodness: " << result.goodness
-                    << " time: " << *timer
+                    << " time: " << timer
                     << " move: " << best_move
                     << " nodes: " << nodes
                     << " leafs: " << leafs
@@ -294,7 +291,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " max_depth: " << max_depth << endl;
                 }
             }
-            if (timer->exceeded(MAX_SECONDS)) {
+            if (timer.exceeded(MAX_SECONDS)) {
                 break;
             }
         }
@@ -365,7 +362,7 @@ struct Minimax : public Algorithm<S, M> {
                     -alpha
                 ).goodness;
                 state->undo_move(move);
-                if (timer->exceeded(MAX_SECONDS)) {
+                if (timer.exceeded(MAX_SECONDS)) {
                     break;
                 }
                 if (best_goodness < goodness) {
