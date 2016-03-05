@@ -87,37 +87,10 @@ struct State {
     char player_to_move = 0;
     M move;
     S *parent = nullptr;
-    S *children = nullptr;
-    unsigned long children_size = 0;
 
     State(char player_to_move) : player_to_move(player_to_move) {}
 
-    virtual ~State() {
-        remove_children();
-    }
-
-    void expand() {
-        vector<M> legal_moves = get_legal_moves();
-        children_size = legal_moves.size();
-        if (children_size == 0) {
-            return;
-        }
-        children = new S[children_size];
-        for (int i = 0; i < children_size; ++i) {
-            S child = create_child(legal_moves[i]);
-            if (child.is_winner(player_to_move)) {
-                // If player has a winning move he makes it.
-                delete[] children;
-                children_size = 1;
-                children = new S[children_size];
-                children[0] = child;
-                return;
-            }
-            children[i] = child;
-        }
-    }
-
-    S create_child(const M &move) {
+    S create_child(M &move) const {
         S child = clone();
         child.player_to_move = player_to_move;
         child.move = move;
@@ -126,53 +99,13 @@ struct State {
         return child;
     }
 
-    void remove_children() {
-        delete[] children;
-        children_size = 0;
-    }
-
     void update_stats(double result) {
         score += result;
         ++visits;
     }
 
-    bool has_children() const {
-        return children_size != 0;
-    }
-
-    S *select_random_child(S *root) const {
-        assert(children_size > 0);
-        return &children[rand() % children_size];
-    }
-
-    S *select_best_child(S *root) const {
-        assert(children_size > 0);
-        int best_index = -1;
-        double max_ratio = -INF;
-        for (int i = 0; i < children_size; ++i) {
-            double ratio = children[i].get_win_ratio();
-            if (max_ratio < ratio) {
-                max_ratio = ratio;
-                best_index = i;
-            }
-        }
-        return &children[best_index];
-    }
-
     double get_win_ratio() const {
         return score / (visits + EPSILON);
-    }
-
-    string tree_to_string(int indent = 0) {
-        string result = "\n";
-        for (int i = 0; i < indent; ++i) {
-            result += " ";
-        }
-        result += to_string(score) + "/" + to_string(visits);
-        for (int i = 0; i < children_size; ++i) {
-            result += children[i].tree_to_string(indent + 1);
-        }
-        return result;
     }
 
     static bool get_entry(S *state, Entry<M> &entry) {
@@ -465,98 +398,156 @@ struct Minimax : public Algorithm<S, M> {
 
 template<class S, class M>
 struct MonteCarloTreeSearch : public Algorithm<S, M> {
+    unordered_map<size_t, S> tree_table;
     const double max_seconds;
     const int max_simulations;
     const bool verbose;
 
     MonteCarloTreeSearch(double max_seconds = 1, bool verbose = false, int max_simulations = 1000000) :
         Algorithm<S, M>(),
+        tree_table(unordered_map<size_t, S>()),
         max_seconds(max_seconds),
         verbose(verbose),
         max_simulations(max_simulations) { }
 
-    M get_move(S *state) override {
-        if (state->is_terminal()) {
+    M get_move(S *root) override {
+        if (root->is_terminal()) {
             stringstream stream;
-            state->to_stream(stream);
+            root->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         Timer timer;
         timer.start();
-        state->remove_children();
         int simulation = 0;
         while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
-            monte_carlo_tree_search(state);
+            auto copy = root->clone();
+            monte_carlo_tree_search(&copy);
             ++simulation;
         }
         if (verbose) {
-            cout << "simulations: " << simulation << " moves: " << state->children_size << endl;
-            for (int i = 0; i < state->children_size; ++i) {
-                const S *child = &state->children[i];
-                cout << "move: " << child->move
-                << " trials: " << child->visits
-                << " ratio: " << setprecision(1) << fixed << 100 * child->get_win_ratio() << "%" << endl;
+            auto legal_moves = root->get_legal_moves();
+            cout << "simulations: " << simulation << " moves: " << legal_moves.size() << endl;
+            for (auto move : legal_moves) {
+                root->make_move(move);
+                auto child = get_state_from_hashmap(root);
+                root->undo_move(move);
+                if (child != nullptr) {
+                    cout << "move: " << child->move
+                    << " trials: " << child->visits
+                    << " ratio: " << setprecision(1) << fixed << 100 * child->get_win_ratio() << "%" << endl;
+                }
             }
         }
-        return state->select_best_child(state)->move;
+        return select_best_move(root);
     }
 
-    void monte_carlo_tree_search(S *root) const {
-        // 1. Selection - find state without children (not expanded yet)
-        S *current = root;
-        while (current->has_children() && !current->is_terminal()) {
-            current = current->select_random_child(root);
-        }
+    void monte_carlo_tree_search(S *root) {
+        S *current = tree_policy(root);
+        auto result = rollout(current, root);
+        propagate_up(current, result);
+    }
 
-        // 2. Expansion
-        if (!current->is_terminal()) {
-            current->expand();
-            current = current->select_random_child(root);
-        }
-
-        // 3. Simulation
-        const double result = simulate(current, root);
-
-        // 4. Propagation
-        while (current->parent) {
-            current->update_stats(result);
-            current = current->parent;
-        }
+    void propagate_up(S *current, double result) {
         current->update_stats(result);
+        if (current->parent) {
+            propagate_up(current->parent, result);
+        }
     }
 
-    double simulate(S *state, S *root) const {
-        if (state->is_terminal()) {
-            if (state->is_winner(root->player_to_move)) {
+    S* tree_policy(S *current) {
+        while (!current->is_terminal()) {
+            M move = select_tree_policy_move(current);
+            S child = current->create_child(move);
+            auto in_tree = get_state_from_hashmap(&child);
+            if (in_tree == nullptr) {
+                add_state_to_hashmap(child);
+                return get_state_from_hashmap(&child);
+            }
+            current = in_tree;
+        }
+        return current;
+    }
+
+    M select_best_move(S *state) {
+        auto legal_moves = state->get_legal_moves();
+        assert(legal_moves.size() > 0);
+        double best_ratio = -INF;
+        M best_move;
+        for (auto move : legal_moves) {
+            state->make_move(move);
+            auto child = get_state_from_hashmap(state);
+            if (child != nullptr) {
+                auto ratio = child->get_win_ratio();
+                if (best_ratio < ratio) {
+                    best_ratio = ratio;
+                    best_move = move;
+                }
+            }
+            state->undo_move(move);
+        }
+        assert(best_ratio != -INF);
+        return best_move;
+    }
+
+    M select_random_move(const S *state) const {
+        auto legal_moves = state->get_legal_moves();
+        return legal_moves[rand() % legal_moves.size()];
+    }
+
+    M select_tree_policy_move(const S *state) const {
+        return select_random_move(state);
+    }
+
+    M select_default_policy_move(const S *state) const {
+        return select_random_move(state);
+    }
+
+    double rollout(S *current, S *root) {
+        if (current->is_terminal()) {
+            if (current->is_winner(root->player_to_move)) {
                 return 1;
             }
-            if (state->is_winner(root->get_enemy(root->player_to_move))) {
+            if (current->is_winner(root->get_enemy(root->player_to_move))) {
                 return 0;
             }
             return 0.5;
         }
 
         // If player has a winning move he makes it.
-        const auto &legal_moves = state->get_legal_moves();
-        for (const M &move : legal_moves) {
-            state->make_move(move);
-            if (state->is_winner(state->player_to_move)) {
-                state->undo_move(move);
-                return (state->player_to_move == root->player_to_move) ? 1 : 0;
+        auto legal_moves = current->get_legal_moves();
+        for (M &move : legal_moves) {
+            current->make_move(move);
+            if (current->is_winner(current->player_to_move)) {
+                current->undo_move(move);
+                return (current->player_to_move == root->player_to_move) ? 1 : 0;
             }
-            state->undo_move(move);
+            current->undo_move(move);
         }
 
-        // Otherwise random move.
-        M move = legal_moves[rand() % legal_moves.size()]; // not ideally uniform but should be fine
-        state->make_move(move);
-        const double result = simulate(state, root);
-        state->undo_move(move);
+        // Otherwise follow default policy.
+        M move = select_default_policy_move(current);
+        current->make_move(move);
+        auto result = rollout(current, root);
+        current->undo_move(move);
         return result;
     }
 
     string get_name() const {
         return "MonteCarloTreeSearch";
+    }
+
+    void add_state_to_hashmap(const S &state) {
+        auto key = state.hash();
+        tree_table[key] = state;
+    }
+
+    S* get_state_from_hashmap(S *state) {
+        auto key = state->hash();
+        auto it = tree_table.find(key);
+        if (it == tree_table.end()) {
+            return nullptr;
+        }
+        return &it->second;
     }
 };
 
