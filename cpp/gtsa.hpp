@@ -415,6 +415,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
         Timer timer;
         timer.start();
+        remove_tree();
         int simulation = 0;
         while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
             auto copy = root->clone();
@@ -436,6 +437,10 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             }
         }
         return select_best_move(root);
+    }
+
+    void remove_tree() {
+        tree_table.clear();
     }
 
     void monte_carlo_tree_search(S *root) {
