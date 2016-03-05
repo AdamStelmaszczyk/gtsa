@@ -90,6 +90,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     TicTacToeState clone() const override {
         TicTacToeState clone = TicTacToeState();
         clone.board = board;
+        clone.player_to_move = player_to_move;
         return clone;
     }
 
