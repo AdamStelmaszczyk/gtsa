@@ -569,26 +569,26 @@ struct Tester {
             if (verbose) {
                 cout << *root << endl;
             }
-            auto current_state = root->clone();
-            while (!current_state.is_terminal()) {
-                auto &algorithm = (current_state.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
+            auto current = root->clone();
+            while (!current.is_terminal()) {
+                auto &algorithm = (current.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
                 if (verbose) {
-                    cout << current_state.player_to_move << " " << algorithm << endl;
+                    cout << current.player_to_move << " " << algorithm << endl;
                 }
                 Timer timer;
                 timer.start();
-                auto copy = current_state.clone();
+                auto copy = current.clone();
                 auto move = algorithm.get_move(&copy);
                 if (verbose) {
                     cout << timer << endl;
                 }
-                current_state.make_move(move);
+                current.make_move(move);
                 if (verbose) {
-                    cout << current_state << endl;
+                    cout << current << endl;
                 }
             }
             cout << "Match " << i << "/" << matches << ", winner: ";
-            if (current_state.is_winner(root->player_to_move)) {
+            if (current.is_winner(root->player_to_move)) {
                 ++algorithm_1_wins;
                 cout << root->player_to_move << " " << algorithm_1 << endl;
             } else {
