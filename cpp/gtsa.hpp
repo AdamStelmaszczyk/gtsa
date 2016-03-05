@@ -587,12 +587,15 @@ struct Tester {
                     cout << current << endl;
                 }
             }
-            cout << "Match " << i << "/" << matches << ", winner: ";
+            cout << "Match " << i << "/" << matches << ": ";
+            char enemy = root->get_enemy(root->player_to_move);
             if (current.is_winner(root->player_to_move)) {
                 ++algorithm_1_wins;
                 cout << root->player_to_move << " " << algorithm_1 << endl;
+            } else if (current.is_winner(enemy)) {
+                cout << enemy << " " << algorithm_2 << endl;
             } else {
-                cout << root->get_enemy(root->player_to_move) << " " << algorithm_2 << endl;
+                cout << "draw" << endl;
             }
         }
         cout << root->player_to_move << " " << algorithm_1 << " won " <<
