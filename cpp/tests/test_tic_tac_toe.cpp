@@ -2,7 +2,7 @@
 
 #include "../examples/tic_tac_toe.cpp"
 
-const static int MAX_SIMULATIONS = 1000;
+const static int MAX_SIMULATIONS = 10000;
 
 template<class S, class M>
 vector<Algorithm<S, M> *> get_algorithms() {
@@ -25,7 +25,7 @@ void test_tic_tac_toe_finish() {
 
 void test_tic_tac_toe_block() {
     TicTacToeState state = TicTacToeState("O__"
-                                          "O__"
+                                          "OX_"
                                           "___");
     for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         const auto move = algorithm->get_move(&state);
