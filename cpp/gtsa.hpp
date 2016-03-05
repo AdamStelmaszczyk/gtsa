@@ -555,13 +555,15 @@ struct Tester {
     Algorithm<S, M> &algorithm_2;
     const int matches;
     const bool verbose;
-    int algorithm_1_wins;
 
     Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = 1, bool verbose = true) :
             root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), matches(matches), verbose(verbose) { }
 
-    void start() {
-        algorithm_1_wins = 0;
+    int start() {
+        int draws = 0;
+        int algorithm_1_wins = 0;
+        int algorithm_2_wins = 0;
+        char enemy = root->get_enemy(root->player_to_move);
         for (int i = 1; i <= matches; ++i) {
             if (verbose) {
                 cout << *root << endl;
@@ -585,17 +587,21 @@ struct Tester {
                 }
             }
             cout << "Match " << i << "/" << matches << ": ";
-            char enemy = root->get_enemy(root->player_to_move);
             if (current.is_winner(root->player_to_move)) {
                 ++algorithm_1_wins;
                 cout << root->player_to_move << " " << algorithm_1 << endl;
             } else if (current.is_winner(enemy)) {
+                ++algorithm_2_wins;
                 cout << enemy << " " << algorithm_2 << endl;
             } else {
+                ++draws;
                 cout << "draw" << endl;
             }
         }
-        cout << root->player_to_move << " " << algorithm_1 << " won " <<
-                algorithm_1_wins << "/" << matches << " matches" << endl;
+        cout << endl;
+        cout << root->player_to_move << " " << algorithm_1 << " wins: " << algorithm_1_wins << endl;
+        cout << enemy << " " << algorithm_2 << " wins: " << algorithm_2_wins << endl;
+        cout << "Draws: " << draws << endl;
+        return draws;
     }
 };
