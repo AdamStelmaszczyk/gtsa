@@ -432,7 +432,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
                 auto child = get_state_from_hashmap(root);
                 root->undo_move(move);
                 if (child != nullptr) {
-                    cout << "move: " << child->move
+                    cout << "move: " << move
                     << " trials: " << child->visits
                     << " ratio: " << setprecision(1) << fixed << 100 * child->get_win_ratio() << "%" << endl;
                 }
