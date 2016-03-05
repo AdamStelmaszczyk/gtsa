@@ -573,7 +573,7 @@ struct Tester {
             while (!current_state.is_terminal()) {
                 auto &algorithm = (current_state.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
                 if (verbose) {
-                    cout << algorithm << endl;
+                    cout << current_state.player_to_move << " " << algorithm << endl;
                 }
                 Timer timer;
                 timer.start();
