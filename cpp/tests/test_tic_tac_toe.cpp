@@ -45,6 +45,17 @@ void test_tic_tac_toe_block_2() {
     }
 }
 
+void test_tic_tac_toe_block_3() {
+    TicTacToeState state = TicTacToeState("_O_"
+                                          "XO_"
+                                          "___");
+    for (const auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
+        const auto move = algorithm->get_move(&state);
+        delete algorithm;
+        assert(move == TicTacToeMove(1, 2));
+    }
+}
+
 void test_tic_tac_toe_corner() {
     TicTacToeState state = TicTacToeState("___"
                                           "_O_"
@@ -77,6 +88,7 @@ int main() {
     test_tic_tac_toe_finish();
     test_tic_tac_toe_block();
     test_tic_tac_toe_block_2();
+    test_tic_tac_toe_block_3();
     test_tic_tac_toe_corner();
     test_tic_tac_toe_terminal();
     return 0;
