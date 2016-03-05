@@ -268,9 +268,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
     bool is_empty(int x, int y) const {
         const cords c = make_pair(x, y);
-        const auto player_cords = get_player_cords(player_to_move);
-        const auto enemy_cords = get_player_cords(get_enemy(player_to_move));
-        return board.get(x, y) == 0 && c != player_cords && c != enemy_cords;
+        return board.get(x, y) == 0 && c != player_1_cords && c != player_2_cords;
     }
 
     cords get_player_cords(char player) const {
