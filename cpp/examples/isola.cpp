@@ -137,11 +137,6 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return clone;
     }
 
-    static void populate_tt() {
-        add_best_move(6174959539824785963U, {3, 6, 3, 5, 3, 2});
-        add_best_move(6174959539824786132U, {3, 0, 3, 1, 3, 4});
-    }
-
     int get_goodness() const override {
         cords player_cords = get_player_cords(player_to_move);
         const int player_score = get_score_for_legal_steps(player_cords, 2);

@@ -93,7 +93,6 @@ struct Entry {
 
 template<class S, class M>
 struct State {
-    static unordered_map<size_t, Entry<M>>* TRANSPOSITION_TABLE;
     static unordered_map<size_t, int>* HISTORY_TABLE;
     unsigned visits = 0;
     double score = 0;
@@ -110,41 +109,6 @@ struct State {
 
     double get_win_ratio() const {
         return score / (visits + EPSILON);
-    }
-
-    static bool get_entry(S *state, Entry<M> &entry) {
-        auto key = state->hash();
-        auto it = TRANSPOSITION_TABLE->find(key);
-        if (it == TRANSPOSITION_TABLE->end()) {
-            return false;
-        }
-        entry = it->second;
-        return true;
-    }
-
-    static void add_entry(S *state, const Entry<M> &entry) {
-        auto key = state->hash();
-        TRANSPOSITION_TABLE->operator[](key) = entry;
-    }
-
-    static void add_best_move(size_t key, M best_move) {
-        Entry<M> entry = {best_move, MAX_DEPTH, INF, EntryType::EXACT_VALUE};
-        TRANSPOSITION_TABLE->operator[](key) = entry;
-    }
-
-    static void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
-        EntryType value_type;
-        if (best_goodness <= alpha) {
-            value_type = EntryType::UPPER_BOUND;
-        }
-        else if (best_goodness >= beta) {
-            value_type = EntryType::LOWER_BOUND;
-        }
-        else {
-            value_type = EntryType::EXACT_VALUE;
-        }
-        Entry<M> entry = {best_move, depth, best_goodness, value_type};
-        add_entry(state, entry);
     }
 
     static void update_history(const M &move, int depth) {
@@ -186,9 +150,6 @@ struct State {
 
     virtual size_t hash() const = 0;
 };
-
-template<class S, class M>
-unordered_map<size_t, Entry<M>>* State<S, M>::TRANSPOSITION_TABLE = new unordered_map<size_t, Entry<M>>();
 
 template<class S, class M>
 unordered_map<size_t, int>* State<S, M>::HISTORY_TABLE = new unordered_map<size_t, int>();
@@ -247,6 +208,7 @@ struct Result {
 
 template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
+    unordered_map<size_t, Entry<M>> transposition_table;
     const double MAX_SECONDS;
     const bool VERBOSE;
     Timer timer;
@@ -256,6 +218,7 @@ struct Minimax : public Algorithm<S, M> {
 
     Minimax(double max_seconds = 1, bool verbose = false) :
             Algorithm<S, M>(),
+            transposition_table(unordered_map<size_t, Entry<M>>()),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
             timer(Timer()) { }
@@ -290,7 +253,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " tt_exacts: " << tt_exacts
                     << " tt_cuts: " << tt_cuts
                     << " tt_firsts: " << tt_firsts
-                    << " tt_size: " << State<S, M>::TRANSPOSITION_TABLE->size()
+                    << " tt_size: " << transposition_table.size()
                     << " ht_size: " << State<S, M>::HISTORY_TABLE->size()
                     << " max_depth: " << max_depth << endl;
                 }
@@ -314,7 +277,7 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         Entry<M> entry;
-        bool entry_found = State<S, M>::get_entry(state, entry);
+        bool entry_found = get_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
             ++tt_hits;
             if (entry.value_type == EntryType::EXACT_VALUE) {
@@ -385,11 +348,41 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         if (best_move_is_valid) {
-            State<S, M>::update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
+           update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
             State<S, M>::update_history(best_move, depth);
         }
 
         return {best_goodness, best_move, best_move_is_valid};
+    }
+
+    bool get_entry(S *state, Entry<M> &entry) {
+        auto key = state->hash();
+        auto it = transposition_table.find(key);
+        if (it == transposition_table.end()) {
+            return false;
+        }
+        entry = it->second;
+        return true;
+    }
+
+    void add_entry(S *state, const Entry<M> &entry) {
+        auto key = state->hash();
+        transposition_table[key] = entry;
+    }
+
+    void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
+        EntryType value_type;
+        if (best_goodness <= alpha) {
+            value_type = EntryType::UPPER_BOUND;
+        }
+        else if (best_goodness >= beta) {
+            value_type = EntryType::LOWER_BOUND;
+        }
+        else {
+            value_type = EntryType::EXACT_VALUE;
+        }
+        Entry<M> entry = {best_move, depth, best_goodness, value_type};
+        add_entry(state, entry);
     }
 
     string get_name() const {
