@@ -352,7 +352,7 @@ struct Minimax : public Algorithm<S, M> {
 
     void add_entry(S *state, const Entry<M> &entry) {
         auto key = state->hash();
-        transposition_table[key] = entry;
+        transposition_table.insert({key, entry});
     }
 
     void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
