@@ -1,7 +1,7 @@
 CC=g++-4.8
 FLAGS=-std=c++11 -O2
 
-all: tests/test_tic_tac_toe.o tests/test_isola.o
+all: tests/test_tic_tac_toe.o tests/test_isola.o tests/play_isola.o
 
 test: all
 	tests/test_tic_tac_toe.o
