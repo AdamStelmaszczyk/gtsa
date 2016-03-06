@@ -8,9 +8,12 @@ int main() {
                                   "_______"
                                   "_______"
                                   "___1___");
-    auto a = new Minimax<IsolaState, IsolaMove>(1, true);
-    auto b = new MonteCarloTreeSearch<IsolaState, IsolaMove>(1, true);
-    Tester<IsolaState, IsolaMove> tester(&state, *a, *b);
+
+    auto a = Minimax<IsolaState, IsolaMove>(1, true);
+    auto b = MonteCarloTreeSearch<IsolaState, IsolaMove>(1, true);
+
+    Tester<IsolaState, IsolaMove> tester(&state, a, b);
     tester.start();
+
     return 0;
 }
