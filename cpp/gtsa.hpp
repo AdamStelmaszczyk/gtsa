@@ -93,7 +93,6 @@ struct Entry {
 
 template<class S, class M>
 struct State {
-    static unordered_map<size_t, int>* HISTORY_TABLE;
     unsigned visits = 0;
     double score = 0;
     char player_to_move = 0;
@@ -109,19 +108,6 @@ struct State {
 
     double get_win_ratio() const {
         return score / (visits + EPSILON);
-    }
-
-    static void update_history(const M &move, int depth) {
-        auto key = move.hash();
-        HISTORY_TABLE->operator[](key) += (1 << depth);
-    }
-
-    static void sort_by_history_heuristic(vector<M> &moves) {
-        stable_sort(moves.begin(), moves.end(), [](const M &a, const M &b) {
-            int a_score = HISTORY_TABLE->operator[](a.hash());
-            int b_score = HISTORY_TABLE->operator[](b.hash());
-            return a_score > b_score;
-        });
     }
 
     virtual S clone() const = 0;
@@ -150,9 +136,6 @@ struct State {
 
     virtual size_t hash() const = 0;
 };
-
-template<class S, class M>
-unordered_map<size_t, int>* State<S, M>::HISTORY_TABLE = new unordered_map<size_t, int>();
 
 template<class S, class M>
 struct Algorithm {
@@ -209,6 +192,7 @@ struct Result {
 template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
     unordered_map<size_t, Entry<M>> transposition_table;
+    unordered_map<size_t, int> history_table;
     const double MAX_SECONDS;
     const bool VERBOSE;
     Timer timer;
@@ -219,6 +203,7 @@ struct Minimax : public Algorithm<S, M> {
     Minimax(double max_seconds = 1, bool verbose = false) :
             Algorithm<S, M>(),
             transposition_table(unordered_map<size_t, Entry<M>>()),
+            history_table(unordered_map<size_t, int>()),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
             timer(Timer()) { }
@@ -254,7 +239,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " tt_cuts: " << tt_cuts
                     << " tt_firsts: " << tt_firsts
                     << " tt_size: " << transposition_table.size()
-                    << " ht_size: " << State<S, M>::HISTORY_TABLE->size()
+                    << " ht_size: " << history_table.size()
                     << " max_depth: " << max_depth << endl;
                 }
             }
@@ -319,7 +304,7 @@ struct Minimax : public Algorithm<S, M> {
 
         if (generate_moves) {
             auto legal_moves = state->get_legal_moves();
-            State<S, M>::sort_by_history_heuristic(legal_moves);
+            sort_by_history_heuristic(legal_moves);
             for (const auto& move : legal_moves) {
                 state->make_move(move);
                 const int goodness = -minimax(
@@ -349,7 +334,7 @@ struct Minimax : public Algorithm<S, M> {
 
         if (best_move_is_valid) {
            update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
-            State<S, M>::update_history(best_move, depth);
+            update_history(best_move, depth);
         }
 
         return {best_goodness, best_move, best_move_is_valid};
@@ -383,6 +368,19 @@ struct Minimax : public Algorithm<S, M> {
         }
         Entry<M> entry = {best_move, depth, best_goodness, value_type};
         add_entry(state, entry);
+    }
+
+    void update_history(const M &move, int depth) {
+        auto key = move.hash();
+        history_table[key] += (1 << depth);
+    }
+
+    void sort_by_history_heuristic(vector<M> &moves) {
+        stable_sort(moves.begin(), moves.end(), [&](const M &a, const M &b) {
+            int a_score = history_table[a.hash()];
+            int b_score = history_table[b.hash()];
+            return a_score > b_score;
+        });
     }
 
     string get_name() const {
