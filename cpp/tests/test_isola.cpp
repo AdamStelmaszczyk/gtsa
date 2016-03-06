@@ -2,13 +2,11 @@
 
 #include "../examples/isola.cpp"
 
-const static int MAX_SIMULATIONS = 1000;
-
 template<class S, class M>
 vector<Algorithm<S, M> *> get_algorithms() {
     return {
-            new Minimax<S, M>(),
-            new MonteCarloTreeSearch<S, M>(1, false, MAX_SIMULATIONS),
+        new MonteCarloTreeSearch<S, M>(),
+        new Minimax<S, M>(),
     };
 }
 

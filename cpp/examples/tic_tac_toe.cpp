@@ -164,6 +164,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     void make_move(const TicTacToeMove &move) override {
         board[move.y * SIDE + move.x] = player_to_move;
         player_to_move = get_enemy(player_to_move);
+        this->move = move;
     }
 
     void undo_move(const TicTacToeMove &move) override {
@@ -215,7 +216,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     }
 
     bool operator==(const TicTacToeState &other) const {
-        return board == other.board;
+        return board == other.board && parent == other.parent;
     }
 
     size_t hash() const {
@@ -223,6 +224,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         using boost::hash_combine;
         size_t seed = 0;
         hash_combine(seed, hash_value(board));
+        hash_combine(seed, hash_value(parent));
         return seed;
     }
 };
