@@ -4,8 +4,8 @@ before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
   - sudo apt-get update
   
-install: 
-  - sudo apt-get install g++-4.8 valgrind libboost-all-dev
+install:
+  - sudo apt-get install g++-4.8 valgrind=1:3.10.1-1ubuntu3 libboost-all-dev
 
 script:
   - make valgrind -C cpp
