@@ -18,8 +18,8 @@ void test_isola_move() {
                                   "#######"
                                   "#######"
                                   "#######");
-    for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
-        const auto move = algorithm->get_move(&state);
+    for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
+        auto move = algorithm->get_move(&state);
         delete algorithm;
         assert(move == IsolaMove(1, 2, 2, 2, 1, 2));
     }
@@ -33,8 +33,8 @@ void test_isola_finish() {
                                   "#######"
                                   "#######"
                                   "#######");
-    for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
-        const auto move = algorithm->get_move(&state);
+    for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
+        auto move = algorithm->get_move(&state);
         delete algorithm;
         assert(move.remove_x == 0 && move.remove_y == 1);
     }
@@ -48,8 +48,8 @@ void test_isola_not_lose() {
                                   "#######"
                                   "#######"
                                   "#######");
-    for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
-        const auto move = algorithm->get_move(&state);
+    for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
+        auto move = algorithm->get_move(&state);
         delete algorithm;
         assert(move.step_x != 2 || move.step_y == 2);
     }
@@ -63,8 +63,8 @@ void test_isola_crowded() {
                                   "#######"
                                   "#######"
                                   "#######");
-    for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
-        const auto move = algorithm->get_move(&state);
+    for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
+        auto move = algorithm->get_move(&state);
         delete algorithm;
         assert(move == IsolaMove(1, 0, 2, 1, 1, 0));
     }
@@ -78,7 +78,7 @@ void test_isola_terminal() {
                                   "#######"
                                   "#######"
                                   "###1###");
-    for (const auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
+    for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         bool exception_thrown = false;
         try {
             algorithm->get_move(&state);
