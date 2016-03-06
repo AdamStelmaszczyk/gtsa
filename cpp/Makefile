@@ -8,8 +8,8 @@ test: all
 	tests/test_isola.o
 	
 valgrind: all
-	valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=definite,indirect tests/test_tic_tac_toe.o
-	valgrind --error-exitcode=1 --leak-check=full --show-leak-kinds=definite,indirect tests/test_isola.o
+	valgrind --error-exitcode=1 --leak-check=full tests/test_tic_tac_toe.o
+	valgrind --error-exitcode=1 --leak-check=full tests/test_isola.o
 	
 play_isola: tests/play_isola.o
 	tests/play_isola.o
