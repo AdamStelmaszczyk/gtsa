@@ -112,6 +112,9 @@ void test_tic_tac_toe_draw() {
     int matches = 10;
     Tester<TicTacToeState, TicTacToeMove> tester(&state, *algorithms[0], *algorithms[1], matches, false);
     int draws = tester.start();
+    for (auto algorithm : algorithms) {
+        delete algorithm;
+    }
     assert(draws == matches);
 }
 
