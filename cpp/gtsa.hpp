@@ -333,7 +333,7 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         if (best_move_is_valid) {
-           update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
+            update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
             update_history(best_move, depth);
         }
 
