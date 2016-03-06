@@ -3,11 +3,11 @@ FLAGS=-std=c++11 -O2
 
 all: tests/test_tic_tac_toe.o tests/test_isola.o tests/play_isola.o
 
-test: all
+test: tests/test_tic_tac_toe.o tests/test_isola.o
 	tests/test_tic_tac_toe.o
 	tests/test_isola.o
 	
-valgrind: all
+valgrind: tests/test_tic_tac_toe.o tests/test_isola.o
 	valgrind --error-exitcode=1 --leak-check=full tests/test_tic_tac_toe.o
 	valgrind --error-exitcode=1 --leak-check=full tests/test_isola.o
 	
