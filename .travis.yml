@@ -7,9 +7,5 @@ before_install:
 install: 
   - sudo apt-get install g++-4.8 valgrind libboost-all-dev
 
-before_script:
-  - make -C cpp
-
-script: 
-  - valgrind --error-exitcode=1 --leak-check=full ./cpp/tests/test_tic_tac_toe.o
-  - valgrind --error-exitcode=1 --leak-check=full ./cpp/tests/test_isola.o
+script:
+  - make valgrind -C cpp
