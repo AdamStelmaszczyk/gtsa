@@ -488,12 +488,24 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return legal_moves[index];
     }
 
-    M select_tree_policy_move(const S *state) {
+    M select_tree_policy_move(S *state) {
+        // If player has a winning move he makes it.
+        auto legal_moves = state->get_legal_moves();
+        for (M &move : legal_moves) {
+            auto current_player = state->player_to_move;
+            state->make_move(move);
+            if (state->is_winner(current_player)) {
+                state->undo_move(move);
+                return move;
+            }
+            state->undo_move(move);
+        }
+        // Otherwise - random move.
         return select_random_move(state);
     }
 
-    M select_default_policy_move(const S *state) {
-        return select_random_move(state);
+    M select_default_policy_move(S *state) {
+        return select_tree_policy_move(state);
     }
 
     double rollout(S *current, S *root) {
@@ -507,18 +519,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             return DRAW_SCORE;
         }
 
-        // If player has a winning move he makes it.
-        auto legal_moves = current->get_legal_moves();
-        for (M &move : legal_moves) {
-            current->make_move(move);
-            if (current->is_winner(current->player_to_move)) {
-                current->undo_move(move);
-                return (current->player_to_move == root->player_to_move) ? WIN_SCORE : LOSE_SCORE;
-            }
-            current->undo_move(move);
-        }
-
-        // Otherwise follow default policy.
         M move = select_default_policy_move(current);
         current->make_move(move);
         auto result = rollout(current, root);
