@@ -8,7 +8,7 @@ test: tests/test_tic_tac_toe.o tests/test_isola.o tests/test_connect_four.o
 	tests/test_isola.o
 	tests/test_connect_four.o
 	
-valgrind: tests/test_tic_tac_toe.o tests/test_isola.o
+valgrind: tests/test_tic_tac_toe.o tests/test_isola.o tests/test_connect_four.o
 	valgrind --error-exitcode=1 --leak-check=full tests/test_tic_tac_toe.o
 	valgrind --error-exitcode=1 --leak-check=full tests/test_isola.o
 	valgrind --error-exitcode=1 --leak-check=full tests/test_connect_four.o
