@@ -9,10 +9,10 @@ int main() {
                                   "_______"
                                   "___1___");
 
-    auto a = Minimax<IsolaState, IsolaMove>(1, true);
-    auto b = MonteCarloTreeSearch<IsolaState, IsolaMove>(1, true);
+    auto a = MonteCarloTreeSearch<IsolaState, IsolaMove>(0.1, false);
+    auto b = Minimax<IsolaState, IsolaMove>(0.1, false);
 
-    Tester<IsolaState, IsolaMove> tester(&state, a, b);
+    Tester<IsolaState, IsolaMove> tester(&state, a, b, 100, false);
     tester.start();
 
     return 0;
