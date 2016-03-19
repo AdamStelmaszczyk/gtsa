@@ -8,7 +8,7 @@ Connect Four is a two-player game in which players take turns dropping colored d
   <img src="https://upload.wikimedia.org/wikipedia/commons/a/ad/Connect_Four.gif"/>
 </p>
 
-The objective of the game is to connect four of one's own discs of the same color next to each other vertically, horizontally, or diagonally before your opponent.
+The objective of the game is to connect four of one's own discs of the same color next to each other vertically, horizontally, or diagonally before your opponent. If there is no free space left, we have a draw.
 
 Input 
 ---
