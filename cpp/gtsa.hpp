@@ -2,15 +2,18 @@
 #include <sys/time.h>
 #include <algorithm>
 #include <iostream>
+#include <assert.h>
 #include <sstream>
 #include <iomanip>
+#include <memory>
 #include <vector>
 
 using namespace std;
 
-const static int MAX_SIMULATIONS = 10000;
+static const int MAX_SIMULATIONS = 10000000;
+static const double UCT_C = sqrt(2);
 static const double WIN_SCORE = 1;
-static const double DRAW_SCORE = 0.9;
+static const double DRAW_SCORE = 0.5;
 static const double LOSE_SCORE = 0;
 
 static const int MAX_DEPTH = 20;
@@ -106,8 +109,15 @@ struct State {
         ++visits;
     }
 
-    double get_win_ratio() const {
-        return score / (visits + EPSILON);
+    double get_uct(double c) const {
+        if (visits == 0) {
+            return 1.1;
+        }
+        double parent_visits = 0;
+        if (parent != nullptr) {
+            parent_visits = parent->visits;
+        }
+        return (score / visits) + c * sqrt(log(parent_visits) / visits);
     }
 
     virtual S clone() const = 0;
@@ -418,20 +428,21 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             ++simulation;
         }
         if (verbose) {
+            cout << "ratio: " << root->score / root->visits << endl;
+            cout << "simulations: " << simulation << endl;
             auto legal_moves = root->get_legal_moves();
-            cout << "simulations: " << simulation << " moves: " << legal_moves.size()
-            << " ratio: " << setprecision(1) << fixed << 100 * root->get_win_ratio() << "%" << endl;
+            cout << "moves: " << legal_moves.size() << endl;
             for (auto move : legal_moves) {
                 auto child = get_child_from_hashmap(root, move);
                 if (child != nullptr) {
                     cout << "move: " << move
                     << " score: " << child->score
-                    << " trials: " << child->visits
-                    << " ratio: " << setprecision(1) << fixed << 100 * child->get_win_ratio() << "%" << endl;
+                    << " visits: " << child->visits
+                    << " UCT: " << child->get_uct(UCT_C) << endl;
                 }
             }
         }
-        return select_best_move(root);
+        return get_most_visited_move(root);
     }
 
     void remove_tree() {
@@ -439,7 +450,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     }
 
     void monte_carlo_tree_search(S *root) {
-        S *current = tree_policy(root);
+        S *current = tree_policy(root, root);
         auto result = rollout(current, root);
         propagate_up(current, result);
     }
@@ -451,61 +462,148 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
     }
 
-    S* tree_policy(S *root) {
-        if (root->is_terminal()) {
-            return root;
+    S* tree_policy(S *state, S *root) {
+        if (state->is_terminal()) {
+            return state;
         }
-        M move = select_tree_policy_move(root);
-        auto child = get_child_from_hashmap(root, move);
+        M move = get_tree_policy_move(state, root);
+        auto child = get_child_from_hashmap(state, move);
         if (child == nullptr) {
-            return add_child_to_hashmap(root, move);
+            return add_child_to_hashmap(state, move);
         }
-        return tree_policy(child);
+        return tree_policy(child, root);
     }
 
-    M select_best_move(S *state) {
+    M get_most_visited_move(S *state) {
         auto legal_moves = state->get_legal_moves();
         assert(legal_moves.size() > 0);
-        double best_ratio = -INF;
         M best_move;
+        double best_visits = -INF;
         for (auto move : legal_moves) {
             auto child = get_child_from_hashmap(state, move);
             if (child != nullptr) {
-                auto ratio = child->get_win_ratio();
-                if (best_ratio < ratio) {
-                    best_ratio = ratio;
+                auto visits = child->visits;
+                if (best_visits < visits) {
+                    best_visits = visits;
                     best_move = move;
                 }
             }
         }
-        assert(best_ratio != -INF);
+        if (best_visits == -INF) {
+            return get_random_move(state);
+        }
         return best_move;
     }
 
-    M select_random_move(const S *state) {
+    M get_best_move(S *state, S *root) {
+        auto legal_moves = state->get_legal_moves();
+        assert(legal_moves.size() > 0);
+        M best_move;
+        if (state->player_to_move == root->player_to_move) {
+            // maximize
+            double best_uct = -INF;
+            for (auto move : legal_moves) {
+                auto child = get_child_from_hashmap(state, move);
+                if (child != nullptr) {
+                    auto uct = child->get_uct(UCT_C);
+                    if (best_uct < uct) {
+                        best_uct = uct;
+                        best_move = move;
+                    }
+                } else {
+                    return move;
+                }
+            }
+            if (best_uct == -INF) {
+                return get_random_move(state);
+            }
+        }
+        else {
+            // minimize
+            double best_uct = INF;
+            for (auto move : legal_moves) {
+                auto child = get_child_from_hashmap(state, move);
+                if (child != nullptr) {
+                    auto uct = child->get_uct(-UCT_C);
+                    if (best_uct > uct) {
+                        best_uct = uct;
+                        best_move = move;
+                    }
+                } else {
+                    return move;
+                }
+            }
+            if (best_uct == INF) {
+                return get_random_move(state);
+            }
+        }
+        return best_move;
+    }
+
+    M get_random_move(const S *state) {
         auto legal_moves = state->get_legal_moves();
         int index = random.uniform(0, legal_moves.size() - 1);
         return legal_moves[index];
     }
 
-    M select_tree_policy_move(S *state) {
-        // If player has a winning move he makes it.
+    shared_ptr<M> get_winning_move(S *state) {
+        auto current_player = state->player_to_move;
         auto legal_moves = state->get_legal_moves();
         for (M &move : legal_moves) {
-            auto current_player = state->player_to_move;
             state->make_move(move);
             if (state->is_winner(current_player)) {
                 state->undo_move(move);
-                return move;
+                return make_shared<M>(move);
             }
             state->undo_move(move);
         }
-        // Otherwise - random move.
-        return select_random_move(state);
+        return nullptr;
     }
 
-    M select_default_policy_move(S *state) {
-        return select_tree_policy_move(state);
+    shared_ptr<M> get_blocking_move(S *state) {
+        auto current_player = state->player_to_move;
+        auto enemy = state->get_enemy(current_player);
+        state->player_to_move = enemy;
+        auto legal_moves = state->get_legal_moves();
+        for (M &move : legal_moves) {
+            state->make_move(move);
+            if (state->is_winner(enemy)) {
+                state->undo_move(move);
+                state->player_to_move = current_player;
+                return make_shared<M>(move);
+            }
+            state->undo_move(move);
+        }
+        state->player_to_move = current_player;
+        return nullptr;
+    }
+
+    M get_tree_policy_move(S *state, S *root) {
+        // If player has a winning move he makes it.
+        auto move_ptr = get_winning_move(state);
+        if (move_ptr != nullptr) {
+            return *move_ptr;
+        }
+        // If player has a blocking move he makes it.
+        move_ptr = get_blocking_move(state);
+        if (move_ptr != nullptr) {
+            return *move_ptr;
+        }
+        return get_best_move(state, root);
+    }
+
+    M get_default_policy_move(S *state) {
+        // If player has a winning move he makes it.
+        auto move_ptr = get_winning_move(state);
+        if (move_ptr != nullptr) {
+            return *move_ptr;
+        }
+        // If player has a blocking move he makes it.
+        move_ptr = get_blocking_move(state);
+        if (move_ptr != nullptr) {
+            return *move_ptr;
+        }
+        return get_random_move(state);
     }
 
     double rollout(S *current, S *root) {
@@ -518,8 +616,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             }
             return DRAW_SCORE;
         }
-
-        M move = select_default_policy_move(current);
+        M move = get_default_policy_move(current);
         current->make_move(move);
         auto result = rollout(current, root);
         current->undo_move(move);
