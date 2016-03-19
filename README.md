@@ -20,8 +20,9 @@ https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitati
 Game examples
 ---
 
-- Tic Tac Toe - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/games/tic_tac_toe.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/tic_tac_toe.cpp).
-- Isola - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/games/isola.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp).
+- Tic Tac Toe - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/tic_tac_toe.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/tic_tac_toe.cpp).
+- Isola - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp).
+- Connect Four - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.cpp).
 
 Priorities
 ---
