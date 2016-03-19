@@ -32,7 +32,7 @@ Priorities
 
 Would like to help?
 ---
-Suggestions are welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
+Suggestions welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
 [Pull requests](https://github.com/AdamStelmaszczyk/gtsa/pulls) are also awesome.
 
-I'm sending £50 to anybody who submits successful bug report.
+I'm transferring £50 to anybody who submits successful bug report.
