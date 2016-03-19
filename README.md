@@ -1,6 +1,6 @@
 # Game Tree Search Algorithms [![Build Status](https://travis-ci.org/AdamStelmaszczyk/gtsa.svg?branch=master)](https://travis-ci.org/AdamStelmaszczyk/gtsa)
 
-C++ framework for AI bot programming.
+C++ library for AI bot programming.
 
 Usage
 ---
