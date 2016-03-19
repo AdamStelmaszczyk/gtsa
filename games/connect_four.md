@@ -14,7 +14,7 @@ Input
 ---
 The input is an 8x7 matrix consisting only of `_`, `1` and `2`. Then another line follows with `1` or `2`, which is your player id.
 
-Cells with `_` are empty. Cells with `1` contain player 1's piece. Calls with `2` contain player 2's piece.
+Cells with `_` are empty. Cells with `1` contain player 1's piece. Cells with `2` contain player 2's piece.
 
 In the given matrix, top-left is (0, 0) and bottom-right is (7, 6). The x-coordinate increases from top to bottom, and y-coordinate increases from left to right.
 
