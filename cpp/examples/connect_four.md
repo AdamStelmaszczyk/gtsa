@@ -10,7 +10,7 @@ Connect Four is a two-player game in which players take turns dropping colored d
 
 The objective of the game is to connect four of one's own discs of the same color next to each other vertically, horizontally, or diagonally before your opponent. If there is no free space left, we have a draw.
 
-Input 
+Input
 ---
 The input is an 8x7 matrix consisting only of `_`, `1` and `2`. Then another line follows with `1` or `2`, which is your player id.
 
@@ -44,9 +44,9 @@ ___1____
 2
 ```
 
-Output 
+Output
 ---
-Index of the column in which you want to throw your disc. 
+Index of the column in which you want to throw your piece.
 
 Sample output
 ---
