@@ -39,9 +39,40 @@ struct ConnectFourMove : public Move<ConnectFourMove> {
     }
 };
 
+typedef pair<int, int> cords;
+
+struct Board {
+    uint64_t board = 0;
+
+    Board() {}
+
+    Board(const Board& other) {
+        board = other.board;
+    }
+
+    void set(int x, int y, uint64_t value) {
+        uint64_t i = HEIGHT - y - 1 + x * WIDTH;
+        board ^= (-value ^ board) & (1LL << i);
+    }
+
+    bool get(int x, int y) const {
+        uint64_t i = HEIGHT - y - 1 + x * WIDTH;
+        return (board >> i) & 1;
+    }
+
+    bool operator==(const Board &other) const {
+        return board == other.board;
+    }
+};
+
+size_t hash_value(const Board &board) {
+    hash<uint64_t> hash_fn;
+    return hash_fn(board.board);
+}
+
 struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
 
-    vector<char> board;
+    Board board_1, board_2;
 
     ConnectFourState() : State(PLAYER_1) { }
 
@@ -57,136 +88,50 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
                 throw invalid_argument(string("Undefined symbol used: '") + c + "'");
             }
         }
-        board = vector<char>(init_string.begin(), init_string.end());
+
+        for (int y = 0; y < HEIGHT; ++y) {
+            for (int x = 0; x < WIDTH; ++x) {
+                const char c = init_string[y * WIDTH + x];
+                if (c == PLAYER_1) {
+                    board_1.set(x, y, 1);
+                } else if (c == PLAYER_2) {
+                    board_2.set(x, y, 1);
+                }
+            }
+        }
     }
 
     ConnectFourState clone() const override {
         ConnectFourState clone = ConnectFourState();
-        clone.board = board;
+        clone.board_1 = Board(board_1);
+        clone.board_2 = Board(board_2);
         clone.player_to_move = player_to_move;
         return clone;
     }
 
     int get_goodness() const override {
-        auto enemy = get_enemy(player_to_move);
-        if (is_winner(player_to_move)) return 10000;
-        if (is_winner(enemy)) return -10000;
-        int player_lines = 0;
-        int enemy_lines = 0;
-        // - horizontal
-        for (int y = 0; y < HEIGHT; ++y) {
-            int count = 0;
-            for (int x = 0; x < WIDTH; ++x) {
-                if (board[y * WIDTH + x] == player_to_move || board[y * WIDTH + x] == EMPTY) {
-                    count++;
-                    if (count == 4) {
-                        player_lines++;
-                        count = 0;
-                    }
-                } else {
-                    count = 0;
-                }
-                if (board[y * WIDTH + x] == enemy || board[y * WIDTH + x] == EMPTY) {
-                    count++;
-                    if (count == 4) {
-                        enemy_lines++;
-                        count = 0;
-                    }
-                } else {
-                    count = 0;
-                }
+        if (is_terminal()) {
+            if (is_winner(player_to_move)) {
+                return 10000;
             }
-        }
-        // | vertical
-        for (int x = 0; x < WIDTH; ++x) {
-            int count = 0;
-            for (int y = 0; y < HEIGHT; ++y) {
-                if (board[y * WIDTH + x] == player_to_move || board[y * WIDTH + x] == EMPTY) {
-                    count++;
-                    if (count == 4) {
-                        player_lines++;
-                        count = 0;
-                    }
-                } else {
-                    count = 0;
-                }
-                if (board[y * WIDTH + x] == enemy || board[y * WIDTH + x] == EMPTY) {
-                    count++;
-                    if (count == 4) {
-                        enemy_lines++;
-                        count = 0;
-                    }
-                } else {
-                    count = 0;
-                }
+            if (is_winner(get_enemy(player_to_move))) {
+                return -10000;
             }
+            return 10;
         }
-        // \ diagonal
-        for (int y = 0; y < HEIGHT - 3; ++y) {
-            for (int x = 0; x < WIDTH - 3; ++x) {
-                int count = 0;
-                for (int i = 0; i < 4; ++i) {
-                    if (board[(y + i) * WIDTH + x + i] == player_to_move || board[(y + i) * WIDTH + x + i] == EMPTY) {
-                        count++;
-                    } else {
-                        break;
-                    }
-                }
-                if (count == 4) {
-                    player_lines++;
-                }
-
-                count = 0;
-                for (int i = 0; i < 4; ++i) {
-                    if (board[(y + i) * WIDTH + x + i] == enemy || board[(y + i) * WIDTH + x + i] == EMPTY) {
-                        count++;
-                    } else {
-                        break;
-                    }
-                }
-                if (count == 4) {
-                    enemy_lines++;
-                }
-            }
-        }
-        // / diagonal
-        for (int y = 3; y < HEIGHT; ++y) {
-            for (int x = 0; x < WIDTH - 3; ++x) {
-                int count = 0;
-                for (int i = 0; i < 4; ++i) {
-                    if (board[(y - i) * WIDTH + x + i] == player_to_move || board[(y - i) * WIDTH + x + i] == EMPTY) {
-                        count++;
-                    } else {
-                        break;
-                    }
-                }
-                if (count == 4) {
-                    player_lines++;
-                }
-
-                count = 0;
-                for (int i = 0; i < 4; ++i) {
-                    if (board[(y - i) * WIDTH + x + i] == enemy || board[(y - i) * WIDTH + x + i] == EMPTY) {
-                        count++;
-                    } else {
-                        break;
-                    }
-                }
-                if (count == 4) {
-                    enemy_lines++;
-                }
-            }
-        }
-        return player_lines - enemy_lines;
+        return 0;
     }
 
     vector<ConnectFourMove> get_legal_moves() const override {
-        vector<ConnectFourMove> result;
+        auto &board = player_to_move == PLAYER_1 ? board_1 : board_2;
+        vector<ConnectFourMove> result(WIDTH);
+        int moves_count = 0;
         for (unsigned x = 0; x < WIDTH; ++x) {
-            if (board[x] == EMPTY) {
-                result.emplace_back(ConnectFourMove(x));
+            if (is_empty(x, 0)) {
+                result[moves_count++] = ConnectFourMove(x);
             }
         }
+        result.resize(moves_count);
         return result;
     }
 
@@ -202,73 +147,22 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
     }
 
     bool is_winner(char player) const override {
-        // - horizontal
-        for (int y = 0; y < HEIGHT; ++y) {
-            int count = 0;
-            for (int x = 0; x < WIDTH; ++x) {
-                if (board[y * WIDTH + x] == player) {
-                    count++;
-                    if (count == 4) {
-                        return true;
-                    }
-                } else {
-                    count = 0;
-                }
-            }
-        }
-        // | vertical
-        for (int x = 0; x < WIDTH; ++x) {
-            int count = 0;
-            for (int y = 0; y < HEIGHT; ++y) {
-                if (board[y * WIDTH + x] == player) {
-                    count++;
-                    if (count == 4) {
-                        return true;
-                    }
-                } else {
-                    count = 0;
-                }
-            }
-        }
-        // \ diagonal
-        for (int y = 0; y < HEIGHT - 3; ++y) {
-            for (int x = 0; x < WIDTH - 3; ++x) {
-                int count = 0;
-                for (int i = 0; i < 4; ++i) {
-                    if (board[(y + i) * WIDTH + x + i] == player) {
-                        count++;
-                    } else {
-                        break;
-                    }
-                }
-                if (count == 4) {
-                    return true;
-                }
-            }
-        }
-        // / diagonal
-        for (int y = 3; y < HEIGHT; ++y) {
-            for (int x = 0; x < WIDTH - 3; ++x) {
-                int count = 0;
-                for (int i = 0; i < 4; ++i) {
-                    if (board[(y - i) * WIDTH + x + i] == player) {
-                        count++;
-                    } else {
-                        break;
-                    }
-                }
-                if (count == 4) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        uint64_t board = (player == PLAYER_1) ? board_1.board : board_2.board;
+        uint64_t y = board & (board >> 7LL);
+        uint64_t z = board & (board >> 8LL);
+        uint64_t w = board & (board >> 9LL);
+        uint64_t x = board & (board >> 1LL);
+        return (y & (y >> 2 * 7LL)) |
+               (z & (z >> 2 * 8LL)) |
+               (w & (w >> 2 * 9LL)) |
+               (x & (x >> 2LL));
     }
 
     void make_move(const ConnectFourMove &move) override {
         for (int y = HEIGHT - 1; y >= 0; --y) {
-            if (board[y * WIDTH + move.x] == EMPTY) {
-                board[y * WIDTH + move.x] = player_to_move;
+            if (is_empty(move.x, y)) {
+                auto &board = player_to_move == PLAYER_1 ? board_1 : board_2;
+                board.set(move.x, y, 1);
                 break;
             }
         }
@@ -278,8 +172,9 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
 
     void undo_move(const ConnectFourMove &move) override {
         for (int y = 0; y < HEIGHT; ++y) {
-            if (board[y * WIDTH + move.x] != EMPTY) {
-                board[y * WIDTH + move.x] = EMPTY;
+            if (!is_empty(move.x, y)) {
+                board_1.set(move.x, y, 0);
+                board_2.set(move.x, y, 0);
                 break;
             }
         }
@@ -287,33 +182,45 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
     }
 
     bool has_empty_space() const {
-        for (unsigned x = 0; x < WIDTH; ++x) {
-            if (board[x] == EMPTY) {
-                return true;
-            }
-        }
-        return false;
+        uint64_t board = board_1.board | board_2.board;
+        return (board & 4629771061636907072LL) != 4629771061636907072LL;
+    }
+
+    bool is_empty(int x, int y) const {
+        return board_1.get(x, y) == 0 && board_2.get(x, y) == 0;
     }
 
     ostream &to_stream(ostream &os) const override {
         for (int y = 0; y < HEIGHT; ++y) {
             for (int x = 0; x < WIDTH; ++x) {
-                os << board[y * WIDTH + x];
+                const cords c = make_pair(x, y);
+                if (board_1.get(x, y) == 1) {
+                    os << PLAYER_1;
+                } else if (board_2.get(x, y) == 1) {
+                    os << PLAYER_2;
+                } else {
+                    os << EMPTY;
+                }
             }
-            os << "\n";
+            os << endl;
         }
+        os << player_to_move << endl;
         return os;
     }
 
     bool operator==(const ConnectFourState &other) const {
-        return board == other.board && parent == other.parent && player_to_move == other.player_to_move;
+        return board_1 == other.board_1 &&
+               board_2 == other.board_2 &&
+               parent == other.parent &&
+               player_to_move == other.player_to_move;
     }
 
     size_t hash() const {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;
-        hash_combine(seed, hash_value(board));
+        hash_combine(seed, hash_value(board_1));
+        hash_combine(seed, hash_value(board_2));
         hash_combine(seed, hash_value(parent));
         hash_combine(seed, hash_value(player_to_move));
         return seed;
