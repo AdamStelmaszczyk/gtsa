@@ -201,7 +201,7 @@ struct Human : public Algorithm<S, M> {
 };
 
 template<class M>
-struct Result {
+struct MinimaxResult {
     int goodness;
     M best_move;
     bool valid_move;
@@ -268,7 +268,7 @@ struct Minimax : public Algorithm<S, M> {
         return best_move;
     }
 
-    Result<M> minimax(S *state, int depth, int alpha, int beta) {
+    MinimaxResult<M> minimax(S *state, int depth, int alpha, int beta) {
         ++nodes;
         const int alpha_original = alpha;
 
