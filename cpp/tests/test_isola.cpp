@@ -5,10 +5,10 @@
 static const int MAX_TEST_SIMULATIONS = 1000;
 
 template<class S, class M>
-vector<Algorithm<S, M> *> get_algorithms() {
+vector<shared_ptr<Algorithm<S, M>>> get_algorithms() {
     return {
-        new MonteCarloTreeSearch<S, M>(1, false, MAX_TEST_SIMULATIONS),
-        new Minimax<S, M>(),
+        shared_ptr<Algorithm<S, M>>(new MonteCarloTreeSearch<S, M>(1, false, MAX_TEST_SIMULATIONS)),
+        shared_ptr<Algorithm<S, M>>(new Minimax<S, M>()),
     };
 }
 
@@ -22,7 +22,6 @@ void test_isola_move() {
                                   "#######");
     for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == IsolaMove(1, 2, 2, 2, 1, 2));
     }
 }
@@ -37,7 +36,6 @@ void test_isola_finish() {
                                   "#######");
     for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move.remove_x == 0 && move.remove_y == 1);
     }
 }
@@ -52,7 +50,6 @@ void test_isola_not_lose() {
                                   "#######");
     for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move.step_x != 2 || move.step_y == 2);
     }
 }
@@ -67,7 +64,6 @@ void test_isola_crowded() {
                                   "#######");
     for (auto &algorithm : get_algorithms<IsolaState, IsolaMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == IsolaMove(1, 0, 2, 1, 1, 0));
     }
 }
@@ -87,7 +83,6 @@ void test_isola_terminal() {
         } catch (invalid_argument &) {
             exception_thrown = true;
         }
-        delete algorithm;
         assert(exception_thrown);
     }
 }

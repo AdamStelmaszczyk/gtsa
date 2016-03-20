@@ -5,10 +5,10 @@
 static const int MAX_TEST_SIMULATIONS = 1000;
 
 template<class S, class M>
-vector<Algorithm<S, M> *> get_algorithms() {
+vector<shared_ptr<Algorithm<S, M>>> get_algorithms() {
     return {
-            new MonteCarloTreeSearch<S, M>(1, false, MAX_TEST_SIMULATIONS),
-        new Minimax<S, M>(),
+            shared_ptr<Algorithm<S, M>>(new MonteCarloTreeSearch<S, M>(1, false, MAX_TEST_SIMULATIONS)),
+            shared_ptr<Algorithm<S, M>>(new Minimax<S, M>()),
     };
 }
 
@@ -18,7 +18,6 @@ void test_tic_tac_toe_finish() {
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == TicTacToeMove(2, 0));
     }
 }
@@ -29,7 +28,6 @@ void test_tic_tac_toe_block() {
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == TicTacToeMove(0, 2));
     }
 }
@@ -40,7 +38,6 @@ void test_tic_tac_toe_block_2() {
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == TicTacToeMove(2, 1));
     }
 }
@@ -51,7 +48,6 @@ void test_tic_tac_toe_block_3() {
                                           "O__");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == TicTacToeMove(2, 0));
     }
 }
@@ -62,7 +58,6 @@ void test_tic_tac_toe_block_4() {
                                           "__X");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == TicTacToeMove(0, 1));
     }
 }
@@ -73,7 +68,6 @@ void test_tic_tac_toe_block_5() {
                                           "OOX");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == TicTacToeMove(0, 1));
     }
 }
@@ -84,7 +78,6 @@ void test_tic_tac_toe_corner() {
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
-        delete algorithm;
         assert(move == TicTacToeMove(0, 0) || move == TicTacToeMove(0, 2) ||
                move == TicTacToeMove(2, 0) || move == TicTacToeMove(2, 2));
     }
@@ -101,7 +94,6 @@ void test_tic_tac_toe_terminal() {
         } catch (invalid_argument &) {
             exception_thrown = true;
         }
-        delete algorithm;
         assert(exception_thrown);
     }
 }
@@ -114,9 +106,6 @@ void test_tic_tac_toe_draw() {
     int matches = 10;
     Tester<TicTacToeState, TicTacToeMove> tester(&state, *algorithms[0], *algorithms[1], matches, false);
     int draws = tester.start();
-    for (auto algorithm : algorithms) {
-        delete algorithm;
-    }
     assert(draws == matches);
 }
 
