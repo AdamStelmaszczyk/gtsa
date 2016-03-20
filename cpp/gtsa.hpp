@@ -23,6 +23,8 @@ static const int INF = 2147483647;
 struct Random {
     mt19937 engine;
 
+    virtual ~Random() {}
+
     int uniform(int min, int max) {
         return uniform_int_distribution<int>{min, max}(engine);
     }
@@ -30,6 +32,8 @@ struct Random {
 
 struct Timer {
     double start_time;
+
+    virtual ~Timer() {}
 
     void start() {
         start_time = get_time();
@@ -82,6 +86,8 @@ struct Entry {
 
     Entry() {}
 
+    virtual ~Entry() {}
+
     Entry(const M &move, int depth, int value, EntryType value_type) :
             move(move), depth(depth), value(value), value_type(value_type) {}
 
@@ -103,6 +109,8 @@ struct State {
     S *parent = nullptr;
 
     State(char player_to_move) : player_to_move(player_to_move) {}
+
+    virtual ~State() {}
 
     void update_stats(double result) {
         score += result;
@@ -150,9 +158,9 @@ struct State {
 template<class S, class M>
 struct Algorithm {
 
-    Algorithm() { }
+    Algorithm() {}
 
-    virtual ~Algorithm() { }
+    virtual ~Algorithm() {}
 
     virtual M get_move(S *state) = 0;
 
@@ -167,7 +175,7 @@ struct Algorithm {
 template<class S, class M>
 struct Human : public Algorithm<S, M> {
 
-    Human() : Algorithm<S, M>() { }
+    Human() : Algorithm<S, M>() {}
 
     M get_move(S *state) override {
         const vector<M> &legal_moves = state->get_legal_moves();
@@ -216,7 +224,7 @@ struct Minimax : public Algorithm<S, M> {
             history_table(unordered_map<size_t, int>()),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
-            timer(Timer()) { }
+            timer(Timer()) {}
 
     M get_move(S *state) override {
         if (state->is_terminal()) {
@@ -411,7 +419,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         tree_table(unordered_map<size_t, S>()),
         max_seconds(max_seconds),
         verbose(verbose),
-        max_simulations(max_simulations) { }
+        max_simulations(max_simulations) {}
 
     M get_move(S *root) override {
         if (root->is_terminal()) {
@@ -666,7 +674,9 @@ struct Tester {
     const bool verbose;
 
     Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = 1, bool verbose = true) :
-            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), matches(matches), verbose(verbose) { }
+            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), matches(matches), verbose(verbose) {}
+
+    virtual ~Tester() {}
 
     int start() {
         int draws = 0;
