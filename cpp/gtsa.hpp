@@ -107,6 +107,7 @@ struct State {
     char player_to_move = 0;
     M move;
     S *parent = nullptr;
+    unordered_map<size_t, shared_ptr<S>> children = unordered_map<size_t, shared_ptr<S>>();
 
     State(char player_to_move) : player_to_move(player_to_move) {}
 
@@ -408,7 +409,6 @@ struct Minimax : public Algorithm<S, M> {
 
 template<class S, class M>
 struct MonteCarloTreeSearch : public Algorithm<S, M> {
-    unordered_map<size_t, S> tree_table;
     const double max_seconds;
     const int max_simulations;
     const bool verbose;
@@ -416,7 +416,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     MonteCarloTreeSearch(double max_seconds = 1, bool verbose = false, int max_simulations = MAX_SIMULATIONS) :
         Algorithm<S, M>(),
-        tree_table(unordered_map<size_t, S>()),
         max_seconds(max_seconds),
         verbose(verbose),
         max_simulations(max_simulations) {}
@@ -429,7 +428,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
         Timer timer;
         timer.start();
-        remove_tree();
         int simulation = 0;
         while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
             monte_carlo_tree_search(root);
@@ -440,21 +438,15 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             cout << "simulations: " << simulation << endl;
             auto legal_moves = root->get_legal_moves();
             cout << "moves: " << legal_moves.size() << endl;
-            for (auto move : legal_moves) {
-                auto child = get_child_from_hashmap(root, move);
-                if (child != nullptr) {
-                    cout << "move: " << move
-                    << " score: " << child->score
-                    << " visits: " << child->visits
-                    << " UCT: " << child->get_uct(UCT_C) << endl;
-                }
+            for (auto p : root->children) {
+                auto child = p.second;
+                cout << "move: " << child->move
+                << " score: " << child->score
+                << " visits: " << child->visits
+                << " UCT: " << child->get_uct(UCT_C) << endl;
             }
         }
         return get_most_visited_move(root);
-    }
-
-    void remove_tree() {
-        tree_table.clear();
     }
 
     void monte_carlo_tree_search(S *root) {
@@ -475,9 +467,9 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             return state;
         }
         M move = get_tree_policy_move(state, root);
-        auto child = get_child_from_hashmap(state, move);
+        auto child = get_child(state, move);
         if (child == nullptr) {
-            return add_child_to_hashmap(state, move);
+            return add_child(state, move);
         }
         return tree_policy(child, root);
     }
@@ -488,7 +480,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         M best_move;
         double best_visits = -INF;
         for (auto move : legal_moves) {
-            auto child = get_child_from_hashmap(state, move);
+            auto child = get_child(state, move);
             if (child != nullptr) {
                 auto visits = child->visits;
                 if (best_visits < visits) {
@@ -511,7 +503,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             // maximize
             double best_uct = -INF;
             for (auto move : legal_moves) {
-                auto child = get_child_from_hashmap(state, move);
+                auto child = get_child(state, move);
                 if (child != nullptr) {
                     auto uct = child->get_uct(UCT_C);
                     if (best_uct < uct) {
@@ -530,7 +522,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             // minimize
             double best_uct = INF;
             for (auto move : legal_moves) {
-                auto child = get_child_from_hashmap(state, move);
+                auto child = get_child(state, move);
                 if (child != nullptr) {
                     auto uct = child->get_uct(-UCT_C);
                     if (best_uct > uct) {
@@ -635,33 +627,28 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return "MonteCarloTreeSearch";
     }
 
-    S create_child(S *parent, M &move) {
+    shared_ptr<S> create_child(S *parent, M &move) {
         S child = parent->clone();
         child.make_move(move);
         child.parent = parent;
-        return child;
+        return make_shared<S>(child);
     }
 
-    S* add_child_to_hashmap(S *parent, M &move) {
-        S child = create_child(parent, move);
-        auto key = child.hash();
-        auto pair = tree_table.insert({key, child});
-        auto it = pair.first;
-        return &it->second;
-    }
-
-    S* get_child_from_hashmap(S *parent, M &move) {
+    S* add_child(S *parent, M &move) {
         auto child = create_child(parent, move);
-        return get_state_from_hashmap(&child);
+        auto key = move.hash();
+        auto pair = parent->children.insert({key, child});
+        auto it = pair.first;
+        return it->second.get();
     }
 
-    S* get_state_from_hashmap(S *state) {
-        auto key = state->hash();
-        auto it = tree_table.find(key);
-        if (it == tree_table.end()) {
+    S* get_child(S *parent, M &move) {
+        auto key = move.hash();
+        auto it = parent->children.find(key);
+        if (it == parent->children.end()) {
             return nullptr;
         }
-        return &it->second;
+        return it->second.get();
     }
 };
 
