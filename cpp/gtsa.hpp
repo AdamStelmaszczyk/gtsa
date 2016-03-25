@@ -280,7 +280,7 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         TTEntry<M> entry;
-        bool entry_found = get_entry(state, entry);
+        bool entry_found = get_tt_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
             ++tt_hits;
             if (entry.value_type == TTEntryType::EXACT_VALUE) {
@@ -358,7 +358,7 @@ struct Minimax : public Algorithm<S, M> {
         return {best_goodness, best_move, best_move_is_valid};
     }
 
-    bool get_entry(S *state, TTEntry<M> &entry) {
+    bool get_tt_entry(S *state, TTEntry<M> &entry) {
         auto key = state->hash();
         auto it = transposition_table.find(key);
         if (it == transposition_table.end()) {
@@ -368,7 +368,7 @@ struct Minimax : public Algorithm<S, M> {
         return true;
     }
 
-    void add_entry(S *state, const TTEntry<M> &entry) {
+    void add_tt_entry(S *state, const TTEntry<M> &entry) {
         auto key = state->hash();
         transposition_table.insert({key, entry});
     }
@@ -385,7 +385,7 @@ struct Minimax : public Algorithm<S, M> {
             value_type = TTEntryType::EXACT_VALUE;
         }
         TTEntry<M> entry = {best_move, depth, best_goodness, value_type};
-        add_entry(state, entry);
+        add_tt_entry(state, entry);
     }
 
     void update_history(const M &move, int depth) {
