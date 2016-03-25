@@ -75,27 +75,27 @@ struct Move {
     virtual size_t hash() const = 0;
 };
 
-enum EntryType { EXACT_VALUE, LOWER_BOUND, UPPER_BOUND };
+enum TTEntryType { EXACT_VALUE, LOWER_BOUND, UPPER_BOUND };
 
 template<class M>
-struct Entry {
+struct TTEntry {
     M move;
     int depth;
     int value;
-    EntryType value_type;
+    TTEntryType value_type;
 
-    Entry() {}
+    TTEntry() {}
 
-    virtual ~Entry() {}
+    virtual ~TTEntry() {}
 
-    Entry(const M &move, int depth, int value, EntryType value_type) :
+    TTEntry(const M &move, int depth, int value, TTEntryType value_type) :
             move(move), depth(depth), value(value), value_type(value_type) {}
 
     ostream &to_stream(ostream &os) {
         os << "move: " << move << " depth: " << depth << " value: " << value << " value_type: " << value_type;
     }
 
-    friend ostream &operator<<(ostream &os, const Entry &entry) {
+    friend ostream &operator<<(ostream &os, const TTEntry &entry) {
         return entry.to_stream(os);
     }
 };
@@ -209,7 +209,7 @@ struct MinimaxResult {
 
 template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
-    unordered_map<size_t, Entry<M>> transposition_table;
+    unordered_map<size_t, TTEntry<M>> transposition_table;
     unordered_map<size_t, int> history_table;
     const double MAX_SECONDS;
     const bool VERBOSE;
@@ -220,7 +220,7 @@ struct Minimax : public Algorithm<S, M> {
 
     Minimax(double max_seconds = 1, bool verbose = false) :
             Algorithm<S, M>(),
-            transposition_table(unordered_map<size_t, Entry<M>>()),
+            transposition_table(unordered_map<size_t, TTEntry<M>>()),
             history_table(unordered_map<size_t, int>()),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
@@ -279,18 +279,18 @@ struct Minimax : public Algorithm<S, M> {
             return {state->get_goodness(), best_move, best_move_is_valid};
         }
 
-        Entry<M> entry;
+        TTEntry<M> entry;
         bool entry_found = get_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
             ++tt_hits;
-            if (entry.value_type == EntryType::EXACT_VALUE) {
+            if (entry.value_type == TTEntryType::EXACT_VALUE) {
                 ++tt_exacts;
                 return {entry.value, entry.move, true};
             }
-            if (entry.value_type == EntryType::LOWER_BOUND && alpha < entry.value) {
+            if (entry.value_type == TTEntryType::LOWER_BOUND && alpha < entry.value) {
                 alpha = entry.value;
             }
-            if (entry.value_type == EntryType::UPPER_BOUND && beta > entry.value) {
+            if (entry.value_type == TTEntryType::UPPER_BOUND && beta > entry.value) {
                 beta = entry.value;
             }
             if (alpha >= beta) {
@@ -358,7 +358,7 @@ struct Minimax : public Algorithm<S, M> {
         return {best_goodness, best_move, best_move_is_valid};
     }
 
-    bool get_entry(S *state, Entry<M> &entry) {
+    bool get_entry(S *state, TTEntry<M> &entry) {
         auto key = state->hash();
         auto it = transposition_table.find(key);
         if (it == transposition_table.end()) {
@@ -368,23 +368,23 @@ struct Minimax : public Algorithm<S, M> {
         return true;
     }
 
-    void add_entry(S *state, const Entry<M> &entry) {
+    void add_entry(S *state, const TTEntry<M> &entry) {
         auto key = state->hash();
         transposition_table.insert({key, entry});
     }
 
     void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
-        EntryType value_type;
+        TTEntryType value_type;
         if (best_goodness <= alpha) {
-            value_type = EntryType::UPPER_BOUND;
+            value_type = TTEntryType::UPPER_BOUND;
         }
         else if (best_goodness >= beta) {
-            value_type = EntryType::LOWER_BOUND;
+            value_type = TTEntryType::LOWER_BOUND;
         }
         else {
-            value_type = EntryType::EXACT_VALUE;
+            value_type = TTEntryType::EXACT_VALUE;
         }
-        Entry<M> entry = {best_move, depth, best_goodness, value_type};
+        TTEntry<M> entry = {best_move, depth, best_goodness, value_type};
         add_entry(state, entry);
     }
 
