@@ -538,9 +538,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
                     return move;
                 }
             }
-            if (best_uct == -INF) {
-                return get_random_move(state);
-            }
         }
         else {
             // minimize
@@ -556,9 +553,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
                 } else {
                     return move;
                 }
-            }
-            if (best_uct == INF) {
-                return get_random_move(state);
             }
         }
         return best_move;
