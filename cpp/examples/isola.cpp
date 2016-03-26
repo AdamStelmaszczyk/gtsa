@@ -305,7 +305,6 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
     bool operator==(const IsolaState &other) const {
         return board == other.board
-               && parent == other.parent
                && player_1_cords == other.player_1_cords
                && player_2_cords == other.player_2_cords
                && player_to_move == other.player_to_move;
@@ -316,7 +315,6 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         using boost::hash_combine;
         size_t seed = 0;
         hash_combine(seed, hash_value(board));
-        hash_combine(seed, hash_value(parent));
         hash_combine(seed, hash_value(player_1_cords));
         hash_combine(seed, hash_value(player_2_cords));
         hash_combine(seed, hash_value(player_to_move));

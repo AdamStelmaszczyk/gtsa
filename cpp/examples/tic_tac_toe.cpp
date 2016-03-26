@@ -215,7 +215,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     }
 
     bool operator==(const TicTacToeState &other) const {
-        return board == other.board && parent == other.parent;
+        return board == other.board;
     }
 
     size_t hash() const {
@@ -223,7 +223,6 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         using boost::hash_combine;
         size_t seed = 0;
         hash_combine(seed, hash_value(board));
-        hash_combine(seed, hash_value(parent));
         return seed;
     }
 };

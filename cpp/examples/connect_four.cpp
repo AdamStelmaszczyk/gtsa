@@ -210,7 +210,6 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
     bool operator==(const ConnectFourState &other) const {
         return board_1 == other.board_1 &&
                board_2 == other.board_2 &&
-               parent == other.parent &&
                player_to_move == other.player_to_move;
     }
 
@@ -220,7 +219,6 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
         size_t seed = 0;
         hash_combine(seed, hash_value(board_1));
         hash_combine(seed, hash_value(board_2));
-        hash_combine(seed, hash_value(parent));
         hash_combine(seed, hash_value(player_to_move));
         return seed;
     }
