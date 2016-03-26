@@ -6,12 +6,13 @@ before_install:
   - sudo pip install --upgrade pip
   
 install:
-  - sudo apt-get install g++-4.8 valgrind libboost-all-dev
+  - sudo apt-get install g++-4.8 valgrind libboost-all-dev gcov
   - sudo pip install cpp-coveralls
 
 script:
   - make valgrind -C cpp
   
 after_success:
+  - gcov --version
   - coveralls -b cpp
 
