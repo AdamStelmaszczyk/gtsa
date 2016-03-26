@@ -179,7 +179,16 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
     bool is_terminal() const override {
         cords player_cords = get_player_cords(player_to_move);
-        return get_score_for_legal_steps(player_cords) == 0;
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                const int x = player_cords.first + dx;
+                const int y = player_cords.second + dy;
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     bool is_winner(char player) const override {
