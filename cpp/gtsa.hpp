@@ -501,20 +501,18 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         auto legal_moves = state->get_legal_moves();
         assert(legal_moves.size() > 0);
         M best_move;
-        double best_visits = -INF;
+        double max_visits = -INF;
         for (auto move : legal_moves) {
             auto child = state->get_child(move);
             if (child != nullptr) {
                 auto visits = child->visits;
-                if (best_visits < visits) {
-                    best_visits = visits;
+                if (max_visits < visits) {
+                    max_visits = visits;
                     best_move = move;
                 }
             }
         }
-        if (best_visits == -INF) {
-            return get_random_move(state);
-        }
+        assert(max_visits != -INF);
         return best_move;
     }
 
