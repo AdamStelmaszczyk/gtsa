@@ -164,7 +164,6 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
     void make_move(const TicTacToeMove &move) override {
         board[move.y * SIDE + move.x] = player_to_move;
         player_to_move = get_enemy(player_to_move);
-        this->move = move;
     }
 
     void undo_move(const TicTacToeMove &move) override {

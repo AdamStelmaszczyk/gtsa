@@ -105,7 +105,6 @@ struct State {
     unsigned visits = 0;
     double score = 0;
     char player_to_move = 0;
-    M move;
     S *parent = nullptr;
     unordered_map<size_t, shared_ptr<S>> children = unordered_map<size_t, shared_ptr<S>>();
 
@@ -438,12 +437,15 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             cout << "simulations: " << simulation << endl;
             auto legal_moves = root->get_legal_moves();
             cout << "moves: " << legal_moves.size() << endl;
-            for (auto p : root->children) {
-                auto child = p.second;
-                cout << "move: " << child->move
-                << " score: " << child->score
-                << " visits: " << child->visits
-                << " UCT: " << child->get_uct(UCT_C) << endl;
+            for (auto move : legal_moves) {
+                cout << "move: " << move;
+                auto child = get_child(root, move);
+                if (child != nullptr) {
+                    cout << " score: " << child->score
+                    << " visits: " << child->visits
+                    << " UCT: " << child->get_uct(UCT_C);
+                }
+                cout << endl;
             }
         }
         return get_most_visited_move(root);

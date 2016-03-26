@@ -190,7 +190,6 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         board.set(move.remove_x, move.remove_y, 1);
         set_player_cords(player_to_move, make_pair(move.step_x, move.step_y));
         player_to_move = get_enemy(player_to_move);
-        this->move = move;
     }
 
     void undo_move(const IsolaMove &move) override {

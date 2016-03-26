@@ -167,7 +167,6 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
             }
         }
         player_to_move = get_enemy(player_to_move);
-        this->move = move;
     }
 
     void undo_move(const ConnectFourMove &move) override {
