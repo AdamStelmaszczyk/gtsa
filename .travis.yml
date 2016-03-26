@@ -14,5 +14,5 @@ script:
   - make valgrind -C cpp
   
 after_success:
-  - coveralls -b cpp
+  - coveralls -b cpp --gcov-options '\-lp'
 
