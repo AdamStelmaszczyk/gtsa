@@ -1,6 +1,8 @@
-*.pyc
-
 .idea/
-*.iml
+CMakeCache.txt
+CMakeLists.txt
 
 *.o
+
+*.gcda
+*.gcno
