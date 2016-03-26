@@ -126,6 +126,30 @@ struct State {
         return (score / visits) + c * sqrt(log(parent_visits) / visits);
     }
 
+    shared_ptr<S> create_child(M &move) {
+        S child = clone();
+        child.make_move(move);
+        child.parent = (S*) this;
+        return make_shared<S>(child);
+    }
+
+    S* add_child(M &move) {
+        auto child = create_child(move);
+        auto key = move.hash();
+        auto pair = children.insert({key, child});
+        auto it = pair.first;
+        return it->second.get();
+    }
+
+    S* get_child(M &move) {
+        auto key = move.hash();
+        auto it = children.find(key);
+        if (it == children.end()) {
+            return nullptr;
+        }
+        return it->second.get();
+    }
+
     virtual S clone() const = 0;
 
     virtual int get_goodness() const = 0;
@@ -437,7 +461,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             cout << "moves: " << legal_moves.size() << endl;
             for (auto move : legal_moves) {
                 cout << "move: " << move;
-                auto child = get_child(root, move);
+                auto child = root->get_child(move);
                 if (child != nullptr) {
                     cout << " score: " << child->score
                     << " visits: " << child->visits
@@ -467,9 +491,9 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             return state;
         }
         M move = get_tree_policy_move(state, root);
-        auto child = get_child(state, move);
+        auto child = state->get_child(move);
         if (child == nullptr) {
-            return add_child(state, move);
+            return state->add_child(move);
         }
         return tree_policy(child, root);
     }
@@ -480,7 +504,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         M best_move;
         double best_visits = -INF;
         for (auto move : legal_moves) {
-            auto child = get_child(state, move);
+            auto child = state->get_child(move);
             if (child != nullptr) {
                 auto visits = child->visits;
                 if (best_visits < visits) {
@@ -503,7 +527,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             // maximize
             double best_uct = -INF;
             for (auto move : legal_moves) {
-                auto child = get_child(state, move);
+                auto child = state->get_child(move);
                 if (child != nullptr) {
                     auto uct = child->get_uct(UCT_C);
                     if (best_uct < uct) {
@@ -522,7 +546,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             // minimize
             double best_uct = INF;
             for (auto move : legal_moves) {
-                auto child = get_child(state, move);
+                auto child = state->get_child(move);
                 if (child != nullptr) {
                     auto uct = child->get_uct(-UCT_C);
                     if (best_uct > uct) {
@@ -627,29 +651,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return "MonteCarloTreeSearch";
     }
 
-    shared_ptr<S> create_child(S *parent, M &move) {
-        S child = parent->clone();
-        child.make_move(move);
-        child.parent = parent;
-        return make_shared<S>(child);
-    }
-
-    S* add_child(S *parent, M &move) {
-        auto child = create_child(parent, move);
-        auto key = move.hash();
-        auto pair = parent->children.insert({key, child});
-        auto it = pair.first;
-        return it->second.get();
-    }
-
-    S* get_child(S *parent, M &move) {
-        auto key = move.hash();
-        auto it = parent->children.find(key);
-        if (it == parent->children.end()) {
-            return nullptr;
-        }
-        return it->second.get();
-    }
 };
 
 template<class S, class M>
