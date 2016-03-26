@@ -118,10 +118,8 @@ struct State {
     }
 
     double get_uct(double c) const {
-        if (visits == 0) {
-            return 1.1;
-        }
-        double parent_visits = 0;
+        assert(visits > 0);
+        double parent_visits = 0.0;
         if (parent != nullptr) {
             parent_visits = parent->visits;
         }
