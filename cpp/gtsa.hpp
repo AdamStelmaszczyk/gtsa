@@ -226,7 +226,7 @@ template<class M>
 struct MinimaxResult {
     int goodness;
     M best_move;
-    bool valid_move;
+    bool completed;
 };
 
 template<class S, class M>
@@ -265,7 +265,7 @@ struct Minimax : public Algorithm<S, M> {
             nodes = 0;
             leafs = 0;
             auto result = minimax(state, max_depth, -INF, INF);
-            if (result.valid_move) {
+            if (result.completed) {
                 best_move = result.best_move;
                 if (VERBOSE) {
                     cout << "goodness: " << result.goodness
@@ -295,10 +295,9 @@ struct Minimax : public Algorithm<S, M> {
         const int alpha_original = alpha;
 
         M best_move;
-        bool best_move_is_valid = false;
         if (depth == 0 || state->is_terminal()) {
             ++leafs;
-            return {state->get_goodness(), best_move, best_move_is_valid};
+            return {state->get_goodness(), best_move, false};
         }
 
         TTEntry<M> entry;
@@ -327,7 +326,6 @@ struct Minimax : public Algorithm<S, M> {
         if (entry_found) {
             // If available, first try the best move from the table
             best_move = entry.move;
-            best_move_is_valid = true;
             state->make_move(best_move);
             best_goodness = -minimax(
                 state,
@@ -342,6 +340,7 @@ struct Minimax : public Algorithm<S, M> {
             }
         }
 
+        bool completed = true;
         if (generate_moves) {
             auto legal_moves = state->get_legal_moves();
             sort_by_history_heuristic(legal_moves);
@@ -355,12 +354,12 @@ struct Minimax : public Algorithm<S, M> {
                 ).goodness;
                 state->undo_move(move);
                 if (timer.exceeded(MAX_SECONDS)) {
+                    completed = false;
                     break;
                 }
                 if (best_goodness < goodness) {
                     best_goodness = goodness;
                     best_move = move;
-                    best_move_is_valid = true;
                     if (best_goodness >= beta) {
                         ++beta_cuts;
                         break;
@@ -372,12 +371,12 @@ struct Minimax : public Algorithm<S, M> {
             }
         }
 
-        if (best_move_is_valid) {
+        if (completed) {
             update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
             update_history(best_move, depth);
         }
 
-        return {best_goodness, best_move, best_move_is_valid};
+        return {best_goodness, best_move, completed};
     }
 
     bool get_tt_entry(S *state, TTEntry<M> &entry) {
