@@ -432,12 +432,17 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const double max_seconds;
     const int max_simulations;
     const bool verbose;
+    const bool block;
     Random random;
 
-    MonteCarloTreeSearch(double max_seconds = 1, bool verbose = false, int max_simulations = MAX_SIMULATIONS) :
+    MonteCarloTreeSearch(double max_seconds = 1,
+                         bool verbose = false,
+                         int max_simulations = MAX_SIMULATIONS,
+                         bool block = false) :
         Algorithm<S, M>(),
         max_seconds(max_seconds),
         verbose(verbose),
+        block(block),
         max_simulations(max_simulations) {}
 
     M get_move(S *root) override {
@@ -599,10 +604,12 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         if (move_ptr != nullptr) {
             return *move_ptr;
         }
-        // If player has a blocking move he makes it.
-        move_ptr = get_blocking_move(state);
-        if (move_ptr != nullptr) {
-            return *move_ptr;
+        if (block) {
+            // If player has a blocking move he makes it.
+            move_ptr = get_blocking_move(state);
+            if (move_ptr != nullptr) {
+                return *move_ptr;
+            }
         }
         return get_best_move(state, root);
     }
