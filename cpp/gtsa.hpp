@@ -235,17 +235,19 @@ struct Minimax : public Algorithm<S, M> {
     unordered_map<size_t, int> history_table;
     const double MAX_SECONDS;
     const bool VERBOSE;
+    const int MAX_MOVES;
     Timer timer;
     int beta_cuts;
     int tt_hits, tt_exacts, tt_cuts, tt_firsts;
     int nodes, leafs;
 
-    Minimax(double max_seconds = 1, bool verbose = false) :
+    Minimax(double max_seconds = 1, bool verbose = false, int max_moves = INF) :
             Algorithm<S, M>(),
             transposition_table(unordered_map<size_t, TTEntry<M>>()),
             history_table(unordered_map<size_t, int>()),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
+            MAX_MOVES(max_moves),
             timer(Timer()) {}
 
     M get_move(S *state) override {
@@ -344,6 +346,9 @@ struct Minimax : public Algorithm<S, M> {
         if (generate_moves) {
             auto legal_moves = state->get_legal_moves();
             sort_by_history_heuristic(legal_moves);
+            if (legal_moves.size() > MAX_MOVES) {
+                legal_moves.resize(MAX_MOVES);
+            }
             for (const auto& move : legal_moves) {
                 state->make_move(move);
                 const int goodness = -minimax(
