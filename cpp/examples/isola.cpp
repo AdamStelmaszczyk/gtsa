@@ -226,7 +226,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     int dist(int x1, int y1, int x2, int y2) const {
-        return min(abs(x1 - x2), abs(y1 - y2));
+        return max(abs(x1 - x2), abs(y1 - y2));
     }
 
     vector<cords> get_further_remove_moves() const {
