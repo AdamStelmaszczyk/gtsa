@@ -669,11 +669,12 @@ struct Tester {
     S *root = nullptr;
     Algorithm<S, M> &algorithm_1;
     Algorithm<S, M> &algorithm_2;
-    const bool verbose;
+    const int MATCHES;
+    const bool VERBOSE;
     const double SIGNIFICANCE_LEVEL = 0.005; // two sided 99% confidence interval
 
-    Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, bool verbose = false) :
-            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), verbose(verbose) {}
+    Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = INF, bool verbose = false) :
+            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), MATCHES(matches), VERBOSE(verbose) {}
 
     virtual ~Tester() {}
 
@@ -682,14 +683,14 @@ struct Tester {
         int algorithm_1_wins = 0;
         int algorithm_2_wins = 0;
         char enemy = root->get_enemy(root->player_to_move);
-        for (int i = 1; ; ++i) {
-            if (verbose) {
+        for (int i = 1; i <= MATCHES; ++i) {
+            if (VERBOSE) {
                 cout << *root << endl;
             }
             auto current = root->clone();
             while (!current.is_terminal()) {
                 auto &algorithm = (current.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
-                if (verbose) {
+                if (VERBOSE) {
                     cout << current.player_to_move << " " << algorithm << endl;
                 }
                 algorithm.reset();
@@ -697,11 +698,11 @@ struct Tester {
                 timer.start();
                 auto copy = current.clone();
                 auto move = algorithm.get_move(&copy);
-                if (verbose) {
+                if (VERBOSE) {
                     cout << timer << endl;
                 }
                 current.make_move(move);
-                if (verbose) {
+                if (VERBOSE) {
                     cout << current << endl;
                 }
             }
