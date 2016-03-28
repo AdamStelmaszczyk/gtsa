@@ -10,7 +10,7 @@ int main() {
                                   "___1___");
 
     auto a = Minimax<IsolaState, IsolaMove>(0.1, false, 20);
-    auto b = Minimax<IsolaState, IsolaMove>(0.1, false, 10);
+    auto b = Minimax<IsolaState, IsolaMove>(0.1, false);
 
     Tester<IsolaState, IsolaMove> tester(&state, a, b);
     tester.start();
