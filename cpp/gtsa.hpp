@@ -246,8 +246,8 @@ struct Minimax : public Algorithm<S, M> {
 
     Minimax(double max_seconds = 1, bool verbose = false, int max_moves = INF) :
             Algorithm<S, M>(),
-            transposition_table(unordered_map<size_t, TTEntry<M>>()),
-            history_table(unordered_map<size_t, int>()),
+            transposition_table(unordered_map<size_t, TTEntry<M>>(1000000)),
+            history_table(unordered_map<size_t, int>(1000000)),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
             MAX_MOVES(max_moves),
