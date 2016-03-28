@@ -6,9 +6,8 @@ Usage
 ---
 
 1. Specify game rules by subclassing `State` and `Move`. 
-2. Create AI players with chosen algorithms. You can also play by yourself (`Human` class).
-3. Read the state and output the move (typical for programming contests). 
-Alternatively, use `Tester` to play couple of games (typical for local testing).
+2. Choose AI algorithm (`Minimax` or `MonteCarloTreeSearch`) or play by yourself (`Human`).
+3. Read the state and output the move. For local, statistically significant tests, use `Tester`.
 
 Implemented algorithms
 ---
