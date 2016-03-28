@@ -148,12 +148,12 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         if (enemy_score == 0) {
             return 10000;
         }
-        return player_score - enemy_score;
+        return player_score - enemy_score + random() % 2;
     }
 
     vector<IsolaMove> get_legal_moves() const override {
         auto player_cords = get_player_cords(player_to_move);
-        auto step_moves = get_legal_step_moves(player_cords.first, player_cords.second);
+        auto step_moves = get_moves_around(player_cords.first, player_cords.second);
         auto critical_remove_moves = get_critical_remove_moves();
         auto further_remove_moves = get_further_remove_moves();
         vector<IsolaMove> moves(step_moves.size() * (critical_remove_moves.size() + further_remove_moves.size()));
@@ -219,21 +219,9 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     vector<cords> get_critical_remove_moves() const {
-        vector<cords> result(9);
-        int size = 0;
-        auto enemy = get_enemy(player_to_move);
-        auto enemy_cords = get_player_cords(enemy);
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                const int x = enemy_cords.first + dx;
-                const int y = enemy_cords.second + dy;
-                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
-                    result[size++] = make_pair(x, y);
-                }
-            }
-        }
-        result[size++] = get_player_cords(player_to_move);
-        result.resize(size);
+        auto enemy_cords = get_player_cords(get_enemy(player_to_move));
+        vector<cords> result(get_moves_around(enemy_cords.first, enemy_cords.second));
+        result.push_back(get_player_cords(player_to_move));
         return result;
     }
 
@@ -257,7 +245,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    vector<cords> get_legal_step_moves(int start_x, int start_y) const {
+    vector<cords> get_moves_around(int start_x, int start_y) const {
         // Closer to the center first
         vector<cords> result(8);
         int dx_order = 1;

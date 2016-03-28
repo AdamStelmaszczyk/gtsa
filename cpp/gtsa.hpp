@@ -1,3 +1,4 @@
+#include <boost/math/distributions/binomial.hpp>
 #include <unordered_map>
 #include <sys/time.h>
 #include <algorithm>
@@ -184,6 +185,8 @@ struct Algorithm {
 
     virtual ~Algorithm() {}
 
+    virtual void reset() {}
+
     virtual M get_move(S *state) = 0;
 
     virtual string get_name() const = 0;
@@ -249,6 +252,11 @@ struct Minimax : public Algorithm<S, M> {
             VERBOSE(verbose),
             MAX_MOVES(max_moves),
             timer(Timer()) {}
+
+    void reset() {
+        transposition_table.clear();
+        history_table.clear();
+    }
 
     M get_move(S *state) override {
         if (state->is_terminal()) {
@@ -661,11 +669,11 @@ struct Tester {
     S *root = nullptr;
     Algorithm<S, M> &algorithm_1;
     Algorithm<S, M> &algorithm_2;
-    const int matches;
     const bool verbose;
+    const double SIGNIFICANCE_LEVEL = 0.005; // two sided 99% confidence interval
 
-    Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = 1, bool verbose = true) :
-            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), matches(matches), verbose(verbose) {}
+    Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, bool verbose = false) :
+            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), verbose(verbose) {}
 
     virtual ~Tester() {}
 
@@ -674,7 +682,7 @@ struct Tester {
         int algorithm_1_wins = 0;
         int algorithm_2_wins = 0;
         char enemy = root->get_enemy(root->player_to_move);
-        for (int i = 1; i <= matches; ++i) {
+        for (int i = 1; ; ++i) {
             if (verbose) {
                 cout << *root << endl;
             }
@@ -684,6 +692,7 @@ struct Tester {
                 if (verbose) {
                     cout << current.player_to_move << " " << algorithm << endl;
                 }
+                algorithm.reset();
                 Timer timer;
                 timer.start();
                 auto copy = current.clone();
@@ -696,22 +705,32 @@ struct Tester {
                     cout << current << endl;
                 }
             }
-            cout << "Match " << i << "/" << matches << ": ";
+            cout << "Match " << i << ": ";
             if (current.is_winner(root->player_to_move)) {
                 ++algorithm_1_wins;
-                cout << root->player_to_move << " " << algorithm_1 << endl;
+                cout << root->player_to_move << " " << algorithm_1 << " won" << endl;
             } else if (current.is_winner(enemy)) {
                 ++algorithm_2_wins;
-                cout << enemy << " " << algorithm_2 << endl;
+                cout << enemy << " " << algorithm_2 << " won" << endl;
             } else {
                 ++draws;
                 cout << "draw" << endl;
             }
+            cout << root->player_to_move << " " << algorithm_1 << " wins: " << algorithm_1_wins << endl;
+            cout << enemy << " " << algorithm_2 << " wins: " << algorithm_2_wins << endl;
+            cout << "Draws: " << draws << endl;
+            double successes = algorithm_1_wins + 0.5 * draws;
+            double ratio = successes / i;
+            cout << "Ratio: " << ratio << endl;
+            double lower = boost::math::binomial_distribution<>::find_lower_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
+            double upper = boost::math::binomial_distribution<>::find_upper_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
+            cout << "Lower confidence bound: " << lower << endl;
+            cout << "Upper confidence bound: " << upper << endl;
+            cout << endl;
+            if (upper < 0.5 || lower > 0.5) {
+                break;
+            }
         }
-        cout << endl;
-        cout << root->player_to_move << " " << algorithm_1 << " wins: " << algorithm_1_wins << endl;
-        cout << enemy << " " << algorithm_2 << " wins: " << algorithm_2_wins << endl;
-        cout << "Draws: " << draws << endl;
         return draws;
     }
 };
