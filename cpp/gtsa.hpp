@@ -18,7 +18,6 @@ static const double DRAW_SCORE = 0.5;
 static const double LOSE_SCORE = 0;
 
 static const int MAX_DEPTH = 20;
-static const double EPSILON = 0.01;
 static const int INF = 2147483647;
 
 struct Random {
