@@ -143,6 +143,10 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return clone;
     }
 
+    int score_for_center(cords player_cords) const {
+        return - abs(player_cords.first - 3) - abs(player_cords.second - 3);
+    }
+
     int get_goodness() const override {
         cords player_cords = get_player_cords(player_to_move);
         const int player_score = get_score_for_legal_steps(player_cords, 2);
@@ -154,7 +158,9 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         if (enemy_score == 0) {
             return 10000;
         }
-        return player_score - enemy_score + random() % 2;
+        int center = score_for_center(player_cords) - score_for_center(enemy_cords);
+        int noise = random() % 2;
+        return 10 * (player_score - enemy_score) + center + noise;
     }
 
     vector<IsolaMove> get_legal_moves() const override {
