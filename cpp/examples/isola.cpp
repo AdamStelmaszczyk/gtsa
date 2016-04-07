@@ -128,6 +128,12 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         }
     }
 
+    void swap_players() {
+        auto temp = player_1_cords;
+        player_1_cords = player_2_cords;
+        player_2_cords = temp;
+    }
+
     IsolaState clone() const override {
         IsolaState clone = IsolaState();
         clone.board = Board(board);

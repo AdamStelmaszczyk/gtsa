@@ -150,6 +150,8 @@ struct State {
         return it->second.get();
     }
 
+    virtual void swap_players() {}
+
     virtual S clone() const = 0;
 
     virtual int get_goodness() const = 0;
@@ -683,10 +685,16 @@ struct Tester {
         int algorithm_2_wins = 0;
         char enemy = root->get_enemy(root->player_to_move);
         for (int i = 1; i <= MATCHES; ++i) {
-            if (VERBOSE) {
-                cout << *root << endl;
-            }
             auto current = root->clone();
+            if (i % 4 == 0 || i % 4 == 2) {
+                current.player_to_move = current.get_enemy(current.player_to_move);
+            }
+            if (i % 4 == 0 || i % 4 == 3) {
+                current.swap_players();
+            }
+            if (VERBOSE) {
+                cout << current << endl;
+            }
             while (!current.is_terminal()) {
                 auto &algorithm = (current.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
                 if (VERBOSE) {
