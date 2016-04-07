@@ -1,5 +1,6 @@
 #include <boost/math/distributions/binomial.hpp>
 #include <unordered_map>
+#include <functional>
 #include <sys/time.h>
 #include <algorithm>
 #include <iostream>
@@ -240,18 +241,20 @@ struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const bool VERBOSE;
     const int MAX_MOVES;
+    function<int(S*)> get_goodness;
     Timer timer;
     int beta_cuts;
     int tt_hits, tt_exacts, tt_cuts, tt_firsts;
     int nodes, leafs;
 
-    Minimax(double max_seconds = 1, bool verbose = false, int max_moves = INF) :
+    Minimax(double max_seconds = 1, bool verbose = false, int max_moves = INF, function<int(S*)> get_goodness = nullptr) :
             Algorithm<S, M>(),
             transposition_table(unordered_map<size_t, TTEntry<M>>(1000000)),
             history_table(unordered_map<size_t, int>(1000000)),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
             MAX_MOVES(max_moves),
+            get_goodness(get_goodness),
             timer(Timer()) {}
 
     void reset() {
@@ -264,6 +267,9 @@ struct Minimax : public Algorithm<S, M> {
             stringstream stream;
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
+        }
+        if (get_goodness == nullptr) {
+            get_goodness = bind(&State<S,M>::get_goodness, state);
         }
         timer.start();
         M best_move;
@@ -308,7 +314,7 @@ struct Minimax : public Algorithm<S, M> {
         M best_move;
         if (depth == 0 || state->is_terminal()) {
             ++leafs;
-            return {state->get_goodness(), best_move, false};
+            return {get_goodness(state), best_move, false};
         }
 
         TTEntry<M> entry;
