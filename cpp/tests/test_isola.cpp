@@ -87,11 +87,27 @@ void test_isola_terminal() {
     }
 }
 
+void test_isola_make_and_undo() {
+    IsolaState state = IsolaState("___2___"
+                                  "_______"
+                                  "_______"
+                                  "_______"
+                                  "_______"
+                                  "_______"
+                                  "___1___");
+    auto copy = state.clone();
+    auto move = IsolaMove(3, 6, 3, 5, 3, 6);
+    state.make_move(move);
+    state.undo_move(move);
+    assert(state == copy);
+}
+
 int main() {
     test_isola_move();
     test_isola_finish();
     test_isola_not_lose();
     test_isola_crowded();
     test_isola_terminal();
+    test_isola_make_and_undo();
     return 0;
 }
