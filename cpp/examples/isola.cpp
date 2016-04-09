@@ -144,7 +144,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     int score_for_center(cords player_cords) const {
-        return - abs(player_cords.first - 3) - abs(player_cords.second - 3);
+        int CENTER = SIDE / 2;
+        return - abs(player_cords.first - CENTER) - abs(player_cords.second - CENTER);
     }
 
     int get_goodness() const override {
