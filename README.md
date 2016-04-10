@@ -12,7 +12,7 @@ Usage
 Implemented algorithms
 ---
 
-- [Minimax](https://en.wikipedia.org/wiki/Minimax) ([negamax](https://en.wikipedia.org/wiki/Negamax) variant) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning), [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening), [transposition table](https://en.wikipedia.org/wiki/Transposition_table), [history heuristic](https://chessprogramming.wikispaces.com/History+Heuristic).
+- [Minimax](https://en.wikipedia.org/wiki/Minimax) ([negamax](https://en.wikipedia.org/wiki/Negamax) variant) with [alpha-beta pruning](https://en.wikipedia.org/wiki/Alpha%E2%80%93beta_pruning), [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening), [transposition table](https://en.wikipedia.org/wiki/Transposition_table).
 - [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
 https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
 
