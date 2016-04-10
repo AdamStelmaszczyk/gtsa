@@ -237,7 +237,6 @@ struct MinimaxResult {
 template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
     unordered_map<size_t, TTEntry<M>> transposition_table;
-    unordered_map<size_t, int> history_table;
     const double MAX_SECONDS;
     const bool VERBOSE;
     const int MAX_MOVES;
@@ -250,7 +249,6 @@ struct Minimax : public Algorithm<S, M> {
     Minimax(double max_seconds = 1, bool verbose = false, int max_moves = INF, function<int(S*)> get_goodness = nullptr) :
             Algorithm<S, M>(),
             transposition_table(unordered_map<size_t, TTEntry<M>>(1000000)),
-            history_table(unordered_map<size_t, int>(1000000)),
             MAX_SECONDS(max_seconds),
             VERBOSE(verbose),
             MAX_MOVES(max_moves),
@@ -259,7 +257,6 @@ struct Minimax : public Algorithm<S, M> {
 
     void reset() {
         transposition_table.clear();
-        history_table.clear();
     }
 
     M get_move(S *state) override {
@@ -298,7 +295,6 @@ struct Minimax : public Algorithm<S, M> {
                     << " tt_cuts: " << tt_cuts
                     << " tt_firsts: " << tt_firsts
                     << " tt_size: " << transposition_table.size()
-                    << " ht_size: " << history_table.size()
                     << " max_depth: " << max_depth << endl;
                 }
             }
@@ -365,7 +361,6 @@ struct Minimax : public Algorithm<S, M> {
         bool completed = true;
         if (generate_moves) {
             auto legal_moves = state->get_legal_moves();
-            sort_by_history_heuristic(legal_moves);
             if (legal_moves.size() > MAX_MOVES) {
                 legal_moves.resize(MAX_MOVES);
             }
@@ -400,7 +395,6 @@ struct Minimax : public Algorithm<S, M> {
 
         if (completed) {
             update_tt(state, alpha_original, beta, max_goodness, best_move, depth);
-            update_history(best_move, depth);
         }
 
         return {max_goodness, best_move, completed};
@@ -434,25 +428,6 @@ struct Minimax : public Algorithm<S, M> {
         }
         TTEntry<M> entry = {best_move, depth, max_goodness, value_type};
         add_tt_entry(state, entry);
-    }
-
-    void update_history(const M &move, int depth) {
-        auto key = move.hash();
-        history_table[key] += (1 << depth);
-    }
-
-    void sort_by_history_heuristic(vector<M> &moves) const {
-        stable_sort(moves.begin(), moves.end(), [&](const M &a, const M &b) {
-            auto a_score = history_table.find(a.hash());
-            if (a_score == history_table.end()) {
-                return false;
-            }
-            auto b_score = history_table.find(b.hash());
-            if (b_score == history_table.end()) {
-                return true;
-            }
-            return *a_score > *b_score;
-        });
     }
 
     string get_name() const {
