@@ -243,7 +243,7 @@ struct Minimax : public Algorithm<S, M> {
     const int MAX_MOVES;
     function<int(S*)> get_goodness;
     Timer timer;
-    int beta_cuts;
+    int beta_cuts, cut_bf_sum;
     int tt_hits, tt_exacts, tt_cuts, tt_firsts;
     int nodes, leafs;
 
@@ -291,6 +291,7 @@ struct Minimax : public Algorithm<S, M> {
                     << " nodes: " << nodes
                     << " leafs: " << leafs
                     << " beta_cuts: " << beta_cuts
+                    << " cutBF: " << (double) cut_bf_sum / beta_cuts
                     << " tt_hits: " << tt_hits
                     << " tt_exacts: " << tt_exacts
                     << " tt_cuts: " << tt_cuts
@@ -367,7 +368,8 @@ struct Minimax : public Algorithm<S, M> {
             if (legal_moves.size() > MAX_MOVES) {
                 legal_moves.resize(MAX_MOVES);
             }
-            for (const auto& move : legal_moves) {
+            for (int i = 0; i < legal_moves.size(); i++) {
+                auto move = legal_moves[i];
                 state->make_move(move);
                 const int goodness = -minimax(
                     state,
@@ -385,6 +387,7 @@ struct Minimax : public Algorithm<S, M> {
                     best_move = move;
                     if (max_goodness >= beta) {
                         ++beta_cuts;
+                        cut_bf_sum += i + 1;
                         break;
                     }
                 }
