@@ -341,20 +341,20 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         bool generate_moves = true;
-        int best_goodness = -INF;
+        int max_goodness = -INF;
 
         if (entry_found) {
             // If available, first try the best move from the table
             best_move = entry.move;
             state->make_move(best_move);
-            best_goodness = -minimax(
+            max_goodness = -minimax(
                 state,
                 depth - 1,
                 -beta,
                 -alpha
             ).goodness;
             state->undo_move(best_move);
-            if (best_goodness >= beta) {
+            if (max_goodness >= beta) {
                 ++tt_firsts;
                 generate_moves = false;
             }
@@ -380,26 +380,26 @@ struct Minimax : public Algorithm<S, M> {
                     completed = false;
                     break;
                 }
-                if (best_goodness < goodness) {
-                    best_goodness = goodness;
+                if (max_goodness < goodness) {
+                    max_goodness = goodness;
                     best_move = move;
-                    if (best_goodness >= beta) {
+                    if (max_goodness >= beta) {
                         ++beta_cuts;
                         break;
                     }
                 }
-                if (alpha < best_goodness) {
-                    alpha = best_goodness;
+                if (alpha < max_goodness) {
+                    alpha = max_goodness;
                 }
             }
         }
 
         if (completed) {
-            update_tt(state, alpha_original, beta, best_goodness, best_move, depth);
+            update_tt(state, alpha_original, beta, max_goodness, best_move, depth);
             update_history(best_move, depth);
         }
 
-        return {best_goodness, best_move, completed};
+        return {max_goodness, best_move, completed};
     }
 
     bool get_tt_entry(S *state, TTEntry<M> &entry) {
@@ -417,18 +417,18 @@ struct Minimax : public Algorithm<S, M> {
         transposition_table.insert({key, entry});
     }
 
-    void update_tt(S *state, int alpha, int beta, int best_goodness, M &best_move, int depth) {
+    void update_tt(S *state, int alpha, int beta, int max_goodness, M &best_move, int depth) {
         TTEntryType value_type;
-        if (best_goodness <= alpha) {
+        if (max_goodness <= alpha) {
             value_type = TTEntryType::UPPER_BOUND;
         }
-        else if (best_goodness >= beta) {
+        else if (max_goodness >= beta) {
             value_type = TTEntryType::LOWER_BOUND;
         }
         else {
             value_type = TTEntryType::EXACT_VALUE;
         }
-        TTEntry<M> entry = {best_move, depth, best_goodness, value_type};
+        TTEntry<M> entry = {best_move, depth, max_goodness, value_type};
         add_tt_entry(state, entry);
     }
 
