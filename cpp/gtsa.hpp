@@ -437,11 +437,17 @@ struct Minimax : public Algorithm<S, M> {
         history_table[key] += (1 << depth);
     }
 
-    void sort_by_history_heuristic(vector<M> &moves) {
+    void sort_by_history_heuristic(vector<M> &moves) const {
         stable_sort(moves.begin(), moves.end(), [&](const M &a, const M &b) {
-            int a_score = history_table[a.hash()];
-            int b_score = history_table[b.hash()];
-            return a_score > b_score;
+            auto a_score = history_table.find(a.hash());
+            if (a_score == history_table.end()) {
+                return false;
+            }
+            auto b_score = history_table.find(b.hash());
+            if (b_score == history_table.end()) {
+                return true;
+            }
+            return *a_score > *b_score;
         });
     }
 
