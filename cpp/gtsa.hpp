@@ -243,7 +243,7 @@ struct Minimax : public Algorithm<S, M> {
     function<int(S*)> get_goodness;
     Timer timer;
     int beta_cuts, cut_bf_sum;
-    int tt_hits, tt_exacts, tt_cuts, tt_firsts;
+    int tt_hits, tt_exacts, tt_cuts;
     int nodes, leafs;
 
     Minimax(double max_seconds = 1, bool verbose = false, int max_moves = INF, function<int(S*)> get_goodness = nullptr) :
@@ -276,7 +276,6 @@ struct Minimax : public Algorithm<S, M> {
             tt_hits = 0;
             tt_exacts = 0;
             tt_cuts = 0;
-            tt_firsts = 0;
             nodes = 0;
             leafs = 0;
             auto result = minimax(state, max_depth, -INF, INF);
@@ -293,7 +292,6 @@ struct Minimax : public Algorithm<S, M> {
                     << " tt_hits: " << tt_hits
                     << " tt_exacts: " << tt_exacts
                     << " tt_cuts: " << tt_cuts
-                    << " tt_firsts: " << tt_firsts
                     << " tt_size: " << transposition_table.size()
                     << " max_depth: " << max_depth << endl;
                 }
@@ -340,23 +338,6 @@ struct Minimax : public Algorithm<S, M> {
 
         bool generate_moves = true;
         int max_goodness = -INF;
-
-        if (entry_found) {
-            // If available, first try the best move from the table
-            best_move = entry.move;
-            state->make_move(best_move);
-            max_goodness = -minimax(
-                state,
-                depth - 1,
-                -beta,
-                -alpha
-            ).goodness;
-            state->undo_move(best_move);
-            if (max_goodness >= beta) {
-                ++tt_firsts;
-                generate_moves = false;
-            }
-        }
 
         bool completed = true;
         if (generate_moves) {
