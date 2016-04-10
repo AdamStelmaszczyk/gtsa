@@ -307,6 +307,9 @@ struct Minimax : public Algorithm<S, M> {
         return best_move;
     }
 
+    // Find Minimax value of the given tree,
+    // Minimax value lies within a range of [alpha; beta] window.
+    // Whenever alpha >= beta, further checks of children in a node can be pruned.
     MinimaxResult<M> minimax(S *state, int depth, int alpha, int beta) {
         ++nodes;
         const int alpha_original = alpha;
