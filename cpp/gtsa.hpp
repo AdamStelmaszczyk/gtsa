@@ -175,7 +175,7 @@ struct State {
 
     virtual int get_goodness() const = 0;
 
-    virtual vector<M> get_legal_moves() const = 0;
+    virtual vector<M> get_legal_moves(int max_moves) const = 0;
 
     virtual char get_enemy(char player) const = 0;
 
@@ -359,10 +359,7 @@ struct Minimax : public Algorithm<S, M> {
 
         bool completed = true;
         if (generate_moves) {
-            auto legal_moves = state->get_legal_moves();
-            if (legal_moves.size() > MAX_MOVES) {
-                legal_moves.resize(MAX_MOVES);
-            }
+            auto legal_moves = state->get_legal_moves(MAX_MOVES);
             for (int i = 0; i < legal_moves.size(); i++) {
                 auto move = legal_moves[i];
                 state->make_move(move);

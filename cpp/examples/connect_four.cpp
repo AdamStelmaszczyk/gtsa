@@ -122,17 +122,24 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
         return 0;
     }
 
-    vector<ConnectFourMove> get_legal_moves() const override {
+    vector<ConnectFourMove> get_legal_moves(int max_moves = INF) const override {
         auto &board = player_to_move == PLAYER_1 ? board_1 : board_2;
-        vector<ConnectFourMove> result(WIDTH);
-        int moves_count = 0;
+        int available_moves = WIDTH;
+        if (max_moves > available_moves) {
+            max_moves = available_moves;
+        }
+        vector<ConnectFourMove> moves(max_moves);
+        int i = 0;
         for (unsigned x = 0; x < WIDTH; ++x) {
             if (is_empty(x, 0)) {
-                result[moves_count++] = ConnectFourMove(x);
+                moves[i++] = ConnectFourMove(x);
+                if (i >= max_moves) {
+                    return moves;
+                }
             }
         }
-        result.resize(moves_count);
-        return result;
+        moves.resize(i);
+        return moves;
     }
 
     char get_enemy(char player) const override {

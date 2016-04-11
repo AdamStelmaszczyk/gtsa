@@ -164,36 +164,51 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return 10 * (player_score - enemy_score) + center + noise;
     }
 
-    vector<IsolaMove> get_legal_moves() const override {
+    vector<IsolaMove> get_legal_moves(int max_moves = INF) const override {
         auto player_cords = get_player_cords(player_to_move);
         auto step_moves = get_moves_around(player_cords.first, player_cords.second);
-        auto critical_remove_moves = get_critical_remove_moves();
-        auto further_remove_moves = get_further_remove_moves();
-        vector<IsolaMove> moves(step_moves.size() * (critical_remove_moves.size() + further_remove_moves.size()));
-        int size = 0;
+        auto remove_moves = get_remove_moves();
+        vector<cords> further_remove_moves;
+        if (max_moves > step_moves.size() * remove_moves.size()) {
+            further_remove_moves = get_further_remove_moves();
+            int moves_available = step_moves.size() * (remove_moves.size() + further_remove_moves.size());
+            if (max_moves > moves_available) {
+                max_moves = moves_available;
+            }
+        }
+        vector<IsolaMove> moves(max_moves);
+        int i = 0;
         for (auto step_move : step_moves) {
-            for (auto remove_move : critical_remove_moves) {
-                if (step_move != remove_move) {
-                    moves[size++] = IsolaMove(
-                        player_cords.first, player_cords.second,
-                        step_move.first, step_move.second,
-                        remove_move.first, remove_move.second
-                    );
+            for (auto remove_move : remove_moves) {
+                if (step_move == remove_move) {
+                    continue;
+                }
+                moves[i++] = IsolaMove(
+                    player_cords.first, player_cords.second,
+                    step_move.first, step_move.second,
+                    remove_move.first, remove_move.second
+                );
+                if (i >= max_moves) {
+                    return moves;
                 }
             }
         }
         for (auto step_move : step_moves) {
             for (auto remove_move : further_remove_moves) {
-                if (step_move != remove_move) {
-                    moves[size++] = IsolaMove(
-                        player_cords.first, player_cords.second,
-                        step_move.first, step_move.second,
-                        remove_move.first, remove_move.second
-                    );
+                if (step_move == remove_move) {
+                    continue;
+                }
+                moves[i++] = IsolaMove(
+                    player_cords.first, player_cords.second,
+                    step_move.first, step_move.second,
+                    remove_move.first, remove_move.second
+                );
+                if (i >= max_moves) {
+                    return moves;
                 }
             }
         }
-        moves.resize(size);
+        moves.resize(i);
         return moves;
     }
 
@@ -231,7 +246,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         board.set(move.remove_x, move.remove_y, 0);
     }
 
-    vector<cords> get_critical_remove_moves() const {
+    vector<cords> get_remove_moves() const {
         auto enemy_cords = get_player_cords(get_enemy(player_to_move));
         vector<cords> result(get_moves_around(enemy_cords.first, enemy_cords.second));
         result.push_back(get_player_cords(player_to_move));

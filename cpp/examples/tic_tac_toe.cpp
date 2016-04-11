@@ -122,16 +122,25 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return goodness;
     }
 
-    vector<TicTacToeMove> get_legal_moves() const override {
-        vector<TicTacToeMove> result;
-        for (unsigned y = 0; y < SIDE; ++y) {
-            for (unsigned x = 0; x < SIDE; ++x) {
+    vector<TicTacToeMove> get_legal_moves(int max_moves = INF) const override {
+        int available_moves = SIDE * SIDE;
+        if (max_moves > available_moves) {
+            max_moves = available_moves;
+        }
+        vector<TicTacToeMove> moves(max_moves);
+        int i = 0;
+        for (int y = 0; y < SIDE; ++y) {
+            for (int x = 0; x < SIDE; ++x) {
                 if (board[y * SIDE + x] == EMPTY) {
-                    result.emplace_back(TicTacToeMove(x, y));
+                    moves[i++] = TicTacToeMove(x, y);
+                    if (i >= max_moves) {
+                        return moves;
+                    }
                 }
             }
         }
-        return result;
+        moves.resize(i);
+        return moves;
     }
 
     char get_enemy(char player) const override {
