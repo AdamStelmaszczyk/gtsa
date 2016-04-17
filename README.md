@@ -35,4 +35,4 @@ Would like to help?
 Suggestions welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
 [Pull requests](https://github.com/AdamStelmaszczyk/gtsa/pulls) are also awesome.
 
-I'm transferring £50 to anybody who submits successful bug report.
+I'm transferring £50 to anybody who reports an actual bug.
