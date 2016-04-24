@@ -201,9 +201,19 @@ struct State {
 template<class S, class M>
 struct Algorithm {
 
-    Algorithm() {}
+    stringstream log;
+
+    Algorithm() { }
+
+    Algorithm(const Algorithm& algorithm) {}
 
     virtual ~Algorithm() {}
+
+    string read_log() {
+        string result = log.str();
+        log.str("");
+        return result;
+    }
 
     virtual void reset() {}
 
@@ -256,7 +266,6 @@ template<class S, class M>
 struct Minimax : public Algorithm<S, M> {
     unordered_map<size_t, TTEntry<M>> transposition_table;
     const double MAX_SECONDS;
-    const bool VERBOSE;
     const int MAX_MOVES;
     function<int(S*)> get_goodness;
     Timer timer;
@@ -264,11 +273,10 @@ struct Minimax : public Algorithm<S, M> {
     int tt_hits, tt_exacts, tt_cuts;
     int nodes, leafs;
 
-    Minimax(double max_seconds = 1, bool verbose = false, int max_moves = INF, function<int(S*)> get_goodness = nullptr) :
+    Minimax(double max_seconds = 1, int max_moves = INF, function<int(S*)> get_goodness = nullptr) :
             Algorithm<S, M>(),
             transposition_table(unordered_map<size_t, TTEntry<M>>(1000000)),
             MAX_SECONDS(max_seconds),
-            VERBOSE(verbose),
             MAX_MOVES(max_moves),
             get_goodness(get_goodness),
             timer(Timer()) {}
@@ -299,20 +307,18 @@ struct Minimax : public Algorithm<S, M> {
             auto result = minimax(state, max_depth, -INF, INF);
             if (result.completed) {
                 best_move = result.best_move;
-                if (VERBOSE) {
-                    cout << "goodness: " << result.goodness
-                    << " time: " << timer
-                    << " move: " << best_move
-                    << " nodes: " << nodes
-                    << " leafs: " << leafs
-                    << " beta_cuts: " << beta_cuts
-                    << " cutBF: " << (double) cut_bf_sum / beta_cuts
-                    << " tt_hits: " << tt_hits
-                    << " tt_exacts: " << tt_exacts
-                    << " tt_cuts: " << tt_cuts
-                    << " tt_size: " << transposition_table.size()
-                    << " max_depth: " << max_depth << endl;
-                }
+                this->log << "goodness: " << result.goodness
+                << " time: " << timer
+                << " move: " << best_move
+                << " nodes: " << nodes
+                << " leafs: " << leafs
+                << " beta_cuts: " << beta_cuts
+                << " cutBF: " << (double) cut_bf_sum / beta_cuts
+                << " tt_hits: " << tt_hits
+                << " tt_exacts: " << tt_exacts
+                << " tt_cuts: " << tt_cuts
+                << " tt_size: " << transposition_table.size()
+                << " max_depth: " << max_depth << endl;
             }
             if (timer.exceeded(MAX_SECONDS)) {
                 break;
@@ -435,17 +441,14 @@ template<class S, class M>
 struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const double max_seconds;
     const int max_simulations;
-    const bool verbose;
     const bool block;
     Random random;
 
     MonteCarloTreeSearch(double max_seconds = 1,
-                         bool verbose = false,
                          int max_simulations = MAX_SIMULATIONS,
                          bool block = false) :
         Algorithm<S, M>(),
         max_seconds(max_seconds),
-        verbose(verbose),
         block(block),
         max_simulations(max_simulations) {}
 
@@ -462,21 +465,19 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             monte_carlo_tree_search(root);
             ++simulation;
         }
-        if (verbose) {
-            cout << "ratio: " << root->score / root->visits << endl;
-            cout << "simulations: " << simulation << endl;
-            auto legal_moves = root->get_legal_moves();
-            cout << "moves: " << legal_moves.size() << endl;
-            for (auto move : legal_moves) {
-                cout << "move: " << move;
-                auto child = root->get_child(move);
-                if (child != nullptr) {
-                    cout << " score: " << child->score
-                    << " visits: " << child->visits
-                    << " UCT: " << child->get_uct(UCT_C);
-                }
-                cout << endl;
+        this->log << "ratio: " << root->score / root->visits << endl;
+        this->log << "simulations: " << simulation << endl;
+        auto legal_moves = root->get_legal_moves();
+        this->log << "moves: " << legal_moves.size() << endl;
+        for (auto move : legal_moves) {
+            this->log << "move: " << move;
+            auto child = root->get_child(move);
+            if (child != nullptr) {
+                this->log << " score: " << child->score
+                << " visits: " << child->visits
+                << " UCT: " << child->get_uct(UCT_C);
             }
+            this->log << endl;
         }
         return get_most_visited_move(root);
     }
@@ -696,6 +697,7 @@ struct Tester {
                 auto copy = current.clone();
                 auto move = algorithm.get_move(&copy);
                 if (VERBOSE) {
+                    cout << algorithm.read_log();
                     cout << timer << endl;
                 }
                 current.make_move(move);

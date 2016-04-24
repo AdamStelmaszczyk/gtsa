@@ -7,8 +7,8 @@ static const int MAX_TEST_SIMULATIONS = 1000;
 template<class S, class M>
 vector<shared_ptr<Algorithm<S, M>>> get_algorithms() {
     return {
-            shared_ptr<Algorithm<S, M>>(new MonteCarloTreeSearch<S, M>(1, false, MAX_TEST_SIMULATIONS, true)),
-            shared_ptr<Algorithm<S, M>>(new Minimax<S, M>()),
+        shared_ptr<Algorithm<S, M>>(new MonteCarloTreeSearch<S, M>()),
+        shared_ptr<Algorithm<S, M>>(new Minimax<S, M>()),
     };
 }
 

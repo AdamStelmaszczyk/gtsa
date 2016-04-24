@@ -9,8 +9,8 @@ int main() {
                                   "_______"
                                   "___1___");
 
-    auto a = Minimax<IsolaState, IsolaMove>(0.1, false, 20);
-    auto b = Minimax<IsolaState, IsolaMove>(0.1, false);
+    Minimax<IsolaState, IsolaMove> a(0.1, 20);
+    Human<IsolaState, IsolaMove> b;
 
     Tester<IsolaState, IsolaMove> tester(&state, a, b);
     tester.start();
