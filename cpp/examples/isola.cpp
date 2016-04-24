@@ -150,18 +150,29 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
     int get_goodness() const override {
         cords player_cords = get_player_cords(player_to_move);
-        const int player_score = get_score_for_legal_steps(player_cords, 2);
-        if (player_score == 0) {
+        cords enemy_cords = get_player_cords(get_enemy(player_to_move));
+
+        int player_area = get_score_for_legal_steps(player_cords, 2);
+        if (player_area == 0) {
             return -10000;
         }
-        cords enemy_cords = get_player_cords(get_enemy(player_to_move));
-        const int enemy_score = get_score_for_legal_steps(enemy_cords, 2);
-        if (enemy_score == 0) {
+        if (player_area == 1) {
+            player_area = -1000;
+        }
+
+        int enemy_area = get_score_for_legal_steps(enemy_cords, 2);
+        if (enemy_area == 0) {
             return 10000;
         }
+        if (enemy_area == 1) {
+            enemy_area = -1000;
+        }
+
+        int area = player_area - enemy_area;
         int center = score_for_center(player_cords) - score_for_center(enemy_cords);
         int noise = random() % 2;
-        return 10 * (player_score - enemy_score) + center + noise;
+
+        return 10 * area + center + noise;
     }
 
     vector<IsolaMove> get_legal_moves(int max_moves = INF) const override {
