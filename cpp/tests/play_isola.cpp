@@ -10,7 +10,7 @@ int main() {
                                   "___1___");
 
     Minimax<IsolaState, IsolaMove> a(0.1, 20);
-    Human<IsolaState, IsolaMove> b;
+    Minimax<IsolaState, IsolaMove> b(0.1);
 
     Tester<IsolaState, IsolaMove> tester(&state, a, b);
     tester.start();
