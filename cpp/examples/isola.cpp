@@ -157,7 +157,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             return -10000;
         }
         if (player_area == 1) {
-            player_area = -1000;
+            player_area = -100;
         }
 
         int enemy_area = get_score_for_legal_steps(enemy_cords, 2);
@@ -165,7 +165,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             return 10000;
         }
         if (enemy_area == 1) {
-            enemy_area = -1000;
+            enemy_area = -100;
         }
 
         int area = player_area - enemy_area;
