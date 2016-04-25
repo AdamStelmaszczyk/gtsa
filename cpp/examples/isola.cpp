@@ -287,7 +287,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
                     }
                 }
             }
-            for (int dy = -d; dy <= d; ++dy) {
+            for (int dy = -d + 1; dy <= d - 1; ++dy) {
                 int y = enemy_cords.second + dy;
                 if (y >= 0 && y < SIDE) {
                     int x = enemy_cords.first - d;
