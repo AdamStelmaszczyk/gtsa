@@ -9,6 +9,9 @@ const char PLAYER_2 = '2';
 const char EMPTY = '_';
 const char REMOVED = '#';
 
+int CORNER[] = {-1, -1, 1, -1, 1, 1, -1, 1};
+int DIR[] = {1, 0, 0, 1, -1, 0, 0, -1};
+
 struct IsolaMove : public Move<IsolaMove> {
     unsigned from_x;
     unsigned from_y;
@@ -274,28 +277,11 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         auto enemy = get_enemy(player_to_move);
         auto enemy_cords = get_player_cords(enemy);
         for (int d = 2; d < SIDE; d++) {
-            for (int dx = -d; dx <= d; ++dx) {
-                int x = enemy_cords.first + dx;
-                if (x >= 0 && x < SIDE) {
-                    int y = enemy_cords.second - d;
-                    if (y >= 0 && is_empty(x, y)) {
-                        result[size++] = make_pair(x, y);
-                    }
-                    y = enemy_cords.second + d;
-                    if (y < SIDE && is_empty(x, y)) {
-                        result[size++] = make_pair(x, y);
-                    }
-                }
-            }
-            for (int dy = -d + 1; dy <= d - 1; ++dy) {
-                int y = enemy_cords.second + dy;
-                if (y >= 0 && y < SIDE) {
-                    int x = enemy_cords.first - d;
-                    if (x >= 0 && is_empty(x, y)) {
-                        result[size++] = make_pair(x, y);
-                    }
-                    x = enemy_cords.first + d;
-                    if (x < SIDE && is_empty(x, y)) {
+            for (int i = 0; i < 2 * d; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    int x = enemy_cords.first + d * CORNER[2 * j] + DIR[2 * j];
+                    int y = enemy_cords.second + d * CORNER[2 * j + 1] + DIR[2 * j + 1];
+                    if (x >= 0 && y >= 0 && x < SIDE && y < SIDE && is_empty(x, y)) {
                         result[size++] = make_pair(x, y);
                     }
                 }
