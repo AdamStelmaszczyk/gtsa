@@ -178,52 +178,70 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return 10 * area + center + noise;
     }
 
-    vector<IsolaMove> get_legal_moves(int max_moves = INF) const override {
+    vector<IsolaMove> get_legal_moves(int how_many = INF) const override {
         auto player_cords = get_player_cords(player_to_move);
         auto step_moves = get_moves_around(player_cords.first, player_cords.second);
-        auto remove_moves = get_remove_moves();
-        vector<cords> further_remove_moves;
-        if (max_moves > step_moves.size() * remove_moves.size()) {
-            further_remove_moves = get_further_remove_moves();
-            int moves_available = step_moves.size() * (remove_moves.size() + further_remove_moves.size());
-            if (max_moves > moves_available) {
-                max_moves = moves_available;
-            }
+        assert(!step_moves.empty());
+
+        int how_many_removes = ceil((double) how_many / step_moves.size());
+        auto remove_moves = get_remove_moves(how_many_removes);
+
+        int moves_count = step_moves.size() * remove_moves.size();
+        if (how_many > moves_count) {
+            how_many = moves_count;
         }
-        vector<IsolaMove> moves(max_moves);
-        int i = 0;
+        vector<IsolaMove> moves(how_many);
+
+        int size = 0;
         for (auto step_move : step_moves) {
             for (auto remove_move : remove_moves) {
                 if (step_move == remove_move) {
                     continue;
                 }
-                moves[i++] = IsolaMove(
+                moves[size++] = IsolaMove(
                     player_cords.first, player_cords.second,
                     step_move.first, step_move.second,
                     remove_move.first, remove_move.second
                 );
-                if (i >= max_moves) {
+                if (size >= how_many) {
                     return moves;
                 }
             }
         }
-        for (auto step_move : step_moves) {
-            for (auto remove_move : further_remove_moves) {
-                if (step_move == remove_move) {
-                    continue;
-                }
-                moves[i++] = IsolaMove(
-                    player_cords.first, player_cords.second,
-                    step_move.first, step_move.second,
-                    remove_move.first, remove_move.second
-                );
-                if (i >= max_moves) {
-                    return moves;
-                }
-            }
-        }
-        moves.resize(i);
+
+        moves.resize(size);
         return moves;
+    }
+
+    vector<cords> get_remove_moves(int how_many) const {
+        int moves_count = SIDE * SIDE;
+        if (how_many > moves_count) {
+            how_many = moves_count;
+        }
+
+        vector<cords> result(how_many);
+        result[0] = get_player_cords(player_to_move);
+
+        int size = 1;
+        auto enemy = get_enemy(player_to_move);
+        auto enemy_cords = get_player_cords(enemy);
+        for (int d = 1; d < SIDE; d++) {
+            for (int i = 0; i < 2 * d; ++i) {
+                for (int j = 0; j < 4; ++j) {
+                    int x = enemy_cords.first + d * CORNER[2 * j] + DIR[2 * j];
+                    int y = enemy_cords.second + d * CORNER[2 * j + 1] + DIR[2 * j + 1];
+                    if (x >= 0 && y >= 0 && x < SIDE && y < SIDE && is_empty(x, y)) {
+                        result[size++] = make_pair(x, y);
+                        if (size >= how_many) {
+                            return result;
+                        }
+                    }
+                }
+            }
+        }
+
+        result.resize(size);
+        return result;
     }
 
     char get_enemy(char player) const override {
@@ -258,37 +276,6 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         player_to_move = get_enemy(player_to_move);
         set_player_cords(player_to_move, make_pair(move.from_x, move.from_y));
         board.set(move.remove_x, move.remove_y, 0);
-    }
-
-    vector<cords> get_remove_moves() const {
-        auto enemy_cords = get_player_cords(get_enemy(player_to_move));
-        vector<cords> result(get_moves_around(enemy_cords.first, enemy_cords.second));
-        result.push_back(get_player_cords(player_to_move));
-        return result;
-    }
-
-    int dist(int x1, int y1, int x2, int y2) const {
-        return max(abs(x1 - x2), abs(y1 - y2));
-    }
-
-    vector<cords> get_further_remove_moves() const {
-        vector<cords> result(SIDE * SIDE);
-        int size = 0;
-        auto enemy = get_enemy(player_to_move);
-        auto enemy_cords = get_player_cords(enemy);
-        for (int d = 2; d < SIDE; d++) {
-            for (int i = 0; i < 2 * d; ++i) {
-                for (int j = 0; j < 4; ++j) {
-                    int x = enemy_cords.first + d * CORNER[2 * j] + DIR[2 * j];
-                    int y = enemy_cords.second + d * CORNER[2 * j + 1] + DIR[2 * j + 1];
-                    if (x >= 0 && y >= 0 && x < SIDE && y < SIDE && is_empty(x, y)) {
-                        result[size++] = make_pair(x, y);
-                    }
-                }
-            }
-        }
-        result.resize(size);
-        return result;
     }
 
     vector<cords> get_moves_around(int start_x, int start_y) const {
