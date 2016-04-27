@@ -193,8 +193,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         vector<IsolaMove> moves(how_many);
 
         int size = 0;
-        for (auto step_move : step_moves) {
-            for (auto remove_move : remove_moves) {
+        for (auto remove_move : remove_moves) {
+            for (auto step_move : step_moves) {
                 if (step_move == remove_move) {
                     continue;
                 }
@@ -228,8 +228,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         for (int d = 1; d < SIDE; d++) {
             for (int i = 0; i < 2 * d; ++i) {
                 for (int j = 0; j < 4; ++j) {
-                    int x = enemy_cords.first + d * CORNER[2 * j] + DIR[2 * j];
-                    int y = enemy_cords.second + d * CORNER[2 * j + 1] + DIR[2 * j + 1];
+                    int x = enemy_cords.first + d * CORNER[2 * j] + i * DIR[2 * j];
+                    int y = enemy_cords.second + d * CORNER[2 * j + 1] + i * DIR[2 * j + 1];
                     if (x >= 0 && y >= 0 && x < SIDE && y < SIDE && is_empty(x, y)) {
                         result[size++] = make_pair(x, y);
                         if (size >= how_many) {
