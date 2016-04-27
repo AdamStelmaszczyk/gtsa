@@ -193,8 +193,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         vector<IsolaMove> moves(how_many);
 
         int size = 0;
-        for (auto remove_move : remove_moves) {
-            for (auto step_move : step_moves) {
+        for (auto step_move : step_moves) {
+            for (auto remove_move : remove_moves) {
                 if (step_move == remove_move) {
                     continue;
                 }
