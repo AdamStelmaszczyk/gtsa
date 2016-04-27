@@ -102,6 +102,24 @@ void test_isola_make_and_undo() {
     assert(state == copy);
 }
 
+void test_get_remove_moves() {
+    IsolaState state = IsolaState("___2___"
+                                  "_______"
+                                  "_______"
+                                  "_______"
+                                  "_______"
+                                  "_______"
+                                  "___1___");
+    auto moves = state.get_remove_moves(6);
+    assert(moves.size() == 6);
+    assert(find(moves.begin(), moves.end(), cords(3, 6)) != moves.end());
+    assert(find(moves.begin(), moves.end(), cords(2, 0)) != moves.end());
+    assert(find(moves.begin(), moves.end(), cords(4, 0)) != moves.end());
+    assert(find(moves.begin(), moves.end(), cords(2, 1)) != moves.end());
+    assert(find(moves.begin(), moves.end(), cords(3, 1)) != moves.end());
+    assert(find(moves.begin(), moves.end(), cords(4, 1)) != moves.end());
+}
+
 int main() {
     test_isola_move();
     test_isola_finish();
@@ -109,5 +127,6 @@ int main() {
     test_isola_crowded();
     test_isola_terminal();
     test_isola_make_and_undo();
+    test_get_remove_moves();
     return 0;
 }
