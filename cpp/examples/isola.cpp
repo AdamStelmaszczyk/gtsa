@@ -225,11 +225,19 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         int size = 1;
         auto enemy = get_enemy(player_to_move);
         auto enemy_cords = get_player_cords(enemy);
+        int dx_order = 1;
+        if (enemy_cords.first < SIDE / 2) {
+            dx_order = -1;
+        }
+        int dy_order = 1;
+        if (enemy_cords.second < SIDE / 2) {
+            dy_order = -1;
+        }
         for (int d = 1; d < SIDE; d++) {
-            for (int i = 0; i < 2 * d; ++i) {
-                for (int j = 0; j < 4; ++j) {
-                    int x = enemy_cords.first + d * CORNER[2 * j] + i * DIR[2 * j];
-                    int y = enemy_cords.second + d * CORNER[2 * j + 1] + i * DIR[2 * j + 1];
+            for (int j = 0; j < 4; ++j) {
+                for (int i = 0; i < 2 * d; ++i) {
+                    int x = enemy_cords.first + dx_order * (d * CORNER[2 * j] + i * DIR[2 * j]);
+                    int y = enemy_cords.second + dy_order * (d * CORNER[2 * j + 1] + i * DIR[2 * j + 1]);
                     if (x >= 0 && y >= 0 && x < SIDE && y < SIDE && is_empty(x, y)) {
                         result[size++] = make_pair(x, y);
                         if (size >= how_many) {
