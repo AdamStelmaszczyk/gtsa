@@ -1,5 +1,5 @@
 CC=g++-4.8
-FLAGS=-std=c++11 -O2 -fprofile-arcs -ftest-coverage
+FLAGS=-std=c++11 -O2 -fprofile-arcs -ftest-coverage -Wreturn-type
 
 all: tests/test_tic_tac_toe.o tests/test_isola.o tests/test_connect_four.o tests/play_isola.o
 
