@@ -111,7 +111,7 @@ struct TTEntry {
             move(move), depth(depth), value(value), value_type(value_type) {}
 
     ostream &to_stream(ostream &os) {
-        os << "move: " << move << " depth: " << depth << " value: " << value << " value_type: " << value_type;
+        return os << "move: " << move << " depth: " << depth << " value: " << value << " value_type: " << value_type;
     }
 
     friend ostream &operator<<(ostream &os, const TTEntry &entry) {
