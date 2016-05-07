@@ -366,6 +366,7 @@ struct Minimax : public Algorithm<S, M> {
         bool completed = true;
         if (generate_moves) {
             auto legal_moves = state->get_legal_moves(MAX_MOVES);
+            assert(legal_moves.size() > 0);
             for (int i = 0; i < legal_moves.size(); i++) {
                 auto move = legal_moves[i];
                 state->make_move(move);
@@ -567,6 +568,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     M get_random_move(const S *state) {
         auto legal_moves = state->get_legal_moves();
+        assert(legal_moves.size() > 0);
         int index = random.uniform(0, legal_moves.size() - 1);
         return legal_moves[index];
     }
@@ -574,6 +576,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     shared_ptr<M> get_winning_move(S *state) {
         auto current_player = state->player_to_move;
         auto legal_moves = state->get_legal_moves();
+        assert(legal_moves.size() > 0);
         for (M &move : legal_moves) {
             state->make_move(move);
             if (state->is_winner(current_player)) {
@@ -590,6 +593,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         auto enemy = state->get_enemy(current_player);
         state->player_to_move = enemy;
         auto legal_moves = state->get_legal_moves();
+        assert(legal_moves.size() > 0);
         for (M &move : legal_moves) {
             state->make_move(move);
             if (state->is_winner(enemy)) {
