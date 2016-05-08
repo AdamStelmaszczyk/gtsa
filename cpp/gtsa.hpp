@@ -296,6 +296,7 @@ struct Minimax : public Algorithm<S, M> {
         }
         timer.start();
         M best_move;
+        this->log << "moves: " << state->get_legal_moves().size() << endl;
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
             beta_cuts = 0;
             cut_bf_sum = 0;
