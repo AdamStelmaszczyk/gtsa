@@ -23,7 +23,23 @@ Game examples
 - Isola - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp).
 - Connect Four - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.cpp).
 
-Priorities
+Make commands
+---
+Execute below commands in the `cpp` directory. 
+- `make` builds everything.
+- `make test` runs unit tests.
+- `make valgrind` runs valgrind's memory leak tests.
+- `make play_isola` plays a game of Isola between two bots.
+
+For all the commands check [`Makefile` file](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/Makefile).
+
+Dependencies
+---
+To build and run unit tests, packages `g++-4.8` and `libboost-all-dev` are needed.  
+To run valgrind, `valgrind` package is needed.  
+You can install all of them with `sudo apt-get install g++-4.8 libboost-all-dev valgrind`.
+
+Priorities of the library
 ---
 
 1. Correctness.
