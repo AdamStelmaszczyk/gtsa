@@ -142,7 +142,7 @@ struct State {
         if (parent != nullptr) {
             parent_visits = parent->visits;
         }
-        return (score / visits) + c * sqrt(log(parent_visits) / visits);
+        return score / visits + c * sqrt(log(parent_visits) / visits);
     }
 
     shared_ptr<S> create_child(M &move) {
