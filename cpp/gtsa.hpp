@@ -121,9 +121,9 @@ struct TTEntry {
 
 template<class S, class M>
 struct State {
-    unsigned visits = 0;
-    double score = 0;
-    char player_to_move = 0;
+    unsigned visits;
+    double score;
+    char player_to_move;
     S *parent = nullptr;
     unordered_map<size_t, shared_ptr<S>> children = unordered_map<size_t, shared_ptr<S>>();
 
