@@ -368,39 +368,36 @@ struct Minimax : public Algorithm<S, M> {
             }
         }
 
-        bool generate_moves = true;
         int max_goodness = -INF;
 
         bool completed = true;
-        if (generate_moves) {
-            auto legal_moves = state->get_legal_moves(MAX_MOVES);
-            assert(legal_moves.size() > 0);
-            for (int i = 0; i < legal_moves.size(); i++) {
-                auto move = legal_moves[i];
-                state->make_move(move);
-                const int goodness = -minimax(
-                    state,
-                    depth - 1,
-                    -beta,
-                    -alpha
-                ).goodness;
-                state->undo_move(move);
-                if (timer.exceeded(MAX_SECONDS)) {
-                    completed = false;
+        auto legal_moves = state->get_legal_moves(MAX_MOVES);
+        assert(legal_moves.size() > 0);
+        for (int i = 0; i < legal_moves.size(); i++) {
+            auto move = legal_moves[i];
+            state->make_move(move);
+            const int goodness = -minimax(
+                state,
+                depth - 1,
+                -beta,
+                -alpha
+            ).goodness;
+            state->undo_move(move);
+            if (timer.exceeded(MAX_SECONDS)) {
+                completed = false;
+                break;
+            }
+            if (max_goodness < goodness) {
+                max_goodness = goodness;
+                best_move = move;
+                if (max_goodness >= beta) {
+                    ++beta_cuts;
+                    cut_bf_sum += i + 1;
                     break;
                 }
-                if (max_goodness < goodness) {
-                    max_goodness = goodness;
-                    best_move = move;
-                    if (max_goodness >= beta) {
-                        ++beta_cuts;
-                        cut_bf_sum += i + 1;
-                        break;
-                    }
-                }
-                if (alpha < max_goodness) {
-                    alpha = max_goodness;
-                }
+            }
+            if (alpha < max_goodness) {
+                alpha = max_goodness;
             }
         }
 
