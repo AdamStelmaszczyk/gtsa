@@ -18,7 +18,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/math/distributions/binomial.hpp>
 #include <unordered_map>
-#include <functional>
 #include <sys/time.h>
 #include <algorithm>
 #include <iostream>
@@ -292,7 +291,7 @@ struct Minimax : public Algorithm<S, M> {
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
         if (get_goodness == nullptr) {
-            get_goodness = bind(&State<S,M>::get_goodness, state);
+            get_goodness = &State<S,M>::get_goodness;
         }
         timer.start();
 
