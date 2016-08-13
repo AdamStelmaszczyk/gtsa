@@ -295,7 +295,7 @@ struct Minimax : public Algorithm<S, M> {
         }
         timer.start();
 
-        const auto moves = state->get_legal_moves();
+        const auto moves = state->get_legal_moves(MAX_MOVES);
         this->log << "moves: " << moves.size() << endl;
         for (const auto move : moves) {
             this->log << move << ", ";
