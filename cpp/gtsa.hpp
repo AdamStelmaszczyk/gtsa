@@ -144,24 +144,24 @@ struct State {
         return score / visits + c * sqrt(log(parent_visits) / visits);
     }
 
-    shared_ptr<S> create_child(M &move) {
+    shared_ptr<S> create_child(const M &move) {
         S child = clone();
         child.make_move(move);
         child.parent = (S*) this;
         return make_shared<S>(child);
     }
 
-    S* add_child(M &move) {
-        auto child = create_child(move);
-        auto key = move.hash();
-        auto pair = children.insert({key, child});
-        auto it = pair.first;
+    S* add_child(const M &move) {
+        const auto child = create_child(move);
+        const auto key = move.hash();
+        const auto pair = children.insert({key, child});
+        const auto it = pair.first;
         return it->second.get();
     }
 
-    S* get_child(M &move) {
-        auto key = move.hash();
-        auto it = children.find(key);
+    S* get_child(const M &move) const {
+        const auto key = move.hash();
+        const auto it = children.find(key);
         if (it == children.end()) {
             return nullptr;
         }
@@ -216,7 +216,7 @@ struct Algorithm {
 
     virtual void reset() {}
 
-    virtual M get_move(S *state) = 0;
+    virtual M get_move(const S *state) = 0;
 
     virtual string get_name() const = 0;
 
@@ -231,7 +231,7 @@ struct Human : public Algorithm<S, M> {
 
     Human() : Algorithm<S, M>() {}
 
-    M get_move(S *state) override {
+    M get_move(const S *state) override {
         const vector<M> &legal_moves = state->get_legal_moves();
         if (legal_moves.empty()) {
             stringstream stream;
@@ -284,7 +284,7 @@ struct Minimax : public Algorithm<S, M> {
         transposition_table.clear();
     }
 
-    M get_move(S *state) override {
+    M get_move(const S *state) override {
         if (state->is_terminal()) {
             stringstream stream;
             state->to_stream(stream);
@@ -295,9 +295,9 @@ struct Minimax : public Algorithm<S, M> {
         }
         timer.start();
 
-        auto moves = state->get_legal_moves();
+        const auto moves = state->get_legal_moves();
         this->log << "moves: " << moves.size() << endl;
-        for (auto move : moves) {
+        for (const auto move : moves) {
             this->log << move << ", ";
         }
         this->log << endl;
@@ -311,7 +311,8 @@ struct Minimax : public Algorithm<S, M> {
             tt_cuts = 0;
             nodes = 0;
             leafs = 0;
-            auto result = minimax(state, max_depth, -INF, INF);
+            S clone = state->clone();
+            auto result = minimax(&clone, max_depth, -INF, INF);
             if (result.completed) {
                 best_move = result.best_move;
                 this->log << "goodness: " << result.goodness
@@ -348,7 +349,7 @@ struct Minimax : public Algorithm<S, M> {
         }
 
         TTEntry<M> entry;
-        bool entry_found = get_tt_entry(state, entry);
+        const bool entry_found = get_tt_entry(state, entry);
         if (entry_found && entry.depth >= depth) {
             ++tt_hits;
             if (entry.value_type == TTEntryType::EXACT_VALUE) {
@@ -370,10 +371,10 @@ struct Minimax : public Algorithm<S, M> {
         int max_goodness = -INF;
 
         bool completed = true;
-        auto legal_moves = state->get_legal_moves(MAX_MOVES);
+        const auto legal_moves = state->get_legal_moves(MAX_MOVES);
         assert(legal_moves.size() > 0);
         for (int i = 0; i < legal_moves.size(); i++) {
-            auto move = legal_moves[i];
+            const auto move = legal_moves[i];
             state->make_move(move);
             const int goodness = -minimax(
                 state,
@@ -407,9 +408,9 @@ struct Minimax : public Algorithm<S, M> {
         return {max_goodness, best_move, completed};
     }
 
-    bool get_tt_entry(S *state, TTEntry<M> &entry) {
-        auto key = state->hash();
-        auto it = transposition_table.find(key);
+    bool get_tt_entry(const S *state, TTEntry<M> &entry) const {
+        const auto key = state->hash();
+        const auto it = transposition_table.find(key);
         if (it == transposition_table.end()) {
             return false;
         }
@@ -417,12 +418,12 @@ struct Minimax : public Algorithm<S, M> {
         return true;
     }
 
-    void add_tt_entry(S *state, const TTEntry<M> &entry) {
-        auto key = state->hash();
+    void add_tt_entry(const S *state, const TTEntry<M> &entry) {
+        const auto key = state->hash();
         transposition_table.insert({key, entry});
     }
 
-    void update_tt(S *state, int alpha, int beta, int max_goodness, M &best_move, int depth) {
+    void update_tt(const S *state, int alpha, int beta, int max_goodness, const M &best_move, int depth) {
         TTEntryType value_type;
         if (max_goodness <= alpha) {
             value_type = TTEntryType::UPPER_BOUND;
@@ -433,7 +434,7 @@ struct Minimax : public Algorithm<S, M> {
         else {
             value_type = TTEntryType::EXACT_VALUE;
         }
-        TTEntry<M> entry = {best_move, depth, max_goodness, value_type};
+        const TTEntry<M> entry = {best_move, depth, max_goodness, value_type};
         add_tt_entry(state, entry);
     }
 
@@ -457,7 +458,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         block(block),
         max_simulations(max_simulations) {}
 
-    M get_move(S *root) override {
+    M get_move(const S *root) override {
         if (root->is_terminal()) {
             stringstream stream;
             root->to_stream(stream);
@@ -466,17 +467,18 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         Timer timer;
         timer.start();
         int simulation = 0;
+        S clone = root->clone();
         while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
-            monte_carlo_tree_search(root);
+            monte_carlo_tree_search(&clone);
             ++simulation;
         }
         this->log << "ratio: " << root->score / root->visits << endl;
         this->log << "simulations: " << simulation << endl;
-        auto legal_moves = root->get_legal_moves();
+        const auto legal_moves = root->get_legal_moves();
         this->log << "moves: " << legal_moves.size() << endl;
-        for (auto move : legal_moves) {
+        for (const auto move : legal_moves) {
             this->log << "move: " << move;
-            auto child = root->get_child(move);
+            const auto child = root->get_child(move);
             if (child != nullptr) {
                 this->log << " score: " << child->score
                 << " visits: " << child->visits
@@ -484,12 +486,12 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             }
             this->log << endl;
         }
-        return get_most_visited_move(root);
+        return get_most_visited_move(&clone);
     }
 
     void monte_carlo_tree_search(S *root) {
         S *current = tree_policy(root, root);
-        auto result = rollout(current, root);
+        const auto result = rollout(current, root);
         propagate_up(current, result);
     }
 
@@ -500,27 +502,27 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
     }
 
-    S* tree_policy(S *state, S *root) {
+    S* tree_policy(S *state, const S *root) {
         if (state->is_terminal()) {
             return state;
         }
-        M move = get_tree_policy_move(state, root);
-        auto child = state->get_child(move);
+        const M move = get_tree_policy_move(state, root);
+        const auto child = state->get_child(move);
         if (child == nullptr) {
             return state->add_child(move);
         }
         return tree_policy(child, root);
     }
 
-    M get_most_visited_move(S *state) {
-        auto legal_moves = state->get_legal_moves();
+    M get_most_visited_move(const S *state) const {
+        const auto legal_moves = state->get_legal_moves();
         assert(legal_moves.size() > 0);
         M best_move;
         double max_visits = -INF;
-        for (auto move : legal_moves) {
-            auto child = state->get_child(move);
+        for (const auto move : legal_moves) {
+            const auto child = state->get_child(move);
             if (child != nullptr) {
-                auto visits = child->visits;
+                const auto visits = child->visits;
                 if (max_visits < visits) {
                     max_visits = visits;
                     best_move = move;
@@ -531,17 +533,17 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return best_move;
     }
 
-    M get_best_move(S *state, S *root) {
-        auto legal_moves = state->get_legal_moves();
+    M get_best_move(S *state, const S *root) const {
+        const auto legal_moves = state->get_legal_moves();
         assert(legal_moves.size() > 0);
         M best_move;
         if (state->player_to_move == root->player_to_move) {
             // maximize
             double best_uct = -INF;
-            for (auto move : legal_moves) {
-                auto child = state->get_child(move);
+            for (const auto move : legal_moves) {
+                const auto child = state->get_child(move);
                 if (child != nullptr) {
-                    auto uct = child->get_uct(UCT_C);
+                    const auto uct = child->get_uct(UCT_C);
                     if (best_uct < uct) {
                         best_uct = uct;
                         best_move = move;
@@ -554,10 +556,10 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         else {
             // minimize
             double best_uct = INF;
-            for (auto move : legal_moves) {
-                auto child = state->get_child(move);
+            for (const auto move : legal_moves) {
+                const auto child = state->get_child(move);
                 if (child != nullptr) {
-                    auto uct = child->get_uct(-UCT_C);
+                    const auto uct = child->get_uct(-UCT_C);
                     if (best_uct > uct) {
                         best_uct = uct;
                         best_move = move;
@@ -570,48 +572,37 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return best_move;
     }
 
-    M get_random_move(const S *state) {
-        auto legal_moves = state->get_legal_moves();
+    M get_random_move(const S *state) { // TODO: this method should be const
+        const auto legal_moves = state->get_legal_moves();
         assert(legal_moves.size() > 0);
-        int index = random.uniform(0, legal_moves.size() - 1);
+        const int index = random.uniform(0, legal_moves.size() - 1);
         return legal_moves[index];
     }
 
-    shared_ptr<M> get_winning_move(S *state) {
-        auto current_player = state->player_to_move;
-        auto legal_moves = state->get_legal_moves();
+    shared_ptr<M> get_winning_move(const S *state) const {
+        const auto current_player = state->player_to_move;
+        const auto legal_moves = state->get_legal_moves();
+        S clone = state->clone();
         assert(legal_moves.size() > 0);
-        for (M &move : legal_moves) {
-            state->make_move(move);
-            if (state->is_winner(current_player)) {
-                state->undo_move(move);
+        for (const M &move : legal_moves) {
+            clone.make_move(move);
+            if (clone.is_winner(current_player)) {
                 return make_shared<M>(move);
             }
-            state->undo_move(move);
+            clone.undo_move(move);
         }
         return nullptr;
     }
 
-    shared_ptr<M> get_blocking_move(S *state) {
-        auto current_player = state->player_to_move;
-        auto enemy = state->get_enemy(current_player);
-        state->player_to_move = enemy;
-        auto legal_moves = state->get_legal_moves();
-        assert(legal_moves.size() > 0);
-        for (M &move : legal_moves) {
-            state->make_move(move);
-            if (state->is_winner(enemy)) {
-                state->undo_move(move);
-                state->player_to_move = current_player;
-                return make_shared<M>(move);
-            }
-            state->undo_move(move);
-        }
-        state->player_to_move = current_player;
-        return nullptr;
+    shared_ptr<M> get_blocking_move(const S *state) const {
+        const auto current_player = state->player_to_move;
+        const auto enemy = state->get_enemy(current_player);
+        S enemy_state = state->clone();
+        enemy_state.player_to_move = enemy;
+        return get_winning_move(&enemy_state);
     }
 
-    M get_tree_policy_move(S *state, S *root) {
+    M get_tree_policy_move(S *state, const S *root) const {
         // If player has a winning move he makes it.
         auto move_ptr = get_winning_move(state);
         if (move_ptr != nullptr) {
@@ -627,7 +618,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return get_best_move(state, root);
     }
 
-    M get_default_policy_move(S *state) {
+    M get_default_policy_move(const S *state) { // TODO: this method should be const
         // If player has a winning move he makes it.
         auto move_ptr = get_winning_move(state);
         if (move_ptr != nullptr) {
@@ -641,7 +632,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return get_random_move(state);
     }
 
-    double rollout(S *current, S *root) {
+    double rollout(S *current, const S *root) {
         if (current->is_terminal()) {
             if (current->is_winner(root->player_to_move)) {
                 return WIN_SCORE;
@@ -682,7 +673,7 @@ struct Tester {
         int draws = 0;
         int algorithm_1_wins = 0;
         int algorithm_2_wins = 0;
-        char enemy = root->get_enemy(root->player_to_move);
+        const char enemy = root->get_enemy(root->player_to_move);
         for (int i = 1; i <= MATCHES; ++i) {
             auto current = root->clone();
             if (i % 4 == 0 || i % 4 == 2) {
@@ -702,8 +693,7 @@ struct Tester {
                 algorithm.reset();
                 Timer timer;
                 timer.start();
-                auto copy = current.clone();
-                auto move = algorithm.get_move(&copy);
+                auto move = algorithm.get_move(&current);
                 if (VERBOSE) {
                     cout << algorithm.read_log();
                     cout << timer << endl;
@@ -727,11 +717,11 @@ struct Tester {
             cout << root->player_to_move << " " << algorithm_1 << " wins: " << algorithm_1_wins << endl;
             cout << enemy << " " << algorithm_2 << " wins: " << algorithm_2_wins << endl;
             cout << "Draws: " << draws << endl;
-            double successes = algorithm_1_wins + 0.5 * draws;
-            double ratio = successes / i;
+            const double successes = algorithm_1_wins + 0.5 * draws;
+            const double ratio = successes / i;
             cout << "Ratio: " << ratio << endl;
-            double lower = boost::math::binomial_distribution<>::find_lower_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
-            double upper = boost::math::binomial_distribution<>::find_upper_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
+            const double lower = boost::math::binomial_distribution<>::find_lower_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
+            const double upper = boost::math::binomial_distribution<>::find_upper_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
             cout << "Lower confidence bound: " << lower << endl;
             cout << "Upper confidence bound: " << upper << endl;
             cout << endl;
