@@ -102,8 +102,9 @@ void test_tic_tac_toe_draw() {
     TicTacToeState state = TicTacToeState("___"
                                           "___"
                                           "___");
-    auto algorithms = get_algorithms<TicTacToeState, TicTacToeMove>();
     int matches = 10;
+    auto algorithms = get_algorithms<TicTacToeState, TicTacToeMove>();
+    assert(algorithms.size() == 2);
     Tester<TicTacToeState, TicTacToeMove> tester(&state, *algorithms[0], *algorithms[1], matches, false);
     int draws = tester.start();
     assert(draws == matches);
