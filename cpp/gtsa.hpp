@@ -39,12 +39,13 @@ static const int MAX_DEPTH = 20;
 static const int INF = 2147483647;
 
 struct Random {
-    mt19937 engine;
 
     virtual ~Random() {}
 
-    int uniform(int min, int max) {
-        return uniform_int_distribution<int>{min, max}(engine);
+    int uniform(int min, int max) const {
+        mt19937 engine;
+        uniform_int_distribution<int> distribution(min, max);
+        return distribution(engine);
     }
 };
 
@@ -448,7 +449,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const double max_seconds;
     const int max_simulations;
     const bool block;
-    Random random;
+    const Random random;
 
     MonteCarloTreeSearch(double max_seconds = 1,
                          int max_simulations = MAX_SIMULATIONS,
@@ -489,20 +490,20 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return get_most_visited_move(&clone);
     }
 
-    void monte_carlo_tree_search(S *root) {
+    void monte_carlo_tree_search(S *root) const {
         S *current = tree_policy(root, root);
         const auto result = rollout(current, root);
         propagate_up(current, result);
     }
 
-    void propagate_up(S *current, double result) {
+    void propagate_up(S *current, double result) const {
         current->update_stats(result);
         if (current->parent) {
             propagate_up(current->parent, result);
         }
     }
 
-    S* tree_policy(S *state, const S *root) {
+    S* tree_policy(S *state, const S *root) const {
         if (state->is_terminal()) {
             return state;
         }
@@ -572,7 +573,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return best_move;
     }
 
-    M get_random_move(const S *state) { // TODO: this method should be const
+    M get_random_move(const S *state) const {
         const auto legal_moves = state->get_legal_moves();
         assert(legal_moves.size() > 0);
         const int index = random.uniform(0, legal_moves.size() - 1);
@@ -618,7 +619,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return get_best_move(state, root);
     }
 
-    M get_default_policy_move(const S *state) { // TODO: this method should be const
+    M get_default_policy_move(const S *state) const {
         // If player has a winning move he makes it.
         auto move_ptr = get_winning_move(state);
         if (move_ptr != nullptr) {
@@ -632,7 +633,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return get_random_move(state);
     }
 
-    double rollout(S *current, const S *root) {
+    double rollout(S *current, const S *root) const {
         if (current->is_terminal()) {
             if (current->is_winner(root->player_to_move)) {
                 return WIN_SCORE;
