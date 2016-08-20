@@ -268,13 +268,13 @@ struct Minimax : public Algorithm<S, M> {
     const double MAX_SECONDS;
     const int MAX_MOVES;
     function<vector<M>(const S*, int)> get_legal_moves;
-    function<int(S*)> get_goodness;
+    function<int(const S*)> get_goodness;
     Timer timer;
     int beta_cuts, cut_bf_sum;
     int tt_hits, tt_exacts, tt_cuts;
     int nodes, leafs;
 
-    Minimax(double max_seconds = 1, int max_moves = INF, function<vector<M>(const S*, int)> get_legal_moves = nullptr, function<int(S*)> get_goodness = nullptr) :
+    Minimax(double max_seconds = 1, int max_moves = INF, function<vector<M>(const S*, int)> get_legal_moves = nullptr, function<int(const S*)> get_goodness = nullptr) :
             Algorithm<S, M>(),
             transposition_table(unordered_map<size_t, TTEntry<M>>(1000000)),
             MAX_SECONDS(max_seconds),
