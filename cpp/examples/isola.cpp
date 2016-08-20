@@ -220,9 +220,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         }
 
         vector<cords> result(how_many);
-        result[0] = get_player_cords(player_to_move);
 
-        int size = 1;
+        int size = 0;
         auto enemy = get_enemy(player_to_move);
         auto enemy_cords = get_player_cords(enemy);
         int dx_order = 1;
@@ -240,7 +239,8 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
                     int y = enemy_cords.second + dy_order * (d * CORNER[2 * j + 1] + i * DIR[2 * j + 1]);
                     if (x >= 0 && y >= 0 && x < SIDE && y < SIDE && is_empty(x, y)) {
                         result[size++] = make_pair(x, y);
-                        if (size >= how_many) {
+                        if (size >= how_many - 1) {
+                            result[size++] = get_player_cords(player_to_move);
                             return result;
                         }
                     }
@@ -248,6 +248,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             }
         }
 
+        result[size++] = get_player_cords(player_to_move);
         result.resize(size);
         return result;
     }
