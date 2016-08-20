@@ -267,17 +267,19 @@ struct Minimax : public Algorithm<S, M> {
     unordered_map<size_t, TTEntry<M>> transposition_table;
     const double MAX_SECONDS;
     const int MAX_MOVES;
+    function<vector<M>(const S*, int)> get_legal_moves;
     function<int(S*)> get_goodness;
     Timer timer;
     int beta_cuts, cut_bf_sum;
     int tt_hits, tt_exacts, tt_cuts;
     int nodes, leafs;
 
-    Minimax(double max_seconds = 1, int max_moves = INF, function<int(S*)> get_goodness = nullptr) :
+    Minimax(double max_seconds = 1, int max_moves = INF, function<vector<M>(const S*, int)> get_legal_moves = nullptr, function<int(S*)> get_goodness = nullptr) :
             Algorithm<S, M>(),
             transposition_table(unordered_map<size_t, TTEntry<M>>(1000000)),
             MAX_SECONDS(max_seconds),
             MAX_MOVES(max_moves),
+            get_legal_moves(get_legal_moves),
             get_goodness(get_goodness),
             timer(Timer()) {}
 
@@ -291,12 +293,15 @@ struct Minimax : public Algorithm<S, M> {
             state->to_stream(stream);
             throw invalid_argument("Given state is terminal:\n" + stream.str());
         }
+        if (get_legal_moves == nullptr) {
+            get_legal_moves = &State<S,M>::get_legal_moves;
+        }
         if (get_goodness == nullptr) {
             get_goodness = &State<S,M>::get_goodness;
         }
         timer.start();
 
-        const auto moves = state->get_legal_moves(MAX_MOVES);
+        const auto moves = get_legal_moves(state, MAX_MOVES);
         this->log << "moves: " << moves.size() << endl;
         for (const auto move : moves) {
             this->log << move << ", ";
@@ -372,7 +377,7 @@ struct Minimax : public Algorithm<S, M> {
         int max_goodness = -INF;
 
         bool completed = true;
-        const auto legal_moves = state->get_legal_moves(MAX_MOVES);
+        const auto legal_moves = get_legal_moves(state, MAX_MOVES);
         assert(legal_moves.size() > 0);
         for (int i = 0; i < legal_moves.size(); i++) {
             const auto move = legal_moves[i];
