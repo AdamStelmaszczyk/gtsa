@@ -9,7 +9,7 @@ int main() {
                                   "_______"
                                   "___1___");
 
-    Minimax<IsolaState, IsolaMove> a(0.1, 20);
+    Minimax<IsolaState, IsolaMove> a(0.1, 25);
     Minimax<IsolaState, IsolaMove> b(0.1);
 
     Tester<IsolaState, IsolaMove> tester(&state, a, b);
