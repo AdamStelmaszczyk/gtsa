@@ -17,7 +17,7 @@ The player who cannot make any move loses the game.
 
 Input 
 ---
-The input is an 7x7 matrix consisting only of `_`, `1`, `2` and `#`. Then another line follows with `1` or `2`, which is your player id.
+The input is a 7x7 matrix consisting only of `_`, `1`, `2` and `#`. Then another line follows with `1` or `2`, which is your player id.
 
 The cell marked `_` means it contains an empty square. The cell marked `1` means it contains player 1's piece. The cell marked `2` means it contains player 2's piece. The cell marked `#` means it doesn't contain the square.
 
