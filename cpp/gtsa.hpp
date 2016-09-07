@@ -270,6 +270,7 @@ struct Minimax : public Algorithm<S, M> {
     function<vector<M>(const S*, int)> get_legal_moves;
     function<int(const S*)> get_goodness;
     Timer timer;
+    int scout_cuts;
     int beta_cuts, cut_bf_sum;
     int tt_hits, tt_exacts, tt_cuts;
     int nodes, leafs;
@@ -310,6 +311,7 @@ struct Minimax : public Algorithm<S, M> {
 
         M best_move;
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
+            int scout_cuts = 0;
             beta_cuts = 0;
             cut_bf_sum = 0;
             tt_hits = 0;
@@ -326,6 +328,7 @@ struct Minimax : public Algorithm<S, M> {
                 << " move: " << best_move
                 << " nodes: " << nodes
                 << " leafs: " << leafs
+                << " scout_cuts: " << scout_cuts
                 << " beta_cuts: " << beta_cuts
                 << " cutBF: " << (double) cut_bf_sum / beta_cuts
                 << " tt_hits: " << tt_hits
@@ -382,12 +385,35 @@ struct Minimax : public Algorithm<S, M> {
         for (int i = 0; i < legal_moves.size(); i++) {
             const auto move = legal_moves[i];
             state->make_move(move);
-            const int goodness = -minimax(
-                state,
-                depth - 1,
-                -beta,
-                -alpha
-            ).goodness;
+            int goodness;
+            if (i > 0) {
+                // null window search
+                goodness = -minimax(
+                    state,
+                    depth - 1,
+                    -alpha - 1,
+                    -alpha
+                ).goodness;
+                if (alpha < goodness && goodness < beta) {
+                    // failed high, do a full re-search
+                    goodness = -minimax(
+                        state,
+                        depth - 1,
+                        -beta,
+                        -goodness
+                    ).goodness;
+                } else {
+                    scout_cuts++;
+                }
+            }
+            else {
+                goodness = -minimax(
+                    state,
+                    depth - 1,
+                    -beta,
+                    -alpha
+                ).goodness;
+            }
             state->undo_move(move);
             if (timer.exceeded(MAX_SECONDS)) {
                 completed = false;
