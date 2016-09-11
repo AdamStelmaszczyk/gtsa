@@ -12,7 +12,7 @@ Usage
 Implemented algorithms
 ---
 
-- [Minimax](https://en.wikipedia.org/wiki/Minimax) ([NegaScout](https://en.wikipedia.org/wiki/Principal_variation_search) variant), [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening), [transposition table](https://en.wikipedia.org/wiki/Transposition_table).
+- [NegaScout](https://en.wikipedia.org/wiki/Principal_variation_search) with [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening) and [transposition table](https://en.wikipedia.org/wiki/Transposition_table).
 - [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
 https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
 
