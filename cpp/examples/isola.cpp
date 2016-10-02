@@ -173,7 +173,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         int center = center_score(player_cords) - center_score(enemy_cords);
         int noise = random() % 2;
 
-        return 10 * mobility + center + noise;
+        return 5 * mobility + center + noise;
     }
 
     vector<IsolaMove> get_legal_moves(int how_many = INF) const override {
