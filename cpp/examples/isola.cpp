@@ -152,7 +152,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         cords player_cords = get_player_cords(player_to_move);
         cords enemy_cords = get_player_cords(get_enemy(player_to_move));
 
-        int player_area = get_score_for_legal_steps(player_cords, 2);
+        int player_area = count_moves_around(player_cords);
         if (player_area == 0) {
             return -10000;
         }
@@ -160,7 +160,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             player_area = -100;
         }
 
-        int enemy_area = get_score_for_legal_steps(enemy_cords, 2);
+        int enemy_area = count_moves_around(enemy_cords);
         if (enemy_area == 0) {
             return 10000;
         }
@@ -307,23 +307,14 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    int get_score_for_legal_steps(const cords &player_cords, int depth = 1) const {
-        bool visited[SIDE][SIDE] = {0, };
-        return get_score_for_legal_steps_rec(visited, player_cords, depth);
-    }
-
-    int get_score_for_legal_steps_rec(bool visited[SIDE][SIDE], const cords &player_cords, int depth = 1) const {
+    int count_moves_around(const cords &player_cords) const {
         int result = 0;
         for (int dy = -1; dy <= 1; ++dy) {
             for (int dx = -1; dx <= 1; ++dx) {
                 const int x = player_cords.first + dx;
                 const int y = player_cords.second + dy;
-                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y) && !visited[x][y]) {
-                    visited[x][y] = true;
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
                     ++result;
-                    if (depth > 1) {
-                        result += get_score_for_legal_steps_rec(visited, make_pair(x, y), depth - 1);
-                    }
                 }
             }
         }
