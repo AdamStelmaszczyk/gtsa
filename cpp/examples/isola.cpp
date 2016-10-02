@@ -9,9 +9,6 @@ const char PLAYER_2 = '2';
 const char EMPTY = '_';
 const char REMOVED = '#';
 
-int CORNER[] = {-1, -1, 1, -1, 1, 1, -1, 1};
-int DIR[] = {1, 0, 0, 1, -1, 0, 0, -1};
-
 struct IsolaMove : public Move<IsolaMove> {
     unsigned from_x;
     unsigned from_y;
