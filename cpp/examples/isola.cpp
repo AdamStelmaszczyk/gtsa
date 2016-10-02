@@ -143,36 +143,37 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return clone;
     }
 
-    int score_for_center(cords player_cords) const {
+    int center_score(cords player_cords) const {
         int CENTER = SIDE / 2;
         return - abs(player_cords.first - CENTER) - abs(player_cords.second - CENTER);
+    }
+
+    int mobility_score(int moves) const {
+        if (moves == 1) {
+            return -100;
+        }
+        return moves;
     }
 
     int get_goodness() const override {
         cords player_cords = get_player_cords(player_to_move);
         cords enemy_cords = get_player_cords(get_enemy(player_to_move));
 
-        int player_area = count_moves_around(player_cords);
-        if (player_area == 0) {
+        int player_moves = count_moves_around(player_cords);
+        if (player_moves == 0) {
             return -10000;
         }
-        if (player_area == 1) {
-            player_area = -100;
-        }
 
-        int enemy_area = count_moves_around(enemy_cords);
-        if (enemy_area == 0) {
+        int enemy_moves = count_moves_around(enemy_cords);
+        if (enemy_moves == 0) {
             return 10000;
         }
-        if (enemy_area == 1) {
-            enemy_area = -100;
-        }
 
-        int area = player_area - enemy_area;
-        int center = score_for_center(player_cords) - score_for_center(enemy_cords);
+        int mobility = mobility_score(player_moves) - mobility_score(enemy_moves);
+        int center = center_score(player_cords) - center_score(enemy_cords);
         int noise = random() % 2;
 
-        return 10 * area + center + noise;
+        return 10 * mobility + center + noise;
     }
 
     vector<IsolaMove> get_legal_moves(int how_many = INF) const override {
