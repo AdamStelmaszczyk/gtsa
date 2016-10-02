@@ -311,7 +311,7 @@ struct Minimax : public Algorithm<S, M> {
 
         M best_move;
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
-            int scout_cuts = 0;
+            scout_cuts = 0;
             beta_cuts = 0;
             cut_bf_sum = 0;
             tt_hits = 0;
