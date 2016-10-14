@@ -169,11 +169,15 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             return 10000;
         }
 
+        int height = abs(player_cords.first - enemy_cords.first);
+        int width = abs(player_cords.second - enemy_cords.second);
+        int moves_to_enemy = max(height, width);
+
         int mobility = mobility_score(player_moves) - mobility_score(enemy_moves);
         int center = center_score(player_cords) - center_score(enemy_cords);
         int noise = random() % 2;
 
-        return 5 * mobility + center + noise;
+        return 5 * mobility + center - 3 * moves_to_enemy + noise;
     }
 
     vector<IsolaMove> get_legal_moves(int how_many = INF) const override {
