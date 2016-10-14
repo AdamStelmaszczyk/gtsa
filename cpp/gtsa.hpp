@@ -702,6 +702,8 @@ struct Tester {
     virtual ~Tester() {}
 
     int start() {
+        Timer all_timer;
+        all_timer.start();
         int draws = 0;
         int algorithm_1_wins = 0;
         int algorithm_2_wins = 0;
@@ -758,6 +760,7 @@ struct Tester {
             cout << "Upper confidence bound: " << upper << endl;
             cout << endl;
             if (upper < 0.5 || lower > 0.5) {
+                cout << "Total time: " << all_timer << endl;
                 break;
             }
         }
