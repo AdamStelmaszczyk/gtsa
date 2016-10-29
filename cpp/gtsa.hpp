@@ -22,6 +22,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <iostream>
 #include <assert.h>
+#include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <memory>
@@ -694,10 +695,16 @@ struct Tester {
     Algorithm<S, M> &algorithm_2;
     const int MATCHES;
     const bool VERBOSE;
+    const bool SAVE;
     const double SIGNIFICANCE_LEVEL = 0.005; // two sided 99% confidence interval
 
-    Tester(S *state, Algorithm<S, M> &algorithm_1, Algorithm<S, M> &algorithm_2, int matches = INF, bool verbose = false) :
-            root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), MATCHES(matches), VERBOSE(verbose) {}
+    Tester(S *state,
+           Algorithm<S, M> &algorithm_1,
+           Algorithm<S, M> &algorithm_2,
+           int matches = INF,
+           bool verbose = false,
+           bool save = false
+    ) : root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), MATCHES(matches), VERBOSE(verbose), SAVE(save) {}
 
     virtual ~Tester() {}
 
@@ -709,6 +716,7 @@ struct Tester {
         int algorithm_2_wins = 0;
         const char enemy = root->get_enemy(root->player_to_move);
         for (int i = 1; i <= MATCHES; ++i) {
+            int move_number = 1;
             auto current = root->clone();
             if (i % 4 == 0 || i % 4 == 2) {
                 current.player_to_move = current.get_enemy(current.player_to_move);
@@ -718,6 +726,9 @@ struct Tester {
             }
             if (VERBOSE) {
                 cout << current << endl;
+            }
+            if (SAVE) {
+                save_file(move_number, current);
             }
             while (!current.is_terminal()) {
                 auto &algorithm = (current.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
@@ -733,8 +744,12 @@ struct Tester {
                     cout << timer << endl;
                 }
                 current.make_move(move);
+                ++move_number;
                 if (VERBOSE) {
                     cout << current << endl;
+                }
+                if (SAVE) {
+                    save_file(move_number, current);
                 }
             }
             cout << "Match " << i << ": ";
@@ -765,5 +780,11 @@ struct Tester {
             }
         }
         return draws;
+    }
+
+    void save_file(int move_number, const S &state) const {
+        ofstream file(to_string(move_number) + ".txt");
+        file << state;
+        file.close();
     }
 };

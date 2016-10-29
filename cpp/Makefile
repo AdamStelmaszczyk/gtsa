@@ -37,5 +37,10 @@ tests/test_connect_four.o: gtsa.hpp examples/connect_four.cpp tests/test_connect
 tests/play_isola.o: gtsa.hpp examples/isola.cpp tests/play_isola.cpp
 	$(CC) $(FLAGS) tests/play_isola.cpp -o tests/play_isola.o
 
+gif: $(foreach dir, ., $(wildcard *.txt))
+	for f in $^; do cat $$f | text2gif > `echo $$f | sed 's/txt/gif/'`; done
+	convert -delay 100 `ls *.gif | sort -g` -loop 0 game.gif
+	rm [0-9]*.gif
+
 clean:
 	rm -f tests/*.o
