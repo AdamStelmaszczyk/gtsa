@@ -17,6 +17,7 @@ Game examples
 - Isola - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp). 
 <p><a href="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.md"><img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.gif"/></a></p>
 - Connect Four - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.cpp).
+<p><a href="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.md"><img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.gif"/></a></p>
 
 Implemented algorithms
 ---
