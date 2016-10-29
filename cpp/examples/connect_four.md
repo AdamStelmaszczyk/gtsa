@@ -54,6 +54,11 @@ Sample output
 3
 ```
 
+Sample game
+---
+
+<img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.gif"/>
+
 Challenges
 ---
 - [HackerEarth - Battle Of Bots #3](https://www.hackerearth.com/battle-of-bots-3/multiplayer/fantastic-four/)
