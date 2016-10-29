@@ -220,6 +220,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
             }
             os << "\n";
         }
+        os << player_to_move << endl;
         return os;
     }
 
