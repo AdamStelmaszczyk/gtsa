@@ -9,13 +9,6 @@ Usage
 2. Choose AI algorithm (`Minimax` or `MonteCarloTreeSearch`) or play by yourself (`Human`).
 3. Read the state and output the move. For local, statistically significant tests, use `Tester`.
 
-Implemented algorithms
----
-
-- [NegaScout](https://en.wikipedia.org/wiki/Principal_variation_search) with [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening) and [transposition table](https://en.wikipedia.org/wiki/Transposition_table).
-- [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
-https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
-
 Game examples
 ---
 
@@ -23,6 +16,13 @@ Game examples
 - Isola - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.cpp). 
 <p><a href="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.md"><img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.gif"/></a></p>
 - Connect Four - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.cpp).
+
+Implemented algorithms
+---
+
+- [NegaScout](https://en.wikipedia.org/wiki/Principal_variation_search) with [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening) and [transposition table](https://en.wikipedia.org/wiki/Transposition_table).
+- [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
+https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
 
 Make commands
 ---
