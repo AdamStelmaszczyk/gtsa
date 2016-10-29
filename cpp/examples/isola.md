@@ -61,6 +61,10 @@ Sample output
 3 2
 ```
 
+Sample game
+---
+<img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola.gif"/>
+
 Challenges
 ---
 - [HackerEarth - Battle of Bots #1](https://www.hackerearth.com/problem/multiplayer/isola/)
