@@ -42,6 +42,10 @@ Sample output
 ---
 `1 1`
 
+Sample game
+---
+<img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/tic_tac_toe.gif"/>
+
 Challenges
 ---
 - [HackerRank](https://www.hackerrank.com/challenges/tic-tac-toe)
