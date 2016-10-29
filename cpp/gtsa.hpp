@@ -779,12 +779,32 @@ struct Tester {
                 break;
             }
         }
+        if (SAVE) {
+            system("convert -delay 100 -loop 0 $(ls -v *.gif) game.gif");
+            system("rm [0-9]*.gif");
+        }
         return draws;
     }
 
     void save_file(int move_number, const S &state) const {
-        ofstream file(to_string(move_number) + ".txt");
-        file << state;
-        file.close();
+        const int FONT_SIZE = 16;
+        stringstream ss;
+        ss << state;
+        vector<string> lines;
+        string line;
+        while (getline(ss, line)) {
+            lines.push_back(line);
+        }
+        assert(lines.size() > 0);
+        const int width = lines[0].length() * FONT_SIZE;
+        const int height = lines.size() * FONT_SIZE;
+        stringstream cmd;
+        cmd << "convert -size " << width << "x" << height;
+        cmd << " xc:black -font square.ttf -pointsize " << FONT_SIZE << " -fill white -draw \"";
+        for (int y = 0; y < lines.size(); y++) {
+            cmd << "text 0," << (y + 1) * FONT_SIZE << " '" << lines[y] << "' ";
+        }
+        cmd << "\" " << move_number << ".gif";
+        system(cmd.str().c_str());
     }
 };
