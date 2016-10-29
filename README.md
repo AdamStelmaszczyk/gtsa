@@ -40,9 +40,9 @@ Dependencies
 ---
 - To build and run unit tests, `g++-4.8` and `libboost-all-dev` packages are needed.  
 - To run valgrind, `valgrind` package is needed.  
-- To make GIFs, `giflib-tools` and `imagemagick` packages are needed.
+- To make GIFs, `imagemagick` package is needed.
 
-You can install all of them with `sudo apt-get install g++-4.8 libboost-all-dev valgrind giflib-tools imagemagick`.
+You can install all of them with `sudo apt-get install g++-4.8 libboost-all-dev valgrind imagemagick`.
 
 Priorities of the library
 ---
