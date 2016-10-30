@@ -752,6 +752,9 @@ struct Tester {
                     save_file(move_number, current);
                 }
             }
+            if (!VERBOSE) {
+                cout << current << endl;
+            }
             cout << "Match " << i << ": ";
             if (current.is_winner(root->player_to_move)) {
                 ++algorithm_1_wins;
