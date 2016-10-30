@@ -780,8 +780,8 @@ struct Tester {
             }
         }
         if (SAVE) {
-            system("convert -delay 100 -loop 0 $(ls -v *.gif) game.gif");
-            system("rm [0-9]*.gif");
+            shell("convert -delay 100 -loop 0 $(ls -v *.gif) game.gif");
+            shell("rm [0-9]*.gif");
         }
         return draws;
     }
@@ -798,13 +798,20 @@ struct Tester {
         assert(lines.size() > 0);
         const int width = lines[0].length() * FONT_SIZE;
         const int height = lines.size() * FONT_SIZE;
-        stringstream cmd;
-        cmd << "convert -size " << width << "x" << height;
-        cmd << " xc:black -font square.ttf -pointsize " << FONT_SIZE << " -fill white -draw \"";
+        stringstream command;
+        command << "convert -size " << width << "x" << height;
+        command << " xc:black -font square.ttf -pointsize " << FONT_SIZE << " -fill white -draw \"";
         for (int y = 0; y < lines.size(); y++) {
-            cmd << "text 0," << (y + 1) * FONT_SIZE << " '" << lines[y] << "' ";
+            command << "text 0," << (y + 1) * FONT_SIZE << " '" << lines[y] << "' ";
         }
-        cmd << "\" " << move_number << ".gif";
-        system(cmd.str().c_str());
+        command << "\" " << move_number << ".gif";
+        shell(command.str());
+    }
+
+    void shell(const string &command) const {
+        const int return_code = system(command.c_str());
+        if (return_code != 0) {
+            cout << "Command " << command << " returned " << return_code;
+        }
     }
 };
