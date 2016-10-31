@@ -18,6 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/math/distributions/binomial.hpp>
 #include <unordered_map>
+#include <unordered_set>
 #include <sys/time.h>
 #include <algorithm>
 #include <iostream>
@@ -714,6 +715,7 @@ struct Tester {
         int draws = 0;
         int algorithm_1_wins = 0;
         int algorithm_2_wins = 0;
+        unordered_set<int> unique_game_hashes;
         const char enemy = root->get_enemy(root->player_to_move);
         for (int i = 1; i <= MATCHES; ++i) {
             int move_number = 1;
@@ -730,6 +732,7 @@ struct Tester {
             if (SAVE) {
                 save_file(move_number, current);
             }
+            int game_hash = current.hash();
             while (!current.is_terminal()) {
                 auto &algorithm = (current.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
                 if (VERBOSE) {
@@ -751,11 +754,14 @@ struct Tester {
                 if (SAVE) {
                     save_file(move_number, current);
                 }
+                game_hash ^= current.hash();
             }
-            if (!VERBOSE) {
-                cout << current << endl;
+            cout << "Game " << i << ": ";
+            auto result = unique_game_hashes.insert(game_hash);
+            if (!result.second) {
+                cout << "Not unique, not counting" << endl << endl;
+                continue;
             }
-            cout << "Match " << i << ": ";
             if (current.is_winner(root->player_to_move)) {
                 ++algorithm_1_wins;
                 cout << root->player_to_move << " " << algorithm_1 << " won" << endl;
@@ -766,14 +772,16 @@ struct Tester {
                 ++draws;
                 cout << "draw" << endl;
             }
+            const int unique_games_count = unique_game_hashes.size();
+            cout << "Unique games: " << unique_games_count << endl;
             cout << root->player_to_move << " " << algorithm_1 << " wins: " << algorithm_1_wins << endl;
             cout << enemy << " " << algorithm_2 << " wins: " << algorithm_2_wins << endl;
             cout << "Draws: " << draws << endl;
             const double successes = algorithm_1_wins + 0.5 * draws;
-            const double ratio = successes / i;
+            const double ratio = successes / unique_games_count;
             cout << "Ratio: " << ratio << endl;
-            const double lower = boost::math::binomial_distribution<>::find_lower_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
-            const double upper = boost::math::binomial_distribution<>::find_upper_bound_on_p(i, successes, SIGNIFICANCE_LEVEL);
+            const double lower = boost::math::binomial_distribution<>::find_lower_bound_on_p(unique_games_count, successes, SIGNIFICANCE_LEVEL);
+            const double upper = boost::math::binomial_distribution<>::find_upper_bound_on_p(unique_games_count, successes, SIGNIFICANCE_LEVEL);
             cout << "Lower confidence bound: " << lower << endl;
             cout << "Upper confidence bound: " << upper << endl;
             cout << endl;
