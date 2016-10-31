@@ -175,7 +175,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
         int mobility = mobility_score(player_moves) - mobility_score(enemy_moves);
         int center = center_score(player_cords) - center_score(enemy_cords);
-        int noise = random() % 2;
+        int noise = random() % 3;
 
         return 5 * mobility + center - 3 * moves_to_enemy + noise;
     }
