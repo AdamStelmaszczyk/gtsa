@@ -689,6 +689,12 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
 };
 
+struct OutcomeCounts {
+    int wins = 0;
+    int draws = 0;
+    int loses = 0;
+};
+
 template<class S, class M>
 struct Tester {
     S *root = nullptr;
@@ -709,12 +715,10 @@ struct Tester {
 
     virtual ~Tester() {}
 
-    int start() {
+    OutcomeCounts start() {
         Timer all_timer;
         all_timer.start();
-        int draws = 0;
-        int algorithm_1_wins = 0;
-        int algorithm_2_wins = 0;
+        OutcomeCounts outcome_counts;
         unordered_set<int> unique_game_hashes;
         const char enemy = root->get_enemy(root->player_to_move);
         for (int i = 1; i <= MATCHES; ++i) {
@@ -757,27 +761,27 @@ struct Tester {
                 game_hash ^= current.hash();
             }
             cout << "Game " << i << ": ";
-            auto result = unique_game_hashes.insert(game_hash);
-            if (!result.second) {
+            auto insert = unique_game_hashes.insert(game_hash);
+            if (!insert.second) {
                 cout << "Not unique, not counting" << endl << endl;
                 continue;
             }
             if (current.is_winner(root->player_to_move)) {
-                ++algorithm_1_wins;
+                ++outcome_counts.wins;
                 cout << root->player_to_move << " " << algorithm_1 << " won" << endl;
             } else if (current.is_winner(enemy)) {
-                ++algorithm_2_wins;
+                ++outcome_counts.loses;
                 cout << enemy << " " << algorithm_2 << " won" << endl;
             } else {
-                ++draws;
+                ++outcome_counts.draws;
                 cout << "draw" << endl;
             }
             const int unique_games_count = unique_game_hashes.size();
             cout << "Unique games: " << unique_games_count << endl;
-            cout << root->player_to_move << " " << algorithm_1 << " wins: " << algorithm_1_wins << endl;
-            cout << enemy << " " << algorithm_2 << " wins: " << algorithm_2_wins << endl;
-            cout << "Draws: " << draws << endl;
-            const double successes = algorithm_1_wins + 0.5 * draws;
+            cout << root->player_to_move << " " << algorithm_1 << " wins: " << outcome_counts.wins << endl;
+            cout << enemy << " " << algorithm_2 << " wins: " << outcome_counts.loses << endl;
+            cout << "Draws: " << outcome_counts.draws << endl;
+            const double successes = outcome_counts.wins + 0.5 * outcome_counts.draws;
             const double ratio = successes / unique_games_count;
             cout << "Ratio: " << ratio << endl;
             const double lower = boost::math::binomial_distribution<>::find_lower_bound_on_p(unique_games_count, successes, SIGNIFICANCE_LEVEL);
@@ -794,7 +798,7 @@ struct Tester {
             shell("convert -delay 100 -loop 0 $(ls -v *.gif) game.gif");
             shell("rm [0-9]*.gif");
         }
-        return draws;
+        return outcome_counts;
     }
 
     void save_file(int move_number, const S &state) const {
