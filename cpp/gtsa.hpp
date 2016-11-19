@@ -83,7 +83,7 @@ template<class M>
 struct Move {
     virtual ~Move() {}
 
-    virtual void read() = 0;
+    virtual void read(istream &stream) = 0;
 
     virtual ostream &to_stream(ostream &os) const = 0;
 
@@ -171,6 +171,12 @@ struct State {
         return it->second.get();
     }
 
+    virtual string to_executable_format() const {
+        stringstream ss;
+        ss << *this;
+        return ss.str();
+    }
+
     virtual void swap_players() {}
 
     virtual S clone() const = 0;
@@ -254,6 +260,65 @@ struct Human : public Algorithm<S, M> {
 
     string get_name() const {
         return "Human";
+    }
+};
+
+template<class S, class M>
+struct Executable : public Algorithm<S, M> {
+
+    const string executable;
+
+    Executable(string executable) : Algorithm<S, M>(), executable(executable) {}
+
+    M get_move(const S *state) override {
+        const vector<M> &legal_moves = state->get_legal_moves();
+        if (legal_moves.empty()) {
+            stringstream stream;
+            state->to_stream(stream);
+            throw invalid_argument("Given state is terminal:\n" + stream.str());
+        }
+
+        stringstream cmd;
+        cmd << "echo \"" << state->to_executable_format() << "\" | " << executable;
+
+        const string output = run_cmd(cmd.str());
+        stringstream stream_to_read(output);
+
+        M move = M();
+        move.read(stream_to_read);
+        if (find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
+            return move;
+        } else {
+            stringstream message;
+            message << "Legal moves: ";
+            for (auto move : legal_moves) {
+                message << move << ", ";
+            }
+            message << endl;
+            message << "Move " << move << " is not legal, state:" << endl;
+            message << *state;
+            throw runtime_error(message.str());
+        }
+    }
+
+    string run_cmd(string cmd) {
+        stringstream result;
+        const int BUFFER_SIZE = 128;
+        char buffer[BUFFER_SIZE];
+        shared_ptr<FILE> pipe(popen(cmd.c_str(), "r"), pclose);
+        if (!pipe) {
+            throw runtime_error("popen() failed");
+        }
+        while (!feof(pipe.get())) {
+            if (fgets(buffer, BUFFER_SIZE, pipe.get()) != NULL) {
+                result << buffer;
+            }
+        }
+        return result.str();
+    }
+
+    string get_name() const {
+        return "Executable " + executable;
     }
 };
 

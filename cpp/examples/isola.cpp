@@ -4,10 +4,16 @@
 #include "../gtsa.hpp"
 
 const int SIDE = 7;
+
 const char PLAYER_1 = '1';
 const char PLAYER_2 = '2';
 const char EMPTY = '_';
 const char REMOVED = '#';
+
+const string PLAYER_1_EXEC = "1";
+const string PLAYER_2_EXEC = "2";
+const string EMPTY_EXEC = "0";
+const string REMOVED_EXEC = "-1";
 
 struct IsolaMove : public Move<IsolaMove> {
     unsigned from_x;
@@ -28,16 +34,11 @@ struct IsolaMove : public Move<IsolaMove> {
         unsigned remove_y
     ): from_x(from_x), from_y(from_y), step_x(step_x), step_y(step_y), remove_x(remove_x), remove_y(remove_y) { }
 
-    void read() override {
-        cout << "Enter space separated from_x from_y step_x step_y remove_x remove_y: ";
-        unsigned from_x, from_y, step_x, step_y, remove_x, remove_y;
-        cin >> from_x >> from_y >> step_x >> step_y >> remove_x >> remove_y;
-        this->from_x = from_x;
-        this->from_y = from_y;
-        this->step_x = step_x;
-        this->step_y = step_y;
-        this->remove_x = remove_x;
-        this->remove_y = remove_y;
+    void read(istream &stream = cin) override {
+        if (stream == cin) {
+            cout << "Enter space separated from_x from_y step_x step_y remove_x remove_y: ";
+        }
+        stream >> from_x >> from_y >> step_x >> step_y >> remove_x >> remove_y;
     }
 
     ostream &to_stream(ostream &os) const override {
@@ -215,29 +216,50 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return moves;
     }
 
-    vector<cords> get_remove_moves(int how_many) const {
+    vector<cords> get_remove_moves(int how_many = INF) const {
         int moves_count = SIDE * SIDE;
         if (how_many > moves_count) {
             how_many = moves_count;
         }
-
         vector<cords> result(how_many);
 
         int size = 0;
         auto enemy = get_enemy(player_to_move);
         auto enemy_cords = get_player_cords(enemy);
-        int dx_order = 1;
-        if (enemy_cords.first < SIDE / 2) {
-            dx_order = -1;
-        }
-        int dy_order = 1;
-        if (enemy_cords.second < SIDE / 2) {
-            dy_order = -1;
-        }
-        for (int dy = -1; dy <= 1; ++dy) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                const int x = enemy_cords.first + dx * dx_order;
-                const int y = enemy_cords.second + dy * dy_order;
+
+        for (int d = 1; d < SIDE; ++d) {
+            for (int dx = -d; dx < d; ++dx) {
+                int x = enemy_cords.first + dx;
+                int y = enemy_cords.second - d;
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
+                    result[size++] = make_pair(x, y);
+                    if (size >= how_many - 1) {
+                        result[size++] = get_player_cords(player_to_move);
+                        return result;
+                    }
+                }
+                x = enemy_cords.first - dx;
+                y = enemy_cords.second + d;
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
+                    result[size++] = make_pair(x, y);
+                    if (size >= how_many - 1) {
+                        result[size++] = get_player_cords(player_to_move);
+                        return result;
+                    }
+                }
+            }
+            for (int dy = -d; dy < d; ++dy) {
+                int x = enemy_cords.first + d;
+                int y = enemy_cords.second + dy;
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
+                    result[size++] = make_pair(x, y);
+                    if (size >= how_many - 1) {
+                        result[size++] = get_player_cords(player_to_move);
+                        return result;
+                    }
+                }
+                x = enemy_cords.first - d;
+                y = enemy_cords.second - dy;
                 if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
                     result[size++] = make_pair(x, y);
                     if (size >= how_many - 1) {
@@ -357,6 +379,33 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         }
         os << player_to_move << endl;
         return os;
+    }
+
+    string to_executable_format() const override {
+        stringstream input, result;
+        string line;
+        input << *this;
+        for (int y = 0; y < SIDE; ++y) {
+            getline(input, line);
+            for (char c : line) {
+                if (c == PLAYER_1) {
+                    result << PLAYER_1_EXEC;
+                } else if (c == PLAYER_2) {
+                    result << PLAYER_2_EXEC;
+                } else if (c == EMPTY) {
+                    result << EMPTY_EXEC;
+                } else if (c == REMOVED) {
+                    result << REMOVED_EXEC;
+                } else {
+                    throw invalid_argument(string("to_executable_format: Undefined symbol used: '") + c + "'");
+                }
+                result << " ";
+            }
+            result << endl;
+        }
+        getline(input, line);
+        result << line << endl;
+        return result.str();
     }
 
     bool operator==(const IsolaState &other) const {

@@ -15,11 +15,11 @@ struct ConnectFourMove : public Move<ConnectFourMove> {
 
     ConnectFourMove(unsigned x) : x(x) { }
 
-    void read() override {
-        cout << "Enter column of your move [0; 7]: ";
-        unsigned x;
-        cin >> x;
-        this->x = x;
+    void read(istream &stream = cin) override {
+        if (stream == cin) {
+            cout << "Enter column of your move [0; 7]: ";
+        }
+        stream >> x;
     }
 
     ostream &to_stream(ostream &os) const override {
