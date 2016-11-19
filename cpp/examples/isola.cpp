@@ -186,7 +186,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         auto step_moves = get_moves_around(player_cords.first, player_cords.second);
         assert(!step_moves.empty());
 
-        int how_many_removes = how_many / step_moves.size() + 2;
+        int how_many_removes = ceil((double) how_many / step_moves.size());
         auto remove_moves = get_remove_moves(how_many_removes);
 
         int moves_count = step_moves.size() * remove_moves.size();
