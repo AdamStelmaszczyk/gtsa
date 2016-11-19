@@ -54,6 +54,6 @@ Priorities of the library
 Would like to help?
 ---
 Suggestions welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
-[Pull requests](https://github.com/AdamStelmaszczyk/gtsa/pulls) are also awesome.
+[Pull requests](https://github.com/AdamStelmaszczyk/gtsa/pulls) too.
 
 I'm transferring £50 to anybody who reports an actual bug.
