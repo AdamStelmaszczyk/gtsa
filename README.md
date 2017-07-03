@@ -7,7 +7,7 @@ Usage
 
 1. Specify game rules by subclassing `State` and `Move`. 
 2. Choose AI algorithm (`Minimax`, `MonteCarloTreeSearch`), play by yourself (`Human`) or against external program (`Executable`).
-3. Read the game state, pass it to algorithm and output the move. For local, statistically significant tests, use `Tester`.
+3. Read the game state, pass it to the algorithm and output the move. For local, statistically significant tests, use `Tester`.
 
 Game examples
 ---
