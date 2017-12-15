@@ -58,4 +58,17 @@ Would like to help?
 Suggestions welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
 [Pull requests](https://github.com/AdamStelmaszczyk/gtsa/pulls) too.
 
-I'm transferring £50 to anybody who reports an actual bug.
+I'm transferring 50$ to anybody who reports an actual bug.
+
+To cite this repository:
+
+```
+@misc{stelmaszczyk2015gtsa,
+    author = {Stelmaszczyk, Adam},
+    title = "{Game Tree Search Algorithms}",
+    year = {2015},
+    publisher = {GitHub},
+    journal = {GitHub repository},
+    howpublished = {\url{https://github.com/AdamStelmaszczyk/gtsa}},
+}
+```
