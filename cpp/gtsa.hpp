@@ -1,6 +1,6 @@
 /*
 Game Tree Search Algorithms
-Copyright (C) 2015-2017 Adam Stelmaszczyk <stelmaszczyk.adam@gmail.com>
+Copyright (C) Adam Stelmaszczyk <stelmaszczyk.adam@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
