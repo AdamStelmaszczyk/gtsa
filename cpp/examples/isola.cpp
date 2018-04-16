@@ -35,7 +35,7 @@ struct IsolaMove : public Move<IsolaMove> {
     ): from_x(from_x), from_y(from_y), step_x(step_x), step_y(step_y), remove_x(remove_x), remove_y(remove_y) { }
 
     void read(istream &stream = cin) override {
-        if (stream == cin) {
+        if (&stream == &cin) {
             cout << "Enter space separated from_x from_y step_x step_y remove_x remove_y: ";
         }
         stream >> from_x >> from_y >> step_x >> step_y >> remove_x >> remove_y;

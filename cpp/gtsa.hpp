@@ -27,6 +27,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iomanip>
 #include <memory>
+#include <random>
 #include <vector>
 
 using namespace std;
