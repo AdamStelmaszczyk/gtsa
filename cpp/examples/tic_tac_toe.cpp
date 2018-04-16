@@ -16,7 +16,7 @@ struct TicTacToeMove : public Move<TicTacToeMove> {
     TicTacToeMove(unsigned x, unsigned y) : x(x), y(y) { }
 
     void read(istream &stream = cin) override {
-        if (stream == cin) {
+        if (&stream == &cin) {
             cout << "Enter space separated X and Y of your move: ";
         }
         stream >> x >> y;
