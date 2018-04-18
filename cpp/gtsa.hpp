@@ -1,3 +1,5 @@
+#pragma once
+
 /*
 Game Tree Search Algorithms
 Copyright (C) Adam Stelmaszczyk <stelmaszczyk.adam@gmail.com>
