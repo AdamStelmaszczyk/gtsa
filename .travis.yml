@@ -7,7 +7,7 @@ before_install:
   
 install:
   - sudo apt-get install g++ valgrind libboost-all-dev
-  - sudo pip install cpp-coveralls
+  - sudo -H pip install -U cpp-coveralls
 
 script:
   - make valgrind -C cpp
