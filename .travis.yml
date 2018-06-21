@@ -1,14 +1,13 @@
 language: cpp
 
 before_install:
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update
-  - sudo pip install --upgrade pip
+  - add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - apt-get update
+  - pip install --upgrade pip
   
 install:
-  - sudo apt-get install g++-4.8 valgrind libboost-all-dev
-  - sudo pip install cpp-coveralls
-  - sudo ln -sf /usr/bin/gcov-4.8 /usr/bin/gcov
+  - apt-get install g++ valgrind libboost-all-dev
+  - pip install cpp-coveralls
 
 script:
   - make valgrind -C cpp
