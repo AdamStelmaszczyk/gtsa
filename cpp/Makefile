@@ -50,4 +50,4 @@ tests/play_isola.o: gtsa.hpp examples/isola.cpp tests/play_isola.cpp
 	$(CC) $(FLAGS) tests/play_isola.cpp -o tests/play_isola.o
 
 clean:
-	rm -f tests/*.o
+	rm -f tests/*.o *.gcov *.gcda *.gcno
