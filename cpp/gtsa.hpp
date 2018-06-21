@@ -19,6 +19,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <boost/math/distributions/binomial.hpp>
+#include <boost/functional/hash.hpp>
 #include <unordered_map>
 #include <unordered_set>
 #include <sys/time.h>
@@ -804,7 +805,7 @@ struct Tester {
             if (SAVE) {
                 save_file(move_number, current);
             }
-            int game_hash = current.hash();
+            auto game_hash = current.hash();
             while (!current.is_terminal()) {
                 auto &algorithm = (current.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
                 if (VERBOSE) {
@@ -826,7 +827,7 @@ struct Tester {
                 if (SAVE) {
                     save_file(move_number, current);
                 }
-                game_hash ^= current.hash();
+                boost::hash_combine(game_hash, current.hash());
             }
             cout << "Game " << i << ": ";
             auto insert = unique_game_hashes.insert(game_hash);

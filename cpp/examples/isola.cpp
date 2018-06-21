@@ -1,4 +1,3 @@
-#include <boost/functional/hash.hpp>
 #include <bitset>
 
 #include "../gtsa.hpp"

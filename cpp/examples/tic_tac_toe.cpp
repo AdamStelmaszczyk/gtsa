@@ -1,5 +1,3 @@
-#include <boost/functional/hash.hpp>
-
 #include "../gtsa.hpp"
 
 const int SIDE = 3;
