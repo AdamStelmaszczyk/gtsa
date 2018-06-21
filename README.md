@@ -34,7 +34,7 @@ Execute below commands in the `cpp` directory.
 - `make` builds everything.
 - `make test` runs unit tests.
 - `make valgrind` runs valgrind's memory leak tests.
-- `make play_isola` plays a game of Isola between two bots.
+- `make play_isola` plays as many games as needed to determine which Isola bot is better.
 
 For all the commands check [`Makefile` file](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/Makefile).
 
