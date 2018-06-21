@@ -40,17 +40,17 @@ For all the commands check [`Makefile` file](https://github.com/AdamStelmaszczyk
 
 Dependencies
 ---
-- To build and run unit tests, `g++-4.8` and `libboost-all-dev` packages are needed.  
+- To build and run unit tests, `g++` and `libboost-all-dev` packages are needed.  
 - To run valgrind, `valgrind` package is needed.  
 - To make GIFs, `imagemagick` package is needed.
 
-You can install all of them with `sudo apt-get install g++-4.8 libboost-all-dev valgrind imagemagick`.
+You can install all of them with `sudo apt-get install g++ libboost-all-dev valgrind imagemagick`.
 
 Priorities of the library
 ---
 
 1. Correctness.
-2. Compliance with environment typical for competitions. One file submission, compiled with one invocation of `g++`.
+2. Compliance with environment typical for competitions. One process. One file submission, compiled with one invocation of `g++`.
 3. Performance.
 
 Would like to help?
