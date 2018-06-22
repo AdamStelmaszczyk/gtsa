@@ -575,13 +575,13 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             monte_carlo_tree_search(&clone);
             ++simulation;
         }
-        this->log << "ratio: " << root->score / root->visits << endl;
+        this->log << "ratio: " << clone.score / clone.visits << endl;
         this->log << "simulations: " << simulation << endl;
-        const auto legal_moves = root->get_legal_moves();
+        const auto legal_moves = clone.get_legal_moves();
         this->log << "moves: " << legal_moves.size() << endl;
         for (const auto move : legal_moves) {
             this->log << "move: " << move;
-            const auto child = root->get_child(move);
+            const auto child = clone.get_child(move);
             if (child != nullptr) {
                 this->log << " score: " << child->score
                 << " visits: " << child->visits
