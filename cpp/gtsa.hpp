@@ -35,7 +35,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-static const int MAX_SIMULATIONS = 10000000;
+static const int MAX_SIMULATIONS = 10000;
 static const double UCT_C = sqrt(2);
 static const double WIN_SCORE = 1;
 static const double DRAW_SCORE = 0.5;
@@ -131,9 +131,9 @@ struct State {
     double score = 0;
     char player_to_move = 0;
     S *parent = nullptr;
-    unordered_map<size_t, shared_ptr<S>> children = unordered_map<size_t, shared_ptr<S>>();
+    unordered_map<size_t, S*> children;
 
-    State(char player_to_move) : player_to_move(player_to_move) {}
+    State(char player_to_move) : player_to_move(player_to_move), children() {}
 
     virtual ~State() {}
 
@@ -151,28 +151,13 @@ struct State {
         return score / visits + c * sqrt(log(parent_visits) / visits);
     }
 
-    shared_ptr<S> create_child(const M &move) {
-        S child = clone();
-        child.make_move(move);
-        child.parent = (S*) this;
-        return make_shared<S>(child);
-    }
-
-    S* add_child(const M &move) {
-        const auto child = create_child(move);
-        const auto key = move.hash();
-        const auto pair = children.insert({key, child});
-        const auto it = pair.first;
-        return it->second.get();
-    }
-
     S* get_child(const M &move) const {
         const auto key = move.hash();
         const auto it = children.find(key);
         if (it == children.end()) {
             return nullptr;
         }
-        return it->second.get();
+        return it->second;
     }
 
     virtual string to_executable_format() const {
@@ -552,6 +537,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const int max_simulations;
     const bool block;
     const Random random;
+    vector<S> tree_array;
+    int simulation;
 
     MonteCarloTreeSearch(double max_seconds = 1,
                          int max_simulations = MAX_SIMULATIONS,
@@ -559,7 +546,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         Algorithm<S, M>(),
         max_seconds(max_seconds),
         block(block),
-        max_simulations(max_simulations) {}
+        max_simulations(max_simulations),
+        tree_array(MAX_SIMULATIONS) {}
 
     M get_move(const S *root) override {
         if (root->is_terminal()) {
@@ -569,15 +557,17 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
         Timer timer;
         timer.start();
-        int simulation = 0;
         S clone = root->clone();
+        simulation = 0;
+        tree_array[simulation] = clone;
         while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
-            monte_carlo_tree_search(&clone);
             ++simulation;
+            monte_carlo_tree_search(&clone);
         }
         this->log << "ratio: " << clone.score / clone.visits << endl;
         this->log << "simulations: " << simulation << endl;
         const auto legal_moves = clone.get_legal_moves();
+        this->log << "moves: " << legal_moves.size() << endl;
         this->log << "moves: " << legal_moves.size() << endl;
         for (const auto move : legal_moves) {
             this->log << "move: " << move;
@@ -592,7 +582,23 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return get_most_visited_move(&clone);
     }
 
-    void monte_carlo_tree_search(S *root) const {
+    S* create_child(S* parent, const M &move) {
+        S child = parent->clone();
+        child.make_move(move);
+        child.parent = parent;
+        tree_array[simulation] = child;
+        return &tree_array[simulation];
+    }
+
+    S* add_child(S* parent, const M &move) {
+        const auto child = create_child(parent, move);
+        const auto key = move.hash();
+        const auto pair = parent->children.insert({key, child});
+        const auto it = pair.first;
+        return it->second;
+    }
+
+    void monte_carlo_tree_search(S *root) {
         S *current = tree_policy(root, root);
         const auto result = rollout(current, root);
         propagate_up(current, result);
@@ -605,14 +611,14 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
     }
 
-    S* tree_policy(S *state, const S *root) const {
+    S* tree_policy(S *state, const S *root) {
         if (state->is_terminal()) {
             return state;
         }
         const M move = get_tree_policy_move(state, root);
         const auto child = state->get_child(move);
         if (child == nullptr) {
-            return state->add_child(move);
+            return add_child(state, move);
         }
         return tree_policy(child, root);
     }

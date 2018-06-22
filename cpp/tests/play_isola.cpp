@@ -9,11 +9,13 @@ int main() {
                                   "_______"
                                   "___1___");
 
-    Minimax<IsolaState, IsolaMove> a(0.1, 30);
-    Minimax<IsolaState, IsolaMove> b(0.1);
-
-    Tester<IsolaState, IsolaMove> tester(&state, a, b);
-    tester.start();
+    MonteCarloTreeSearch<IsolaState, IsolaMove> a(1);
+//    Minimax<IsolaState, IsolaMove> b(0.1);
+//
+//    Tester<IsolaState, IsolaMove> tester(&state, a, b);
+//    tester.start();
+    auto move = a.get_move(&state);
+    cout << a.read_log() << endl;
 
     return 0;
 }
