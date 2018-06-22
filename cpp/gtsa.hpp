@@ -35,7 +35,6 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 using namespace std;
 
-static const int MAX_SIMULATIONS = 10000000;
 static const double UCT_C = sqrt(2);
 static const double WIN_SCORE = 1;
 static const double DRAW_SCORE = 0.5;
@@ -554,7 +553,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const Random random;
 
     MonteCarloTreeSearch(double max_seconds = 1,
-                         int max_simulations = MAX_SIMULATIONS,
+                         int max_simulations = INF,
                          bool block = false) :
         Algorithm<S, M>(),
         max_seconds(max_seconds),
