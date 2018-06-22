@@ -347,7 +347,7 @@ struct Minimax : public Algorithm<S, M> {
 
     Minimax(double max_seconds = 1, int max_moves = INF, function<vector<M>(const S*, int)> get_legal_moves = nullptr, function<int(const S*)> get_goodness = nullptr) :
             Algorithm<S, M>(),
-            transposition_table(unordered_map<size_t, TTEntry<M>>(1000000)),
+            transposition_table(1000000),
             MAX_SECONDS(max_seconds),
             MAX_MOVES(max_moves),
             get_legal_moves(get_legal_moves),
