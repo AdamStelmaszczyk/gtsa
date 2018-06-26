@@ -295,8 +295,8 @@ struct Executable : public Algorithm<S, M> {
         } else {
             stringstream message;
             message << "Legal moves: ";
-            for (auto move : legal_moves) {
-                message << move << ", ";
+            for (auto legal_move : legal_moves) {
+                message << legal_move << ", ";
             }
             message << endl;
             message << "Move " << move << " is not legal, state:" << endl;
