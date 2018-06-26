@@ -787,7 +787,7 @@ struct Tester {
     OutcomeCounts start() {
         Timer all_timer;
         all_timer.start();
-        OutcomeCounts outcome_counts;
+        OutcomeCounts outcome_counts = OutcomeCounts();
         unordered_set<int> unique_game_hashes;
         const char enemy = root->get_enemy(root->player_to_move);
         for (int i = 1; i <= MATCHES; ++i) {
