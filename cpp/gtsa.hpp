@@ -845,7 +845,7 @@ struct Tester {
                 ++outcome_counts.draws;
                 cout << "draw" << endl;
             }
-            const int unique_games_count = unique_game_hashes.size();
+            const auto unique_games_count = unique_game_hashes.size();
             cout << "Unique games: " << unique_games_count << endl;
             cout << root->player_to_move << " " << algorithm_1 << " wins: " << outcome_counts.wins << endl;
             cout << enemy << " " << algorithm_2 << " wins: " << outcome_counts.loses << endl;
@@ -880,8 +880,8 @@ struct Tester {
             lines.push_back(line);
         }
         assert(!lines.empty());
-        const int width = lines[0].length() * FONT_SIZE;
-        const int height = lines.size() * FONT_SIZE;
+        const auto width = lines[0].length() * FONT_SIZE;
+        const auto height = lines.size() * FONT_SIZE;
         stringstream command;
         command << "convert -size " << width << "x" << height;
         command << " xc:black -font square.ttf -pointsize " << FONT_SIZE << " -fill white -draw \"";
