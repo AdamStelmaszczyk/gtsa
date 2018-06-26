@@ -116,7 +116,7 @@ struct TTEntry {
     TTEntry(const M &move, int depth, int value, TTEntryType value_type) :
             move(move), depth(depth), value(value), value_type(value_type) {}
 
-    ostream &to_stream(ostream &os) {
+    ostream &to_stream(ostream &os) const {
         return os << "move: " << move << " depth: " << depth << " value: " << value << " value_type: " << value_type;
     }
 
