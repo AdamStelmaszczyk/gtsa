@@ -452,7 +452,7 @@ struct Minimax : public Algorithm<S, M> {
 
         bool completed = true;
         const auto legal_moves = get_legal_moves(state, MAX_MOVES);
-        assert(legal_moves.size() > 0);
+        assert(!legal_moves.empty());
         for (int i = 0; i < legal_moves.size(); i++) {
             const auto move = legal_moves[i];
             state->make_move(move);
@@ -619,7 +619,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     M get_most_visited_move(const S *state) const {
         const auto legal_moves = state->get_legal_moves();
-        assert(legal_moves.size() > 0);
+        assert(!legal_moves.empty());
         M best_move;
         double max_visits = -INF;
         for (const auto move : legal_moves) {
@@ -638,7 +638,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     M get_best_move(S *state, const S *root) const {
         const auto legal_moves = state->get_legal_moves();
-        assert(legal_moves.size() > 0);
+        assert(!legal_moves.empty());
         M best_move;
         if (state->player_to_move == root->player_to_move) {
             // maximize
@@ -677,7 +677,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     M get_random_move(const S *state) const {
         const auto legal_moves = state->get_legal_moves();
-        assert(legal_moves.size() > 0);
+        assert(!legal_moves.empty());
         const int index = random.uniform(0, legal_moves.size() - 1);
         return legal_moves[index];
     }
@@ -686,7 +686,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         const auto current_player = state->player_to_move;
         const auto legal_moves = state->get_legal_moves();
         S clone = state->clone();
-        assert(legal_moves.size() > 0);
+        assert(!legal_moves.empty());
         for (const M &move : legal_moves) {
             clone.make_move(move);
             if (clone.is_winner(current_player)) {
