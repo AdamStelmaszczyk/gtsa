@@ -66,7 +66,7 @@ struct Timer {
 
     double get_time() const {
         timeval tv;
-        gettimeofday(&tv, 0);
+        gettimeofday(&tv, nullptr);
         return tv.tv_sec + tv.tv_usec * 1e-6;
     }
 
