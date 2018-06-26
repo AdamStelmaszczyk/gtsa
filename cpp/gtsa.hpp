@@ -879,7 +879,7 @@ struct Tester {
         while (getline(ss, line)) {
             lines.push_back(line);
         }
-        assert(lines.size() > 0);
+        assert(!lines.empty());
         const int width = lines[0].length() * FONT_SIZE;
         const int height = lines.size() * FONT_SIZE;
         stringstream command;
