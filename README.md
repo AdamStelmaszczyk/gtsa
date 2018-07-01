@@ -28,6 +28,8 @@ Implemented algorithms
 - [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
 https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
 
+Both handle sequential, multiplayer games. MCTS also handles simultenous games using [SUCT](http://mlanctot.info/files/papers/cig14-smmctsggp.pdf). 
+
 Make commands
 ---
 Execute below commands in the `cpp` directory. 
@@ -60,12 +62,12 @@ Suggestions welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues)
 
 I'm transferring 50$ to anybody who reports an actual bug.
 
-To cite this repository:
+If you use code or ideas from this repository, please cite it as follows:
 
 ```
 @misc{stelmaszczyk2015gtsa,
     author = {Stelmaszczyk, Adam},
-    title = "{Game Tree Search Algorithms}",
+    title = {Game Tree Search Algorithms},
     year = {2015},
     publisher = {GitHub},
     journal = {GitHub repository},
