@@ -68,6 +68,18 @@ void test_isola_crowded() {
     }
 }
 
+void test_isola_crowded_winner() {
+    IsolaState state = IsolaState("##2####"
+                                  "_#1####"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######"
+                                  "#######");
+    assert(!state.is_winner(PLAYER_1));
+    assert(state.is_winner(PLAYER_2));
+}
+
 void test_isola_terminal() {
     IsolaState state = IsolaState("###2###"
                                   "#######"
@@ -102,6 +114,21 @@ void test_isola_make_and_undo() {
     assert(state == copy);
 }
 
+void test_isola_make_and_undo_four_players() {
+    IsolaState state = IsolaState("___3___"
+                                  "_______"
+                                  "_______"
+                                  "2_____4"
+                                  "_______"
+                                  "_______"
+                                  "___1___", 4);
+    auto copy = state.clone();
+    auto move = IsolaMove(3, 6, 3, 5, 3, 6);
+    state.make_move(move);
+    state.undo_move(move);
+    assert(state == copy);
+}
+
 void test_get_remove_moves() {
     IsolaState state = IsolaState("___2___"
                                   "_______"
@@ -125,8 +152,10 @@ int main() {
     test_isola_finish();
     test_isola_not_lose();
     test_isola_crowded();
+    test_isola_crowded_winner();
     test_isola_terminal();
     test_isola_make_and_undo();
+    test_isola_make_and_undo_four_players();
     test_get_remove_moves();
     return 0;
 }

@@ -1,8 +1,8 @@
 #include "../gtsa.hpp"
 
 const int SIDE = 3;
-const char PLAYER_1 = 'X';
-const char PLAYER_2 = 'O';
+const char PLAYER_1 = '1';
+const char PLAYER_2 = '2';
 const char EMPTY = '_';
 
 struct TicTacToeMove : public Move<TicTacToeMove> {

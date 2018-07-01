@@ -181,6 +181,18 @@ struct State {
         return ss.str();
     }
 
+    virtual int get_number_of_players() const {
+        return 2;
+    }
+
+    virtual int player_char_to_index(char player) const {
+        return player - '0' - 1;
+    }
+
+    virtual char player_index_to_char(int index) const {
+        return index + '0' + 1;
+    }
+
     virtual void swap_players() {}
 
     virtual S clone() const = 0;
@@ -552,14 +564,17 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const int max_simulations;
     const bool block;
     const Random random;
+    const int verbose;
 
     MonteCarloTreeSearch(double max_seconds = 1,
                          int max_simulations = MAX_SIMULATIONS,
-                         bool block = false) :
+                         bool block = false,
+                         int verbose = 1) :
         Algorithm<S, M>(),
         max_seconds(max_seconds),
         block(block),
-        max_simulations(max_simulations) {}
+        max_simulations(max_simulations),
+        verbose(verbose) {}
 
     M get_move(const S *root) override {
         if (root->is_terminal()) {
@@ -579,15 +594,17 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         this->log << "simulations: " << simulation << endl;
         const auto legal_moves = clone.get_legal_moves();
         this->log << "moves: " << legal_moves.size() << endl;
-        for (const auto move : legal_moves) {
-            this->log << "move: " << move;
-            const auto child = clone.get_child(move);
-            if (child != nullptr) {
-                this->log << " score: " << child->score
-                << " visits: " << child->visits
-                << " UCT: " << child->get_uct(UCT_C);
+        if (verbose >= 2) {
+            for (const auto move : legal_moves) {
+                this->log << "move: " << move;
+                const auto child = clone.get_child(move);
+                if (child != nullptr) {
+                    this->log << " score: " << child->score
+                              << " visits: " << child->visits
+                              << " UCT: " << child->get_uct(UCT_C);
+                }
+                this->log << endl;
             }
-            this->log << endl;
         }
         return get_most_visited_move(&clone);
     }
@@ -705,30 +722,33 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return get_winning_move(&enemy_state);
     }
 
-    M get_tree_policy_move(S *state, const S *root) const {
+    shared_ptr<M> get_winning_or_blocking_move(const S* state) const {
         // If player has a winning move he makes it.
         auto move_ptr = get_winning_move(state);
         if (move_ptr != nullptr) {
-            return *move_ptr;
+            return move_ptr;
         }
         if (block) {
             // If player has a blocking move he makes it.
             move_ptr = get_blocking_move(state);
             if (move_ptr != nullptr) {
-                return *move_ptr;
+                return move_ptr;
             }
+        }
+        return nullptr;
+    }
+
+
+    M get_tree_policy_move(S *state, const S *root) const {
+        const auto move_ptr = get_winning_or_blocking_move(state);
+        if (move_ptr != nullptr) {
+            return *move_ptr;
         }
         return get_best_move(state, root);
     }
 
     M get_default_policy_move(const S *state) const {
-        // If player has a winning move he makes it.
-        auto move_ptr = get_winning_move(state);
-        if (move_ptr != nullptr) {
-            return *move_ptr;
-        }
-        // If player has a blocking move he makes it.
-        move_ptr = get_blocking_move(state);
+        const auto move_ptr = get_winning_or_blocking_move(state);
         if (move_ptr != nullptr) {
             return *move_ptr;
         }
@@ -753,43 +773,47 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     }
 
     string get_name() const {
-        return "MonteCarloTreeSearch";
+        return "MCTS";
     }
 
 };
 
 struct OutcomeCounts {
-    int wins = 0;
+    vector<int> wins;
     int draws = 0;
-    int loses = 0;
+
+    OutcomeCounts(int players) : wins(players) {};
 };
 
 template<class S, class M>
 struct Tester {
     S *root = nullptr;
-    Algorithm<S, M> &algorithm_1;
-    Algorithm<S, M> &algorithm_2;
+    const vector<shared_ptr<Algorithm<S, M>>> algorithms;
     const int MATCHES;
-    const bool VERBOSE;
+    const int VERBOSE;
     const bool SAVE;
-    const double SIGNIFICANCE_LEVEL = 0.005; // two sided 99% confidence interval
+    const double P_VALUE = 0.005; // two sided 99% confidence interval
 
     Tester(S *state,
-           Algorithm<S, M> &algorithm_1,
-           Algorithm<S, M> &algorithm_2,
+           const vector<shared_ptr<Algorithm<S, M>>> &algorithms,
            int matches = INF,
-           bool verbose = false,
+           int verbose = 0,
            bool save = false
-    ) : root(state), algorithm_1(algorithm_1), algorithm_2(algorithm_2), MATCHES(matches), VERBOSE(verbose), SAVE(save) {}
+    ) : root(state), algorithms(algorithms), MATCHES(matches), VERBOSE(verbose), SAVE(save) {
+        if (algorithms.size() != state->get_number_of_players()) {
+            throw invalid_argument("State requires passing " + to_string(state->get_number_of_players()) + " algorithms");
+        }
+    }
 
     virtual ~Tester() {}
 
     OutcomeCounts start() {
         Timer all_timer;
         all_timer.start();
-        OutcomeCounts outcome_counts = OutcomeCounts();
+        const int players = root->get_number_of_players();
+        OutcomeCounts outcome_counts = OutcomeCounts(players);
         unordered_set<int> unique_game_hashes;
-        const char enemy = root->get_next_player(root->player_to_move);
+        const double draw_score = 1.0 / players;
         for (int i = 1; i <= MATCHES; ++i) {
             int move_number = 1;
             auto current = root->clone();
@@ -799,7 +823,7 @@ struct Tester {
             if (i % 4 == 0 || i % 4 == 3) {
                 current.swap_players();
             }
-            if (VERBOSE) {
+            if (VERBOSE >= 1) {
                 cout << current << endl;
             }
             if (SAVE) {
@@ -807,21 +831,21 @@ struct Tester {
             }
             auto game_hash = current.hash();
             while (!current.is_terminal()) {
-                auto &algorithm = (current.player_to_move == root->player_to_move) ? algorithm_1 : algorithm_2;
-                if (VERBOSE) {
-                    cout << current.player_to_move << " " << algorithm << endl;
+                const auto algorithm_ptr = algorithms[current.player_char_to_index(current.player_to_move)];
+                if (VERBOSE >= 1) {
+                    cout << current.player_to_move << " " << *algorithm_ptr << endl;
                 }
-                algorithm.reset();
+                algorithm_ptr->reset();
                 Timer timer;
                 timer.start();
-                auto move = algorithm.get_move(&current);
-                if (VERBOSE) {
-                    cout << algorithm.read_log();
+                auto move = algorithm_ptr->get_move(&current);
+                if (VERBOSE >= 2) {
+                    cout << algorithm_ptr->read_log();
                     cout << timer << endl;
                 }
                 current.make_move(move);
                 ++move_number;
-                if (VERBOSE) {
+                if (VERBOSE >= 1) {
                     cout << current << endl;
                 }
                 if (SAVE) {
@@ -829,37 +853,44 @@ struct Tester {
                 }
                 boost::hash_combine(game_hash, current.hash());
             }
-            cout << "Game " << i << ": ";
-            auto insert = unique_game_hashes.insert(game_hash);
+            cout << "Game " << i << endl;
+            const auto insert = unique_game_hashes.insert(game_hash);
             if (!insert.second) {
                 cout << "Not unique, not counting" << endl << endl;
                 continue;
             }
-            if (current.is_winner(root->player_to_move)) {
-                ++outcome_counts.wins;
-                cout << root->player_to_move << " " << algorithm_1 << " won" << endl;
-            } else if (current.is_winner(enemy)) {
-                ++outcome_counts.loses;
-                cout << enemy << " " << algorithm_2 << " won" << endl;
-            } else {
+            bool somebody_won = false;
+            for (int j = 0; j < players; ++j) {
+                const char player = current.player_index_to_char(j);
+                if (current.is_winner(player)) {
+                    ++outcome_counts.wins[j];
+                    cout << current.player_index_to_char(j) << " " << *algorithms[j] << " won" << endl;
+                    somebody_won = true;
+                }
+            }
+            if (!somebody_won) {
                 ++outcome_counts.draws;
                 cout << "draw" << endl;
             }
             const auto unique_games_count = unique_game_hashes.size();
             cout << "Unique games: " << unique_games_count << endl;
-            cout << root->player_to_move << " " << algorithm_1 << " wins: " << outcome_counts.wins << endl;
-            cout << enemy << " " << algorithm_2 << " wins: " << outcome_counts.loses << endl;
             cout << "Draws: " << outcome_counts.draws << endl;
-            const double successes = outcome_counts.wins + 0.5 * outcome_counts.draws;
-            const double ratio = successes / unique_games_count;
-            cout << "Ratio: " << ratio << endl;
-            const double lower = boost::math::binomial_distribution<>::find_lower_bound_on_p(unique_games_count, successes, SIGNIFICANCE_LEVEL);
-            const double upper = boost::math::binomial_distribution<>::find_upper_bound_on_p(unique_games_count, successes, SIGNIFICANCE_LEVEL);
-            cout << "Lower confidence bound: " << lower << endl;
-            cout << "Upper confidence bound: " << upper << endl;
+            vector<double> successes(players), ratio(players), lower(players), upper(players);
+            bool done = false;
+            for (int j = 0; j < players; ++j) {
+                successes[j] = outcome_counts.wins[j] + draw_score * outcome_counts.draws;
+                ratio[j] = successes[j] / unique_games_count;
+                lower[j] = boost::math::binomial_distribution<>::find_lower_bound_on_p(unique_games_count, successes[j], P_VALUE);
+                upper[j] = boost::math::binomial_distribution<>::find_upper_bound_on_p(unique_games_count, successes[j], P_VALUE);
+                cout << current.player_index_to_char(j) << " " << *algorithms[j] << " wins: " << outcome_counts.wins[j];
+                cout << " ratio: " << ratio[j] << " confidence bounds: " << lower[j] << ", " << upper[j] << endl;
+                if (upper[j] < draw_score || lower[j] > draw_score) {
+                    cout << "Total time: " << all_timer << endl;
+                    done = true;
+                }
+            }
             cout << endl;
-            if (upper < 0.5 || lower > 0.5) {
-                cout << "Total time: " << all_timer << endl;
+            if (done) {
                 break;
             }
         }
