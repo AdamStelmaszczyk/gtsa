@@ -189,7 +189,7 @@ struct State {
 
     virtual vector<M> get_legal_moves(int max_moves) const = 0;
 
-    virtual char get_enemy(char player) const = 0;
+    virtual char get_next_player(char player) const = 0;
 
     virtual bool is_terminal() const = 0;
 
@@ -699,7 +699,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     shared_ptr<M> get_blocking_move(const S *state) const {
         const auto current_player = state->player_to_move;
-        const auto enemy = state->get_enemy(current_player);
+        const auto enemy = state->get_next_player(current_player);
         S enemy_state = state->clone();
         enemy_state.player_to_move = enemy;
         return get_winning_move(&enemy_state);
@@ -740,7 +740,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             if (current->is_winner(root->player_to_move)) {
                 return WIN_SCORE;
             }
-            if (current->is_winner(root->get_enemy(root->player_to_move))) {
+            if (current->is_winner(root->get_next_player(root->player_to_move))) {
                 return LOSE_SCORE;
             }
             return DRAW_SCORE;
@@ -789,12 +789,12 @@ struct Tester {
         all_timer.start();
         OutcomeCounts outcome_counts = OutcomeCounts();
         unordered_set<int> unique_game_hashes;
-        const char enemy = root->get_enemy(root->player_to_move);
+        const char enemy = root->get_next_player(root->player_to_move);
         for (int i = 1; i <= MATCHES; ++i) {
             int move_number = 1;
             auto current = root->clone();
             if (i % 4 == 0 || i % 4 == 2) {
-                current.player_to_move = current.get_enemy(current.player_to_move);
+                current.player_to_move = current.get_next_player(current.player_to_move);
             }
             if (i % 4 == 0 || i % 4 == 3) {
                 current.swap_players();

@@ -157,7 +157,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
     int get_goodness() const override {
         cords player_cords = get_player_cords(player_to_move);
-        cords enemy_cords = get_player_cords(get_enemy(player_to_move));
+        cords enemy_cords = get_player_cords(get_next_player(player_to_move));
 
         int player_moves = count_moves_around(player_cords);
         if (player_moves == 0) {
@@ -223,7 +223,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         vector<cords> result(how_many);
 
         int size = 0;
-        auto enemy = get_enemy(player_to_move);
+        auto enemy = get_next_player(player_to_move);
         auto enemy_cords = get_player_cords(enemy);
 
         for (int d = 1; d < SIDE; ++d) {
@@ -274,7 +274,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    char get_enemy(char player) const override {
+    char get_next_player(char player) const override {
         return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
     }
 
@@ -293,17 +293,17 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     bool is_winner(char player) const override {
-        return player == get_enemy(player_to_move) && is_terminal();
+        return player == get_next_player(player_to_move) && is_terminal();
     }
 
     void make_move(const IsolaMove &move) override {
         board.set(move.remove_x, move.remove_y, 1);
         set_player_cords(player_to_move, make_pair(move.step_x, move.step_y));
-        player_to_move = get_enemy(player_to_move);
+        player_to_move = get_next_player(player_to_move);
     }
 
     void undo_move(const IsolaMove &move) override {
-        player_to_move = get_enemy(player_to_move);
+        player_to_move = get_next_player(player_to_move);
         set_player_cords(player_to_move, make_pair(move.from_x, move.from_y));
         board.set(move.remove_x, move.remove_y, 0);
     }

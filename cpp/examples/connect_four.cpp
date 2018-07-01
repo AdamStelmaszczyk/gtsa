@@ -114,7 +114,7 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
             if (is_winner(player_to_move)) {
                 return 10000;
             }
-            if (is_winner(get_enemy(player_to_move))) {
+            if (is_winner(get_next_player(player_to_move))) {
                 return -10000;
             }
             return 10;
@@ -142,7 +142,7 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
         return moves;
     }
 
-    char get_enemy(char player) const override {
+    char get_next_player(char player) const override {
         return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
     }
 
@@ -150,7 +150,7 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
         if (!has_empty_space()) {
             return true;
         }
-        return is_winner(player_to_move) || is_winner(get_enemy(player_to_move));
+        return is_winner(player_to_move) || is_winner(get_next_player(player_to_move));
     }
 
     bool is_winner(char player) const override {
@@ -173,7 +173,7 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
                 break;
             }
         }
-        player_to_move = get_enemy(player_to_move);
+        player_to_move = get_next_player(player_to_move);
     }
 
     void undo_move(const ConnectFourMove &move) override {
@@ -184,7 +184,7 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
                 break;
             }
         }
-        player_to_move = get_enemy(player_to_move);
+        player_to_move = get_next_player(player_to_move);
     }
 
     bool has_empty_space() const {

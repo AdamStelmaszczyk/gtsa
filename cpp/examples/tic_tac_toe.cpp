@@ -140,7 +140,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return moves;
     }
 
-    char get_enemy(char player) const override {
+    char get_next_player(char player) const override {
         return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
     }
 
@@ -169,12 +169,12 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     void make_move(const TicTacToeMove &move) override {
         board[move.y * SIDE + move.x] = player_to_move;
-        player_to_move = get_enemy(player_to_move);
+        player_to_move = get_next_player(player_to_move);
     }
 
     void undo_move(const TicTacToeMove &move) override {
         board[move.y * SIDE + move.x] = EMPTY;
-        player_to_move = get_enemy(player_to_move);
+        player_to_move = get_next_player(player_to_move);
     }
 
     bool has_empty_space() const {
@@ -190,7 +190,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     vector<int> count_players_on_lines(char player) const {
         vector<int> counts(2 * LINES_SIZE);
-        char enemy = get_enemy(player);
+        char enemy = get_next_player(player);
         for (int i = 0; i < LINES_SIZE; ++i) {
             int player_places = 0;
             int enemy_places = 0;
