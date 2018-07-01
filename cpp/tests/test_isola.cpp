@@ -129,6 +129,24 @@ void test_isola_make_and_undo_four_players() {
     assert(state == copy);
 }
 
+void test_isola_terminal_four_players() {
+    IsolaState state = IsolaState("_______"
+                                  "_#_####"
+                                  "_2##3#_"
+                                  "_#_41##"
+                                  "_______"
+                                  "_______"
+                                  "_______", 4);
+    assert(!state.is_terminal());
+    state.player_to_move = '2';
+    assert(!state.is_terminal());
+    state.player_to_move = '3';
+    assert(state.is_terminal());
+    state.player_to_move = '4';
+    assert(!state.is_terminal());
+
+}
+
 void test_get_remove_moves() {
     IsolaState state = IsolaState("___2___"
                                   "_______"
@@ -156,6 +174,7 @@ int main() {
     test_isola_terminal();
     test_isola_make_and_undo();
     test_isola_make_and_undo_four_players();
+    test_isola_terminal_four_players();
     test_get_remove_moves();
     return 0;
 }

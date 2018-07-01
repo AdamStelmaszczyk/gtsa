@@ -296,26 +296,17 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     bool is_terminal() const override {
-        for (const auto &c : player_cords) {
-            bool alive = false;
-            for (int dy = -1; dy <= 1; ++dy) {
-                for (int dx = -1; dx <= 1; ++dx) {
-                    const int x = c.first + dx;
-                    const int y = c.second + dy;
-                    if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
-                        alive = true;
-                        break;
-                    }
+        const auto c = get_player_cords(player_to_move);
+        for (int dy = -1; dy <= 1; ++dy) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                const int x = c.first + dx;
+                const int y = c.second + dy;
+                if (x >= 0 && x < SIDE && y >= 0 && y < SIDE && is_empty(x, y)) {
+                    return false;
                 }
-                if (alive) {
-                    break;
-                }
-            }
-            if (!alive) {
-                return true;
             }
         }
-        return false;
+        return true;
     }
 
     bool is_winner(char player) const override {
