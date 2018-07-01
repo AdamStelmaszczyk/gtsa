@@ -28,7 +28,11 @@ Implemented algorithms
 - [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
 https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
 
-Both handle sequential, multiplayer games. MCTS also handles simultenous games using [SUCT](http://mlanctot.info/files/papers/cig14-smmctsggp.pdf). 
+Both handle sequential, multiplayer games:
+
+<img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/isola_four.gif"/></a></p>
+
+MCTS also handles simultenous games using [SUCT](http://mlanctot.info/files/papers/cig14-smmctsggp.pdf).
 
 Make commands
 ---
