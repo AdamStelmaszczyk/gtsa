@@ -344,7 +344,7 @@ struct Executable : public Algorithm<S, M> {
             throw runtime_error("popen() failed");
         }
         while (!feof(pipe.get())) {
-            if (fgets(buffer, BUFFER_SIZE, pipe.get()) != NULL) {
+            if (fgets(buffer, BUFFER_SIZE, pipe.get()) != nullptr) {
                 result << buffer;
             }
         }
