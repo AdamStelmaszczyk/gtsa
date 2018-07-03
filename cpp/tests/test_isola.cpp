@@ -157,6 +157,7 @@ void test_get_remove_moves() {
                                   "___1___");
     auto moves = state.get_remove_moves(6);
     assert(moves.size() == 6);
+    using std::find;
     assert(find(moves.begin(), moves.end(), cords(3, 6)) != moves.end());
     assert(find(moves.begin(), moves.end(), cords(2, 0)) != moves.end());
     assert(find(moves.begin(), moves.end(), cords(4, 0)) != moves.end());

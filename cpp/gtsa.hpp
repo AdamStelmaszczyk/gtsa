@@ -33,7 +33,22 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 #include <random>
 #include <vector>
 
-using namespace std;
+using std::cin;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+using std::istream;
+using std::ostream;
+using std::function;
+using std::to_string;
+using std::shared_ptr;
+using std::make_shared;
+using std::stringstream;
+using std::runtime_error;
+using std::unordered_map;
+using std::unordered_set;
+using std::invalid_argument;
 
 static const int MAX_SIMULATIONS = 10000000;
 static const double UCT_C = sqrt(2);
@@ -49,8 +64,8 @@ struct Random {
     virtual ~Random() {}
 
     int uniform(int min, int max) const {
-        mt19937 engine;
-        uniform_int_distribution<int> distribution(min, max);
+        std::mt19937 engine;
+        std::uniform_int_distribution<int> distribution(min, max);
         return distribution(engine);
     }
 };
@@ -79,7 +94,7 @@ struct Timer {
     }
 
     friend ostream &operator<<(ostream &os, const Timer &timer) {
-        return os << setprecision(2) << fixed << timer.seconds_elapsed() << "s";
+        return os << std::setprecision(2) << std::fixed << timer.seconds_elapsed() << "s";
     }
 };
 
@@ -266,7 +281,7 @@ struct Human : public Algorithm<S, M> {
         while (true) {
             M move = M();
             move.read();
-            if (find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
+            if (std::find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
                 return move;
             } else {
                 cout << "Move " << move << " is not legal" << endl;

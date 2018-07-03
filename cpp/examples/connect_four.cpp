@@ -2,6 +2,9 @@
 
 #include "../gtsa.hpp"
 
+using std::pair;
+using std::make_pair;
+
 const int WIDTH = 8;
 const int HEIGHT = 7;
 const char PLAYER_1 = '1';
@@ -66,7 +69,7 @@ struct Board {
 };
 
 size_t hash_value(const Board &board) {
-    hash<uint64_t> hash_fn;
+    std::hash<uint64_t> hash_fn;
     return hash_fn(board.board);
 }
 

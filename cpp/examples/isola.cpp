@@ -2,6 +2,10 @@
 
 #include "../gtsa.hpp"
 
+using std::pair;
+using std::bitset;
+using std::make_pair;
+
 const int SIDE = 7;
 
 const char PLAYER_1 = '1';
@@ -87,7 +91,7 @@ struct Board {
 };
 
 size_t hash_value(const Board &board) {
-    hash<bitset<SIDE * SIDE>> hash_fn;
+    std::hash<bitset<SIDE * SIDE>> hash_fn;
     return hash_fn(board.board);
 }
 
@@ -138,7 +142,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     void swap_players() override {
-        shuffle(player_cords.begin(), player_cords.end(), mt19937());
+        std::shuffle(player_cords.begin(), player_cords.end(), std::mt19937());
     }
 
     IsolaState clone() const override {
@@ -177,7 +181,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
 
         int height = abs(our_cords.first - enemy_cords.first);
         int width = abs(our_cords.second - enemy_cords.second);
-        int moves_to_enemy = max(height, width);
+        int moves_to_enemy = std::max(height, width);
 
         int mobility = mobility_score(player_moves) - mobility_score(enemy_moves);
         int center = center_score(our_cords) - center_score(enemy_cords);
