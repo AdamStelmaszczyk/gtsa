@@ -195,6 +195,7 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
 
     bool has_empty_space() const {
         uint64_t board = board_1.board | board_2.board;
+        // checks if top row has any empty space
         return (board & 4629771061636907072LL) != 4629771061636907072LL;
     }
 
