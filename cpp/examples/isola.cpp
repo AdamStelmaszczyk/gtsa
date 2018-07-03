@@ -100,16 +100,16 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     Board board;
     vector<cords> player_cords;
 
-    IsolaState() : State(PLAYER_1) {}
+    IsolaState(int players) : State(players) {}
 
-    IsolaState(const string &init_string, int players = 2) : State(PLAYER_1) {
+    IsolaState(const string &init_string, int players = 2) : State(players) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
             throw invalid_argument("Initialization string length must be " + to_string(correct_length));
         }
-        if (players > 8) {
-            throw invalid_argument("Maximum number of players is 8");
+        if (players > 9) {
+            throw invalid_argument("Maximum number of players is 9");
         }
         player_cords = vector<cords>(players, {-1, -1});
         for (int i = 0; i < length; i++) {
@@ -137,16 +137,12 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         }
     }
 
-    virtual int get_number_of_players() const {
-        return player_cords.size();
-    }
-
     void swap_players() override {
         std::shuffle(player_cords.begin(), player_cords.end(), std::mt19937());
     }
 
     IsolaState clone() const override {
-        IsolaState clone = IsolaState();
+        IsolaState clone = IsolaState(players);
         clone.board = Board(board);
         clone.player_cords = player_cords;
         clone.player_to_move = player_to_move;
@@ -284,21 +280,6 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result;
     }
 
-    char get_next_player(char player) const override {
-        const int index = player_char_to_index(player);
-        const char next_index = (index + 1) % player_cords.size();
-        return player_index_to_char(next_index);
-    }
-
-    char get_prev_player(char player) const {
-        const int index = player_char_to_index(player);
-        char prev_index = index - 1;
-        if (prev_index < 0) {
-            prev_index = player_cords.size() - 1;
-        }
-        return player_index_to_char(prev_index);
-    }
-
     bool is_terminal() const override {
         const auto c = get_player_cords(player_to_move);
         for (int dy = -1; dy <= 1; ++dy) {
@@ -313,7 +294,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return true;
     }
 
-    bool is_winner(char player) const override {
+    bool is_winner(int player) const override {
         return player != player_to_move && is_terminal();
     }
 
@@ -377,12 +358,12 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return board.get(x, y) == 0 && !is_player(c);
     }
 
-    cords get_player_cords(char player) const {
-        return player_cords[player_char_to_index(player)];
+    cords get_player_cords(int player) const {
+        return player_cords[player];
     }
 
-    void set_player_cords(char player, const cords &c) {
-        player_cords[player_char_to_index(player)] = c;
+    void set_player_cords(int player, const cords &c) {
+        player_cords[player] = c;
     }
 
     ostream &to_stream(ostream &os) const override {
@@ -401,7 +382,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             }
             os << endl;
         }
-        os << player_to_move << endl;
+        os << player_index_to_char(player_to_move) << endl;
         return os;
     }
 
@@ -430,13 +411,13 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
         return result.str();
     }
 
-    bool operator==(const IsolaState &other) const {
+    bool operator==(const IsolaState &other) const override {
         return board == other.board
                && player_cords == other.player_cords
                && player_to_move == other.player_to_move;
     }
 
-    size_t hash() const {
+    size_t hash() const override {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;

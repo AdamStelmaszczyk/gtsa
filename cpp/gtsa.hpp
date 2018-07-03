@@ -144,11 +144,12 @@ template<class S, class M>
 struct State {
     unsigned visits = 0;
     double score = 0;
-    char player_to_move = 0;
+    int player_to_move = 0;
+    const int players;
     S *parent = nullptr;
     unordered_map<size_t, shared_ptr<S>> children = unordered_map<size_t, shared_ptr<S>>();
 
-    State(char player_to_move) : player_to_move(player_to_move) {}
+    State(int players) : players(players) {}
 
     virtual ~State() {}
 
@@ -190,14 +191,12 @@ struct State {
         return it->second.get();
     }
 
-    virtual string to_executable_format() const {
-        stringstream ss;
-        ss << *this;
-        return ss.str();
+    int get_next_player(int player) const {
+        return (player + 1) % players;
     }
 
-    virtual int get_number_of_players() const {
-        return 2;
+    int get_prev_player(int player) const {
+        return (player > 0) ? (player - 1) : (players - 1);
     }
 
     virtual int player_char_to_index(char player) const {
@@ -208,6 +207,12 @@ struct State {
         return index + '0' + 1;
     }
 
+    virtual string to_executable_format() const {
+        stringstream ss;
+        ss << *this;
+        return ss.str();
+    }
+
     virtual void swap_players() {}
 
     virtual S clone() const = 0;
@@ -216,11 +221,9 @@ struct State {
 
     virtual vector<M> get_legal_moves(int max_moves) const = 0;
 
-    virtual char get_next_player(char player) const = 0;
-
     virtual bool is_terminal() const = 0;
 
-    virtual bool is_winner(char player) const = 0;
+    virtual bool is_winner(int player) const = 0;
 
     virtual void make_move(const M &move) = 0;
 
@@ -815,8 +818,8 @@ struct Tester {
            int verbose = 0,
            bool save = false
     ) : root(state), algorithms(algorithms), MATCHES(matches), VERBOSE(verbose), SAVE(save) {
-        if (algorithms.size() != state->get_number_of_players()) {
-            throw invalid_argument("State requires passing " + to_string(state->get_number_of_players()) + " algorithms");
+        if (algorithms.size() != state->players) {
+            throw invalid_argument("State requires passing " + to_string(state->players) + " algorithms");
         }
     }
 
@@ -825,7 +828,7 @@ struct Tester {
     OutcomeCounts start() {
         Timer all_timer;
         all_timer.start();
-        const int players = root->get_number_of_players();
+        const int players = root->players;
         OutcomeCounts outcome_counts = OutcomeCounts(players);
         unordered_set<int> unique_game_hashes;
         const double draw_score = 1.0 / players;

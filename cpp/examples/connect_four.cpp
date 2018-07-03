@@ -77,9 +77,9 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
 
     Board board_1, board_2;
 
-    ConnectFourState() : State(PLAYER_1) { }
+    ConnectFourState() : State(2) { }
 
-    ConnectFourState(const string &init_string) : State(PLAYER_1) {
+    ConnectFourState(const string &init_string) : State(2) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = WIDTH * HEIGHT;
         if (length != correct_length) {
@@ -91,7 +91,6 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
                 throw invalid_argument(string("Undefined symbol used: '") + c + "'");
             }
         }
-
         for (int y = 0; y < HEIGHT; ++y) {
             for (int x = 0; x < WIDTH; ++x) {
                 const char c = init_string[y * WIDTH + x];
@@ -125,8 +124,16 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
         return 0;
     }
 
+    Board& get_board(int player) {
+        return (player == 0) ? board_1 : board_2;
+    }
+
+    const Board& get_board(int player) const {
+        return (player == 0) ? board_1 : board_2;
+    }
+
     vector<ConnectFourMove> get_legal_moves(int max_moves = INF) const override {
-        auto &board = player_to_move == PLAYER_1 ? board_1 : board_2;
+        const auto &board = get_board(player_to_move);
         int available_moves = WIDTH;
         if (max_moves > available_moves) {
             max_moves = available_moves;
@@ -145,10 +152,6 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
         return moves;
     }
 
-    char get_next_player(char player) const override {
-        return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
-    }
-
     bool is_terminal() const override {
         if (!has_empty_space()) {
             return true;
@@ -156,8 +159,8 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
         return is_winner(player_to_move) || is_winner(get_next_player(player_to_move));
     }
 
-    bool is_winner(char player) const override {
-        uint64_t board = (player == PLAYER_1) ? board_1.board : board_2.board;
+    bool is_winner(int player) const override {
+        uint64_t board = get_board(player).board;
         uint64_t y = board & (board >> 7LL);
         uint64_t z = board & (board >> 8LL);
         uint64_t w = board & (board >> 9LL);
@@ -171,7 +174,7 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
     void make_move(const ConnectFourMove &move) override {
         for (int y = HEIGHT - 1; y >= 0; --y) {
             if (is_empty(move.x, y)) {
-                auto &board = player_to_move == PLAYER_1 ? board_1 : board_2;
+                auto &board = get_board(player_to_move);
                 board.set(move.x, y, 1);
                 break;
             }
@@ -213,17 +216,17 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
             }
             os << endl;
         }
-        os << player_to_move << endl;
+        os << player_index_to_char(player_to_move) << endl;
         return os;
     }
 
-    bool operator==(const ConnectFourState &other) const {
+    bool operator==(const ConnectFourState &other) const override {
         return board_1 == other.board_1 &&
                board_2 == other.board_2 &&
                player_to_move == other.player_to_move;
     }
 
-    size_t hash() const {
+    size_t hash() const override {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;

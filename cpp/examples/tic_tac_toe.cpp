@@ -1,8 +1,8 @@
 #include "../gtsa.hpp"
 
 const int SIDE = 3;
-const char PLAYER_1 = '1';
-const char PLAYER_2 = '2';
+const char PLAYER_1 = 'X';
+const char PLAYER_2 = 'O';
 const char EMPTY = '_';
 
 struct TicTacToeMove : public Move<TicTacToeMove> {
@@ -67,9 +67,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     vector<char> board;
 
-    TicTacToeState() : State(PLAYER_1) { }
+    TicTacToeState() : State(2) { }
 
-    TicTacToeState(const string &init_string) : State(PLAYER_1) {
+    TicTacToeState(const string &init_string) : State(2) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
@@ -140,10 +140,6 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return moves;
     }
 
-    char get_next_player(char player) const override {
-        return (player == PLAYER_1) ? PLAYER_2 : PLAYER_1;
-    }
-
     bool is_terminal() const override {
         if (!has_empty_space()) {
             return true;
@@ -157,7 +153,7 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    bool is_winner(char player) const override {
+    bool is_winner(int player) const override {
         const auto &counts = count_players_on_lines(player);
         for (int i = 0; i < LINES_SIZE; ++i) {
             if (counts[2 * i] == SIDE) {
@@ -167,8 +163,16 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
+    int player_char_to_index(char player) const override {
+        return (player == PLAYER_1) ? 0 : 1;
+    }
+
+    char player_index_to_char(int index) const override {
+        return (index == 0) ? PLAYER_1 : PLAYER_2;
+    }
+
     void make_move(const TicTacToeMove &move) override {
-        board[move.y * SIDE + move.x] = player_to_move;
+        board[move.y * SIDE + move.x] = player_index_to_char(player_to_move);
         player_to_move = get_next_player(player_to_move);
     }
 
@@ -188,16 +192,16 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
         return false;
     }
 
-    vector<int> count_players_on_lines(char player) const {
+    vector<int> count_players_on_lines(int player) const {
         vector<int> counts(2 * LINES_SIZE);
-        char enemy = get_next_player(player);
+        const auto enemy = player_index_to_char(get_next_player(player));
         for (int i = 0; i < LINES_SIZE; ++i) {
             int player_places = 0;
             int enemy_places = 0;
             for (int j = 0; j < SIDE; ++j) {
                 const TicTacToeMove &coord = LINES[i][j];
                 const int board_index = coord.y * SIDE + coord.x;
-                if (board[board_index] == player) {
+                if (board[board_index] == player_index_to_char(player)) {
                     ++player_places;
                 }
                 else if (board[board_index] == enemy) {
@@ -217,15 +221,15 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
             }
             os << "\n";
         }
-        os << player_to_move << endl;
+        os << player_index_to_char(player_to_move) << endl;
         return os;
     }
 
-    bool operator==(const TicTacToeState &other) const {
+    bool operator==(const TicTacToeState &other) const override {
         return board == other.board;
     }
 
-    size_t hash() const {
+    size_t hash() const override {
         using boost::hash_value;
         using boost::hash_combine;
         size_t seed = 0;

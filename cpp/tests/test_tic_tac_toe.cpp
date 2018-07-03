@@ -13,8 +13,8 @@ vector<shared_ptr<Algorithm<S, M>>> get_algorithms() {
 }
 
 void test_tic_tac_toe_finish() {
-    TicTacToeState state = TicTacToeState("11_"
-                                          "_2_"
+    TicTacToeState state = TicTacToeState("XX_"
+                                          "_O_"
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
@@ -23,8 +23,8 @@ void test_tic_tac_toe_finish() {
 }
 
 void test_tic_tac_toe_block() {
-    TicTacToeState state = TicTacToeState("2__"
-                                          "21_"
+    TicTacToeState state = TicTacToeState("O__"
+                                          "OX_"
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
@@ -33,8 +33,8 @@ void test_tic_tac_toe_block() {
 }
 
 void test_tic_tac_toe_block_2() {
-    TicTacToeState state = TicTacToeState("1__"
-                                          "22_"
+    TicTacToeState state = TicTacToeState("X__"
+                                          "OO_"
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
@@ -43,9 +43,9 @@ void test_tic_tac_toe_block_2() {
 }
 
 void test_tic_tac_toe_block_3() {
-    TicTacToeState state = TicTacToeState("1__"
-                                          "12_"
-                                          "2__");
+    TicTacToeState state = TicTacToeState("X__"
+                                          "XO_"
+                                          "O__");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
         assert(move == TicTacToeMove(2, 0));
@@ -53,9 +53,9 @@ void test_tic_tac_toe_block_3() {
 }
 
 void test_tic_tac_toe_block_4() {
-    TicTacToeState state = TicTacToeState("__1"
-                                          "_22"
-                                          "__1");
+    TicTacToeState state = TicTacToeState("__X"
+                                          "_OO"
+                                          "__X");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
         assert(move == TicTacToeMove(0, 1));
@@ -63,9 +63,9 @@ void test_tic_tac_toe_block_4() {
 }
 
 void test_tic_tac_toe_block_5() {
-    TicTacToeState state = TicTacToeState("21_"
-                                          "_1_"
-                                          "221");
+    TicTacToeState state = TicTacToeState("OX_"
+                                          "_X_"
+                                          "OOX");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
         assert(move == TicTacToeMove(0, 1));
@@ -74,7 +74,7 @@ void test_tic_tac_toe_block_5() {
 
 void test_tic_tac_toe_corner() {
     TicTacToeState state = TicTacToeState("___"
-                                          "_2_"
+                                          "_O_"
                                           "___");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         auto move = algorithm->get_move(&state);
@@ -84,9 +84,9 @@ void test_tic_tac_toe_corner() {
 }
 
 void test_tic_tac_toe_terminal() {
-    TicTacToeState state = TicTacToeState("121"
-                                          "221"
-                                          "212");
+    TicTacToeState state = TicTacToeState("XOX"
+                                          "OOX"
+                                          "OXO");
     for (auto &algorithm : get_algorithms<TicTacToeState, TicTacToeMove>()) {
         bool exception_thrown = false;
         try {

@@ -76,8 +76,8 @@ void test_isola_crowded_winner() {
                                   "#######"
                                   "#######"
                                   "#######");
-    assert(!state.is_winner(PLAYER_1));
-    assert(state.is_winner(PLAYER_2));
+    assert(!state.is_winner(0));
+    assert(state.is_winner(1));
 }
 
 void test_isola_terminal() {
@@ -138,11 +138,11 @@ void test_isola_terminal_four_players() {
                                   "_______"
                                   "_______", 4);
     assert(!state.is_terminal());
-    state.player_to_move = '2';
+    state.player_to_move = 1;
     assert(!state.is_terminal());
-    state.player_to_move = '3';
+    state.player_to_move = 2;
     assert(state.is_terminal());
-    state.player_to_move = '4';
+    state.player_to_move = 3;
     assert(!state.is_terminal());
 
 }
