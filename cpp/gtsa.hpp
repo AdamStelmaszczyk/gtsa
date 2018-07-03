@@ -320,7 +320,7 @@ struct Executable : public Algorithm<S, M> {
 
         M move = M();
         move.read(stream_to_read);
-        if (find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
+        if (std::find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
             return move;
         } else {
             stringstream message;

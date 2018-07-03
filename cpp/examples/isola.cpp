@@ -350,7 +350,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     bool is_player(const cords &c) const {
-        return find(player_cords.begin(), player_cords.end(), c) != player_cords.end();
+        return std::find(player_cords.begin(), player_cords.end(), c) != player_cords.end();
     }
 
     bool is_empty(int x, int y) const {
@@ -371,7 +371,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             for (int x = 0; x < SIDE; ++x) {
                 const cords c = make_pair(x, y);
                 if (is_player(c)) {
-                    const auto it = find(player_cords.begin(), player_cords.end(), c);
+                    const auto it = std::find(player_cords.begin(), player_cords.end(), c);
                     const int index = it - player_cords.begin();
                     os << player_index_to_char(index);
                 } else if (board.get(x, y) == 0) {
