@@ -64,8 +64,6 @@ Would like to help?
 Suggestions welcome on [Issues](https://github.com/AdamStelmaszczyk/gtsa/issues).
 [Pull requests](https://github.com/AdamStelmaszczyk/gtsa/pulls) too.
 
-I'm transferring 50$ to anybody who reports an actual bug.
-
 If you use code or ideas from this repository, please cite it as follows:
 
 ```
