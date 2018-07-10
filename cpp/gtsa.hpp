@@ -58,13 +58,14 @@ static const double LOSE_SCORE = 0;
 
 static const int MAX_DEPTH = 20;
 static const int INF = 2147483647;
+static const int SEED = 42;
 
 struct Random {
 
     virtual ~Random() {}
 
     int uniform(int min, int max) const {
-        std::mt19937 engine;
+        std::mt19937 engine(SEED);
         std::uniform_int_distribution<int> distribution(min, max);
         return distribution(engine);
     }
