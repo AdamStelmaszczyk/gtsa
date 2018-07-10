@@ -812,6 +812,7 @@ struct Tester {
     const int VERBOSE;
     const bool SAVE;
     const double P_VALUE = 0.005; // two sided 99% confidence interval
+    const double draw_score = 0.5;
 
     Tester(S *state,
            const vector<shared_ptr<Algorithm<S, M>>> &algorithms,
@@ -832,7 +833,6 @@ struct Tester {
         const int players = root->players;
         OutcomeCounts outcome_counts = OutcomeCounts(players);
         unordered_set<int> unique_game_hashes;
-        const double draw_score = 1.0 / players;
         for (int i = 1; i <= MATCHES; ++i) {
             int move_number = 1;
             auto current = root->clone();
@@ -850,7 +850,7 @@ struct Tester {
             }
             auto game_hash = current.hash();
             while (!current.is_terminal()) {
-                const auto algorithm_ptr = algorithms[current.player_char_to_index(current.player_to_move)];
+                const auto algorithm_ptr = algorithms[current.player_to_move];
                 if (VERBOSE >= 1) {
                     cout << current.player_to_move << " " << *algorithm_ptr << endl;
                 }
@@ -880,8 +880,7 @@ struct Tester {
             }
             bool somebody_won = false;
             for (int j = 0; j < players; ++j) {
-                const char player = current.player_index_to_char(j);
-                if (current.is_winner(player)) {
+                if (current.is_winner(j)) {
                     ++outcome_counts.wins[j];
                     cout << current.player_index_to_char(j) << " " << *algorithms[j] << " won" << endl;
                     somebody_won = true;
@@ -904,12 +903,12 @@ struct Tester {
                 cout << current.player_index_to_char(j) << " " << *algorithms[j] << " wins: " << outcome_counts.wins[j];
                 cout << " ratio: " << ratio[j] << " confidence bounds: " << lower[j] << ", " << upper[j] << endl;
                 if (upper[j] < draw_score || lower[j] > draw_score) {
-                    cout << "Total time: " << all_timer << endl;
                     done = true;
                 }
             }
             cout << endl;
             if (done) {
+                cout << "Total time: " << all_timer << endl;
                 break;
             }
         }
