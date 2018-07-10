@@ -856,7 +856,7 @@ struct Tester {
             while (!current.is_terminal()) {
                 const auto algorithm_ptr = algorithms[current.player_to_move];
                 if (VERBOSE >= 1) {
-                    cout << current.player_to_move << " " << *algorithm_ptr << endl;
+                    cout << current.player_index_to_char(current.player_to_move) << " " << *algorithm_ptr << endl;
                 }
                 algorithm_ptr->reset();
                 Timer timer;
