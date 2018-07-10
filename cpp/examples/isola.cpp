@@ -100,18 +100,18 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     Board board;
     vector<cords> player_cords;
 
-    IsolaState(int players) : State(players) {}
+    IsolaState(const vector<int> &teams) : State(teams) {}
 
-    IsolaState(const string &init_string, int players = 2) : State(players) {
+    IsolaState(const string &init_string, const vector<int> &teams = {0, 1}) : State(teams) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {
             throw invalid_argument("Initialization string length must be " + to_string(correct_length));
         }
-        if (players > 9) {
+        if (teams.size() > 9) {
             throw invalid_argument("Maximum number of players is 9");
         }
-        player_cords = vector<cords>(players, {-1, -1});
+        player_cords = vector<cords>(teams.size(), {-1, -1});
         for (int i = 0; i < length; i++) {
             int x = i % SIDE;
             int y = i / SIDE;
@@ -119,7 +119,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
             if (isdigit(c)) {
                 const int index = player_char_to_index(c);
                 if (index > player_cords.size()) {
-                    throw invalid_argument("Expected " + to_string(players) + " players but read player " + c);
+                    throw invalid_argument("Expected " + to_string(teams.size()) + " players but read player " + c);
                 }
                 player_cords[index] = make_pair(x, y);
             } else if (c == EMPTY) {
@@ -142,7 +142,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     IsolaState clone() const override {
-        IsolaState clone = IsolaState(players);
+        IsolaState clone = IsolaState(teams);
         clone.board = Board(board);
         clone.player_cords = player_cords;
         clone.player_to_move = player_to_move;
@@ -295,7 +295,7 @@ struct IsolaState : public State<IsolaState, IsolaMove> {
     }
 
     bool is_winner(int player) const override {
-        return player != player_to_move && is_terminal();
+        return !is_team_mate(player) && is_terminal();
     }
 
     void make_move(const IsolaMove &move) override {

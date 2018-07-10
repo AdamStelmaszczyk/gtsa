@@ -146,11 +146,11 @@ struct State {
     unsigned visits = 0;
     double score = 0;
     int player_to_move = 0;
-    const int players;
     S *parent = nullptr;
     unordered_map<size_t, shared_ptr<S>> children = unordered_map<size_t, shared_ptr<S>>();
+    const vector<int> teams;
 
-    State(int players) : players(players) {}
+    State(const vector<int> &teams) : teams(teams) {}
 
     virtual ~State() {}
 
@@ -193,11 +193,15 @@ struct State {
     }
 
     int get_next_player(int player) const {
-        return (player + 1) % players;
+        return (player + 1) % teams.size();
     }
 
     int get_prev_player(int player) const {
-        return (player > 0) ? (player - 1) : (players - 1);
+        return (player > 0) ? (player - 1) : (teams.size() - 1);
+    }
+
+    bool is_team_mate(int index) const {
+        return teams[player_to_move] == teams[index];
     }
 
     virtual int player_char_to_index(char player) const {
@@ -820,8 +824,8 @@ struct Tester {
            int verbose = 0,
            bool save = false
     ) : root(state), algorithms(algorithms), MATCHES(matches), VERBOSE(verbose), SAVE(save) {
-        if (algorithms.size() != state->players) {
-            throw invalid_argument("State requires passing " + to_string(state->players) + " algorithms");
+        if (algorithms.size() != state->teams.size()) {
+            throw invalid_argument("State requires passing " + to_string(state->teams.size()) + " algorithms");
         }
     }
 
@@ -830,7 +834,7 @@ struct Tester {
     OutcomeCounts start() {
         Timer all_timer;
         all_timer.start();
-        const int players = root->players;
+        const int players = root->teams.size();
         OutcomeCounts outcome_counts = OutcomeCounts(players);
         unordered_set<int> unique_game_hashes;
         for (int i = 1; i <= MATCHES; ++i) {

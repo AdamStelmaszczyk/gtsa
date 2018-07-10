@@ -7,7 +7,7 @@ int main() {
                                   "2_____4"
                                   "_______"
                                   "_______"
-                                  "___1___", 4);
+                                  "___1___", {0, 1, 0, 1});
 
     vector<shared_ptr<Algorithm<IsolaState, IsolaMove>>> algorithms = {
             shared_ptr<Algorithm<IsolaState, IsolaMove>>(new MonteCarloTreeSearch<IsolaState, IsolaMove>(0.1)),
@@ -16,7 +16,7 @@ int main() {
             shared_ptr<Algorithm<IsolaState, IsolaMove>>(new Minimax<IsolaState, IsolaMove>(0.1)),
     };
 
-    Tester<IsolaState, IsolaMove> tester(&state, algorithms, 1, 1);
+    Tester<IsolaState, IsolaMove> tester(&state, algorithms);
     tester.start();
 
     return 0;

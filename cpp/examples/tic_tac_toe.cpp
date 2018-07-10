@@ -67,9 +67,9 @@ struct TicTacToeState : public State<TicTacToeState, TicTacToeMove> {
 
     vector<char> board;
 
-    TicTacToeState() : State(2) { }
+    TicTacToeState() : State({0, 1}) { }
 
-    TicTacToeState(const string &init_string) : State(2) {
+    TicTacToeState(const string &init_string) : State({0, 1}) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = SIDE * SIDE;
         if (length != correct_length) {

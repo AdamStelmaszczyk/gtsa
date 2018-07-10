@@ -121,7 +121,7 @@ void test_isola_make_and_undo_four_players() {
                                   "2_____4"
                                   "_______"
                                   "_______"
-                                  "___1___", 4);
+                                  "___1___", {0, 1, 2, 3});
     auto copy = state.clone();
     auto move = IsolaMove(3, 6, 3, 5, 3, 6);
     state.make_move(move);
@@ -136,15 +136,18 @@ void test_isola_terminal_four_players() {
                                   "_#_41##"
                                   "_______"
                                   "_______"
-                                  "_______", 4);
+                                  "_______", {0, 1, 0, 1});
     assert(!state.is_terminal());
     state.player_to_move = 1;
     assert(!state.is_terminal());
     state.player_to_move = 2;
     assert(state.is_terminal());
+    assert(!state.is_winner(0));
+    assert(state.is_winner(1));
+    assert(!state.is_winner(2));
+    assert(state.is_winner(3));
     state.player_to_move = 3;
     assert(!state.is_terminal());
-
 }
 
 void test_get_remove_moves() {

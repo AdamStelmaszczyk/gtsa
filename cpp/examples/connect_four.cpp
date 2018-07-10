@@ -77,9 +77,9 @@ struct ConnectFourState : public State<ConnectFourState, ConnectFourMove> {
 
     Board board_1, board_2;
 
-    ConnectFourState() : State(2) { }
+    ConnectFourState() : State({0, 1}) { }
 
-    ConnectFourState(const string &init_string) : State(2) {
+    ConnectFourState(const string &init_string) : State({0, 1}) {
         const unsigned long length = init_string.length();
         const unsigned long correct_length = WIDTH * HEIGHT;
         if (length != correct_length) {
