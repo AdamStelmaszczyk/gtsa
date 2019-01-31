@@ -380,15 +380,21 @@ struct Minimax : public Algorithm<S, M> {
     int beta_cuts, cut_bf_sum;
     int tt_hits, tt_exacts, tt_cuts;
     int nodes, leafs;
+    const int verbose;
 
-    Minimax(double max_seconds = 1, int max_moves = INF, function<vector<M>(const S*, int)> get_legal_moves = nullptr, function<int(const S*)> get_goodness = nullptr) :
-            Algorithm<S, M>(),
-            transposition_table(1000000),
-            MAX_SECONDS(max_seconds),
-            MAX_MOVES(max_moves),
-            get_legal_moves(get_legal_moves),
-            get_goodness(get_goodness),
-            timer(Timer()) {}
+    Minimax(double max_seconds = 1,
+            int max_moves = INF,
+            function<vector<M>(const S*, int)> get_legal_moves = nullptr,
+            function<int(const S*)> get_goodness = nullptr,
+            int verbose = 0) :
+        Algorithm<S, M>(),
+        transposition_table(1000000),
+        MAX_SECONDS(max_seconds),
+        MAX_MOVES(max_moves),
+        get_legal_moves(get_legal_moves),
+        get_goodness(get_goodness),
+        verbose(verbose),
+        timer(Timer()) {}
 
     void reset() {
         transposition_table.clear();
@@ -410,10 +416,12 @@ struct Minimax : public Algorithm<S, M> {
 
         const auto moves = get_legal_moves(state, MAX_MOVES);
         this->log << "moves: " << moves.size() << endl;
-        for (const auto move : moves) {
-            this->log << move << ", ";
+        if (verbose > 1) {
+            for (const auto move : moves) {
+                this->log << move << ", ";
+            }
+            this->log << endl;
         }
-        this->log << endl;
 
         M best_move;
         for (int max_depth = 1; max_depth <= MAX_DEPTH; ++max_depth) {
