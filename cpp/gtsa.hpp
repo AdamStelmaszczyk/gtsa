@@ -615,14 +615,12 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         }
         Timer timer;
         timer.start();
-        int simulation = 0;
         S clone = root->clone();
-        while (simulation < max_simulations && !timer.exceeded(max_seconds)) {
+        while (clone.visits < max_simulations && !timer.exceeded(max_seconds)) {
             monte_carlo_tree_search(&clone);
-            ++simulation;
         }
         this->log << "ratio: " << clone.score / clone.visits << endl;
-        this->log << "simulations: " << simulation << endl;
+        this->log << "simulations: " << clone.visits << endl;
         const auto legal_moves = clone.get_legal_moves();
         this->log << "moves: " << legal_moves.size() << endl;
         if (verbose >= 2) {
