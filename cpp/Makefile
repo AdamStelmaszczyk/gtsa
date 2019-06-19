@@ -1,5 +1,5 @@
 CC=g++
-FLAGS=-std=c++11 -O2 -fprofile-arcs -ftest-coverage -Wreturn-type
+FLAGS=-std=c++11 -O2 -fprofile-arcs -ftest-coverage -Wreturn-type -D BOOST_MATH_NO_LONG_DOUBLE_MATH_FUNCTIONS
 
 all: tests/test_tic_tac_toe.o tests/test_isola.o tests/test_connect_four.o tests/play_isola.o
 
