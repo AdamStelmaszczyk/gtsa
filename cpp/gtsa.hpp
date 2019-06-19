@@ -596,6 +596,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const bool block;
     const Random random;
     const int verbose;
+    mutable int policy_moves;
+    mutable int rollout_moves;
 
     MonteCarloTreeSearch(double max_seconds = 1,
                          int max_simulations = MAX_SIMULATIONS,
@@ -616,11 +618,15 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         Timer timer;
         timer.start();
         S clone = root->clone();
+        policy_moves = 0;
+        rollout_moves = 0;
         while (clone.visits < max_simulations && !timer.exceeded(max_seconds)) {
             monte_carlo_tree_search(&clone);
         }
         this->log << "ratio: " << clone.score / clone.visits << endl;
         this->log << "simulations: " << clone.visits << endl;
+        this->log << "policy moves: " << policy_moves << endl;
+        this->log << "rollout moves: " << rollout_moves << endl;
         const auto legal_moves = clone.get_legal_moves();
         this->log << "moves: " << legal_moves.size() << endl;
         if (verbose >= 2) {
@@ -655,6 +661,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         if (state->is_terminal()) {
             return state;
         }
+        ++policy_moves;
         const M move = get_tree_policy_move(state, root);
         const auto child = state->get_child(move);
         if (child == nullptr) {
@@ -767,7 +774,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return nullptr;
     }
 
-
     M get_tree_policy_move(S *state, const S *root) const {
         const auto move_ptr = get_winning_or_blocking_move(state);
         if (move_ptr != nullptr) {
@@ -794,6 +800,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             }
             return DRAW_SCORE;
         }
+        ++rollout_moves;
         M move = get_default_policy_move(current);
         current->make_move(move);
         auto result = rollout(current, root);
