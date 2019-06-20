@@ -61,13 +61,13 @@ static const int INF = 2147483647;
 static const int SEED = 42;
 
 struct Random {
+    std::mt19937 engine = std::mt19937(SEED);
 
     virtual ~Random() {}
 
-    int uniform(int min, int max) const {
-        std::mt19937 engine(SEED);
-        std::uniform_int_distribution<int> distribution(min, max);
-        return distribution(engine);
+    int uniform(int min, int max) {
+        std::uniform_int_distribution<int> dist(min, max);
+        return dist(engine);
     }
 };
 
@@ -594,8 +594,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const double max_seconds;
     const int max_simulations;
     const bool block;
-    const Random random;
     const int verbose;
+    mutable Random random;
     mutable int policy_moves;
     mutable int rollout_moves;
 
