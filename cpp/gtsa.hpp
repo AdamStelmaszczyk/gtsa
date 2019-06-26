@@ -143,7 +143,7 @@ struct TTEntry {
 
 template<class S, class M>
 struct State {
-    unsigned visits = 0;
+    unsigned visits = 5; // virtual visits
     double score = 0;
     int player_to_move = 0;
     S *parent = nullptr;
