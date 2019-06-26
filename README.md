@@ -26,7 +26,7 @@ Implemented algorithms
 
 - [NegaScout](https://en.wikipedia.org/wiki/Principal_variation_search) with [iterative deepening]( https://chessprogramming.wikispaces.com/Iterative+Deepening) and [transposition table](https://en.wikipedia.org/wiki/Transposition_table).
 - [Monte Carlo tree search](https://en.wikipedia.org/wiki/Monte_Carlo_tree_search) with [UCT](
-https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation).
+https://en.wikipedia.org/wiki/Monte_Carlo_tree_search#Exploration_and_exploitation) and [virtual visits](https://github.com/AdamStelmaszczyk/gtsa/issues/18).
 
 Both handle sequential, multiplayer games:
 
