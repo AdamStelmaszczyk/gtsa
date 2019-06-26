@@ -593,7 +593,6 @@ template<class S, class M>
 struct MonteCarloTreeSearch : public Algorithm<S, M> {
     const double max_seconds;
     const int max_simulations;
-    const bool block;
     const int verbose;
     mutable Random random;
     mutable int policy_moves;
@@ -601,11 +600,9 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     MonteCarloTreeSearch(double max_seconds = 1,
                          int max_simulations = MAX_SIMULATIONS,
-                         bool block = false,
                          int verbose = 1) :
         Algorithm<S, M>(),
         max_seconds(max_seconds),
-        block(block),
         max_simulations(max_simulations),
         verbose(verbose) {}
 
@@ -662,7 +659,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             return state;
         }
         ++policy_moves;
-        const M move = get_tree_policy_move(state, root);
+        const M move = get_best_move(state, root);
         const auto child = state->get_child(move);
         if (child == nullptr) {
             return state->add_child(move);
@@ -735,61 +732,6 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return legal_moves[index];
     }
 
-    shared_ptr<M> get_winning_move(const S *state) const {
-        const auto current_player = state->player_to_move;
-        const auto legal_moves = state->get_legal_moves();
-        S clone = state->clone();
-        assert(!legal_moves.empty());
-        for (const M &move : legal_moves) {
-            clone.make_move(move);
-            if (clone.is_winner(current_player)) {
-                return make_shared<M>(move);
-            }
-            clone.undo_move(move);
-        }
-        return nullptr;
-    }
-
-    shared_ptr<M> get_blocking_move(const S *state) const {
-        const auto current_player = state->player_to_move;
-        const auto enemy = state->get_next_player(current_player);
-        S enemy_state = state->clone();
-        enemy_state.player_to_move = enemy;
-        return get_winning_move(&enemy_state);
-    }
-
-    shared_ptr<M> get_winning_or_blocking_move(const S* state) const {
-        // If player has a winning move he makes it.
-        auto move_ptr = get_winning_move(state);
-        if (move_ptr != nullptr) {
-            return move_ptr;
-        }
-        if (block) {
-            // If player has a blocking move he makes it.
-            move_ptr = get_blocking_move(state);
-            if (move_ptr != nullptr) {
-                return move_ptr;
-            }
-        }
-        return nullptr;
-    }
-
-    M get_tree_policy_move(S *state, const S *root) const {
-        const auto move_ptr = get_winning_or_blocking_move(state);
-        if (move_ptr != nullptr) {
-            return *move_ptr;
-        }
-        return get_best_move(state, root);
-    }
-
-    M get_default_policy_move(const S *state) const {
-        const auto move_ptr = get_winning_or_blocking_move(state);
-        if (move_ptr != nullptr) {
-            return *move_ptr;
-        }
-        return get_random_move(state);
-    }
-
     double rollout(S *current, const S *root) const {
         if (current->is_terminal()) {
             if (current->is_winner(root->player_to_move)) {
@@ -801,7 +743,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             return DRAW_SCORE;
         }
         ++rollout_moves;
-        M move = get_default_policy_move(current);
+        M move = get_random_move(current);
         current->make_move(move);
         auto result = rollout(current, root);
         current->undo_move(move);
