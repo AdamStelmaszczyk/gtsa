@@ -1,4 +1,4 @@
-# Game Tree Search Algorithms [![Build Status](https://travis-ci.org/AdamStelmaszczyk/gtsa.svg?branch=master)](https://travis-ci.org/AdamStelmaszczyk/gtsa) [![Coverage Status](https://coveralls.io/repos/github/AdamStelmaszczyk/gtsa/badge.svg?branch=master)](https://coveralls.io/github/AdamStelmaszczyk/gtsa?branch=master)
+# Game Tree Search Algorithms [![Build Status](https://app.travis-ci.com/AdamStelmaszczyk/gtsa.svg?branch=master)](https://app.travis-ci.com/AdamStelmaszczyk/gtsa) [![Coverage Status](https://coveralls.io/repos/github/AdamStelmaszczyk/gtsa/badge.svg?branch=master)](https://coveralls.io/github/AdamStelmaszczyk/gtsa?branch=master)
 
 C++ library for AI bot programming.
 
