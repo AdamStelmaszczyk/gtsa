@@ -159,13 +159,17 @@ struct State {
         ++visits;
     }
 
-    double get_uct(double c) const {
+    double get_uct(const int player) const {
         assert(visits > 0);
         double parent_visits = 0.0;
         if (parent != nullptr) {
             parent_visits = parent->visits;
         }
-        return score / visits + c * sqrt(log(parent_visits) / visits);
+        double ratio = score / visits;
+        if (player != player_to_move) {
+            ratio = (visits - score) / score;
+        }
+        return ratio + UCT_C * sqrt(log(parent_visits) / visits);
     }
 
     shared_ptr<S> create_child(const M &move) {
@@ -643,14 +647,14 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     void monte_carlo_tree_search(S *root) const {
         S *current = tree_policy(root, root);
-        const auto result = rollout(current, root);
+        const auto result = rollout(current, current->player_to_move);
         propagate_up(current, result);
     }
 
     void propagate_up(S *current, double result) const {
         current->update_stats(result);
         if (current->parent) {
-            propagate_up(current->parent, result);
+            propagate_up(current->parent, 1 - result);
         }
     }
 
@@ -659,7 +663,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
             return state;
         }
         ++policy_moves;
-        const M move = get_best_move(state, root);
+        const M move = get_best_move(state);
         const auto child = state->get_child(move);
         if (child == nullptr) {
             return state->add_child(move);
@@ -686,40 +690,21 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return best_move;
     }
 
-    M get_best_move(S *state, const S *root) const {
+    M get_best_move(S *state) const {
         const auto legal_moves = state->get_legal_moves();
         assert(!legal_moves.empty());
         M best_move;
-        if (state->player_to_move == root->player_to_move) {
-            // maximize
-            double best_uct = -INF;
-            for (const auto move : legal_moves) {
-                const auto child = state->get_child(move);
-                if (child != nullptr) {
-                    const auto uct = child->get_uct(UCT_C);
-                    if (best_uct < uct) {
-                        best_uct = uct;
-                        best_move = move;
-                    }
-                } else {
-                    return move;
+        double best_uct = -INF;
+        for (const auto move : legal_moves) {
+            const auto child = state->get_child(move);
+            if (child != nullptr) {
+                const auto uct = child->get_uct(state->player_to_move);
+                if (best_uct < uct) {
+                    best_uct = uct;
+                    best_move = move;
                 }
-            }
-        }
-        else {
-            // minimize
-            double best_uct = INF;
-            for (const auto move : legal_moves) {
-                const auto child = state->get_child(move);
-                if (child != nullptr) {
-                    const auto uct = child->get_uct(-UCT_C);
-                    if (best_uct > uct) {
-                        best_uct = uct;
-                        best_move = move;
-                    }
-                } else {
-                    return move;
-                }
+            } else {
+                return move;
             }
         }
         return best_move;
@@ -732,12 +717,12 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         return legal_moves[index];
     }
 
-    double rollout(S *current, const S *root) const {
+    double rollout(S *current, const int rollout_player) const {
         if (current->is_terminal()) {
-            if (current->is_winner(root->player_to_move)) {
+            if (current->is_winner(rollout_player)) {
                 return WIN_SCORE;
             }
-            if (current->is_winner(root->get_next_player(root->player_to_move))) {
+            if (current->is_winner(current->get_next_player(rollout_player))) {
                 return LOSE_SCORE;
             }
             return DRAW_SCORE;
@@ -745,7 +730,7 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
         ++rollout_moves;
         M move = get_random_move(current);
         current->make_move(move);
-        auto result = rollout(current, root);
+        auto result = rollout(current, rollout_player);
         current->undo_move(move);
         return result;
     }
