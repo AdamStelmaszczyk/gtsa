@@ -154,11 +154,6 @@ struct State {
 
     virtual ~State() {}
 
-    void update_stats(double result) {
-        score += result;
-        ++visits;
-    }
-
     double get_uct(const int player) const {
         assert(visits > 0);
         double parent_visits = 0.0;
@@ -652,7 +647,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
     }
 
     void propagate_up(S *current, double result) const {
-        current->update_stats(result);
+        current->score += result;
+        ++current->visits;
         if (current->parent) {
             propagate_up(current->parent, 1 - result);
         }
