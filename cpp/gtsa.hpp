@@ -643,7 +643,8 @@ struct MonteCarloTreeSearch : public Algorithm<S, M> {
 
     void monte_carlo_tree_search(S *root) const {
         S *current = tree_policy(root, root);
-        const auto result = rollout(current, current->player_to_move);
+        S clone = current->clone();
+        const auto result = rollout(&clone, clone.player_to_move);
         propagate_up(current, result);
     }
 
