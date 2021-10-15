@@ -36,6 +36,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 using std::cin;
 using std::cout;
 using std::endl;
+using std::find;
 using std::string;
 using std::vector;
 using std::istream;
@@ -288,7 +289,7 @@ struct Human : public Algorithm<S, M> {
         while (true) {
             M move = M();
             move.read();
-            if (std::find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
+            if (find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
                 return move;
             } else {
                 cout << "Move " << move << " is not legal" << endl;
@@ -324,7 +325,7 @@ struct Executable : public Algorithm<S, M> {
 
         M move = M();
         move.read(stream_to_read);
-        if (std::find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
+        if (find(legal_moves.begin(), legal_moves.end(), move) != legal_moves.end()) {
             return move;
         } else {
             stringstream message;
