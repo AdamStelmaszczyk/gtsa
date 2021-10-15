@@ -2,7 +2,7 @@
 
 Also known as: Weiqi, Baduk.
 
-Go is a two-player board game. [Tromp-Taylor](http://tromp.github.io/go.html) rules:
+Go is a two-player board game. [Tromp-Taylor](http://tromp.github.io/go.html) rules (similar to Chinese):
 
 1. Go is played on a NxN square grid of points, by two players called Black and White.
 2. Each point on the grid may be colored black, white or empty.
@@ -23,7 +23,7 @@ then clearing the opponent color, and then clearing one's own color.
 
 Input
 ---
-The input is a 7x7 matrix consisting only of `1`, `2` and `_`. Then another line follows with `1` or `2`, which is your player id.
+The input is a 5x5 matrix consisting only of `1`, `2` and `_`. Then another line follows with `1` or `2`, which is your player id.
 
 The cell marked `_` means it contains an empty square. The cell marked `1` means it contains player 1's point. The cell marked `2` means it contains player 2's point.
 
@@ -32,26 +32,22 @@ In the given matrix, top-left is (0, 0) and bottom-right is (6, 6). The x-coordi
 First input
 ---
 ```
-_______
-_______
-_______
-_______
-_______
-_______
-_______
+_____
+_____
+_____
+_____
+_____
 1
 ```
 
 Sample input
 ---
 ```
-_______
-_22__2_
-_11221_
-___111_
-______
-_______
-_______
+_____
+_22__
+_1122
+___11
+_____
 2
 ```
 
@@ -67,4 +63,4 @@ Sample output
 
 Sample game
 ---
-TODO: add GIF
+<img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/go.gif"/>

@@ -21,6 +21,9 @@ Game examples
 - Connect Four - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.cpp).
 <p><a href="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.md"><img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/connect_four.gif"/></a></p>
 
+- Go - [game rules](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/go.md), [code example](https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/go.cpp).
+<p><a href="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/go.md"><img src="https://github.com/AdamStelmaszczyk/gtsa/blob/master/cpp/examples/go.gif"/></a></p>
+
 Implemented algorithms
 ---
 
