@@ -163,7 +163,7 @@ struct State {
         }
         double ratio = score / visits;
         if (player != player_to_move) {
-            ratio = (visits - score) / score;
+            ratio = (visits - score) / visits;
         }
         return ratio + UCT_C * sqrt(log(parent_visits) / visits);
     }
