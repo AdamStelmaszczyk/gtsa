@@ -2,7 +2,7 @@
 
 #include "../examples/tic_tac_toe.cpp"
 
-static const int MAX_TEST_SIMULATIONS = 1000;
+static const int MAX_TEST_SIMULATIONS = 5000;
 
 template<class S, class M>
 vector<shared_ptr<Algorithm<S, M>>> get_algorithms() {
@@ -104,7 +104,7 @@ void test_tic_tac_toe_draw() {
                                           "___");
     auto algorithms = get_algorithms<TicTacToeState, TicTacToeMove>();
     assert(algorithms.size() == 2);
-    Tester<TicTacToeState, TicTacToeMove> tester(&state, algorithms, 2);
+    Tester<TicTacToeState, TicTacToeMove> tester(&state, algorithms, 2, 2);
     auto outcome_counts = tester.start();
     assert(outcome_counts.draws == 2);
 }
