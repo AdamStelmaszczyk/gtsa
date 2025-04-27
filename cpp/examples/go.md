@@ -27,7 +27,7 @@ The input is a 5x5 matrix consisting only of `1`, `2` and `_`. Then another line
 
 The cell marked `_` means it contains an empty square. The cell marked `1` means it contains player 1's point. The cell marked `2` means it contains player 2's point.
 
-In the given matrix, top-left is (0, 0) and bottom-right is (6, 6). The x-coordinate increases from top to bottom, and y-coordinate increases from left to right.
+In the given matrix, top-left is (0, 0) and bottom-right is (4, 4). The x-coordinate increases from top to bottom, and y-coordinate increases from left to right.
 
 First input
 ---
